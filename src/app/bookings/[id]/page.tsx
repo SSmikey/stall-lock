@@ -153,7 +153,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 <div className="col-lg-4">
-                    <div className="card-custom p-4 sticky-top" style={{ top: '100px', zIndex: 10 }}>
+                    <div className="card-custom p-4">
                         <div className="text-center mb-4">
                             <h5 className="fw-bold mb-3">สถานะการจอง</h5>
 
