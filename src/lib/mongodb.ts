@@ -11,6 +11,22 @@ const options = {
         strict: true,
         deprecationErrors: true,
     },
+    // Connection Pool Settings
+    maxPoolSize: 10,              // Maximum number of connections
+    minPoolSize: 2,               // Minimum number of connections
+    maxIdleTimeMS: 60000,         // Close connections after 1 minute of idle time
+
+    // Timeout Settings
+    connectTimeoutMS: 10000,      // 10 seconds to establish connection
+    socketTimeoutMS: 45000,       // 45 seconds for socket operations
+    serverSelectionTimeoutMS: 10000, // 10 seconds to select server
+
+    // Retry Settings
+    retryWrites: true,            // Retry write operations
+    retryReads: true,             // Retry read operations
+
+    // Compression
+    compressors: ['snappy', 'zlib'], // Enable compression for data transfer
 };
 
 let client: MongoClient;
