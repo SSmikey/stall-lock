@@ -93,3 +93,6 @@ export async function createIndexes() {
 
     console.log('✅ Indexes created successfully');
 }
+
+// Re-export API utilities for convenience
+export { createApiResponse, createApiError, handleApiError, ErrorCodes } from './api';

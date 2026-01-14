@@ -1,3 +1,8 @@
+// Load environment variables FIRST before any other imports
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
+// Now import other modules
 import { getDb, createIndexes } from '../src/lib/db';
 import bcrypt from 'bcryptjs';
 

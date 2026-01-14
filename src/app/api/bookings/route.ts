@@ -1,4 +1,5 @@
-import { getDb, createApiResponse, createApiError, handleApiError, ErrorCodes } from '@/lib/db';
+import { getDb } from '@/lib/db';
+import { createApiResponse, createApiError, handleApiError, ErrorCodes } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
