@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
                     }
                 );
 
-                if (!stall.value) {
+                if (!stall) {
                     throw {
                         code: ErrorCodes.STALL_NOT_AVAILABLE,
                         message: 'ล็อคนี้ไม่ว่าง',
@@ -129,6 +129,6 @@ async function generateBookingId(db: any, session: any): Promise<string> {
         }
     );
 
-    const number = String(counter.value.seq).padStart(4, '0');
+    const number = String(counter?.seq || 1).padStart(4, '0');
     return `BK-${year}-${number}`;
 }

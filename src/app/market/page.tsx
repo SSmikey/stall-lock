@@ -175,7 +175,7 @@ export default function MarketPage() {
                     </div>
 
                     {/* Responsive Grid - Mobile First */}
-                    <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3">
+                    <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 justify-content-center">
                         {stalls.map((stall, index) => (
                             <div key={stall.stallId} className="col">
                                 <motion.div
@@ -251,7 +251,7 @@ export default function MarketPage() {
                             transition={{ type: 'spring', damping: 25 }}
                             className="modal-dialog modal-dialog-centered modal-dialog-scrollable"
                             onClick={(e) => e.stopPropagation()}
-                            style={{ maxWidth: '500px', margin: '1rem' }}
+                            style={{ maxWidth: '500px', margin: 'auto' }}
                         >
                             <div className="modal-content border-0" style={{
                                 borderRadius: 'var(--radius-xl)',
@@ -327,21 +327,25 @@ export default function MarketPage() {
                                     <div className="mb-4">
                                         <label className="text-muted small fw-semibold d-block mb-2">🎯 สิ่งอำนวยความสะดวก</label>
                                         <div className="d-flex gap-2 flex-wrap">
-                                            {selectedStall.features.map(f => (
-                                                <span
-                                                    key={f}
-                                                    className="badge text-dark p-2 px-3 fw-medium"
-                                                    style={{
-                                                        background: 'white',
-                                                        border: '2px solid var(--gray-200)',
-                                                        borderRadius: 'var(--radius-md)',
-                                                    }}
-                                                >
-                                                    {f === 'ไฟฟ้า' && '⚡ '}
-                                                    {f === 'น้ำประปา' && '💧 '}
-                                                    {f}
-                                                </span>
-                                            ))}
+                                            {selectedStall.features && selectedStall.features.length > 0 ? (
+                                                selectedStall.features.map(f => (
+                                                    <span
+                                                        key={f}
+                                                        className="badge text-dark p-2 px-3 fw-medium"
+                                                        style={{
+                                                            background: 'white',
+                                                            border: '2px solid var(--gray-200)',
+                                                            borderRadius: 'var(--radius-md)',
+                                                        }}
+                                                    >
+                                                        {f === 'ไฟฟ้า' && '⚡ '}
+                                                        {f === 'น้ำประปา' && '💧 '}
+                                                        {f}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-muted small">ไม่มีข้อมูล</span>
+                                            )}
                                         </div>
                                     </div>
 
