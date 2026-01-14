@@ -2,9 +2,8 @@ import { getDb } from '@/lib/db';
 import { createApiResponse, createApiError, handleApiError, ErrorCodes } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import clientPromise from '@/lib/mongodb';
+import cloudinary from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest) {
     try {
@@ -62,20 +61,34 @@ export async function POST(request: NextRequest) {
                     };
                 }
 
-                // 2. Save file
+                // 2. Upload to Cloudinary
                 const bytes = await file.arrayBuffer();
                 const buffer = Buffer.from(bytes);
 
-                const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-                const uploadDir = join(process.cwd(), 'public', 'uploads');
+                const cloudinaryResponse: any = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'stall_slips',
+                            public_id: `slip_${booking.bookingId}_${Date.now()}`,
+                            resource_type: 'auto',
+                        },
+                        (error: any, result: any) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    uploadStream.end(buffer);
+                });
 
-                // Ensure directory exists
-                await mkdir(uploadDir, { recursive: true });
+                if (!cloudinaryResponse || !cloudinaryResponse.secure_url) {
+                    throw {
+                        code: ErrorCodes.INTERNAL_ERROR,
+                        message: 'ไม่สามารถอัพโหลดรูปภาพไปยัง Cloudinary ได้',
+                        status: 500
+                    };
+                }
 
-                const filePath = join(uploadDir, fileName);
-                await writeFile(filePath, buffer);
-
-                const slipUrl = `/uploads/${fileName}`;
+                const slipUrl = cloudinaryResponse.secure_url;
 
                 // 3. Create payment record
                 await db.collection('payments').insertOne(
