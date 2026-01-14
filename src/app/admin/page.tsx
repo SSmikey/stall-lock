@@ -25,10 +25,14 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         fetchBookings();
+        const interval = setInterval(() => {
+            fetchBookings(false); // Background refresh every 10 seconds
+        }, 10000);
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchBookings = async () => {
-        setLoading(true);
+    const fetchBookings = async (showLoading = true) => {
+        if (showLoading) setLoading(true);
         try {
             const res = await fetch('/api/admin/bookings');
             const data: ApiResponse<any[]> = await res.json();
@@ -38,7 +42,7 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error('Failed to fetch admin bookings:', error);
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
     };
 
@@ -193,9 +197,6 @@ export default function AdminDashboard() {
                         }}
                     >
                         🧹 เคลียร์รายการหมดอายุ
-                    </button>
-                    <button className="btn btn-outline-primary" onClick={fetchBookings}>
-                        🔄 รีเฟรชข้อมูล
                     </button>
                 </div>
             </div>
