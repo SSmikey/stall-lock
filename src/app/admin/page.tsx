@@ -163,89 +163,148 @@ export default function AdminDashboard() {
                 </button>
             </div>
 
-            {/* Bookings Table */}
-            <div className="card-custom p-0 overflow-hidden shadow-sm">
-                <div className="table-responsive">
-                    <table className="table table-hover align-middle mb-0">
-                        <thead className="bg-light">
-                            <tr>
-                                <th className="px-4 py-3">รหัสการจอง</th>
-                                <th className="py-3">ผู้จอง</th>
-                                <th className="py-3">ล็อค / โซน</th>
-                                <th className="py-3">ยอดชำระ</th>
-                                <th className="py-3">สถานะ</th>
-                                <th className="py-3 text-center">สลิป</th>
-                                <th className="px-4 py-3 text-end">ดำเนินการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={7} className="text-center py-5">
-                                        <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                                        กำลังโหลดข้อมูล...
-                                    </td>
-                                </tr>
-                            ) : filteredBookings.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="text-center py-5 text-muted">ไม่พบข้อมูลการจอง</td>
-                                </tr>
-                            ) : (
-                                filteredBookings.map((b) => (
-                                    <tr key={b._id}>
-                                        <td className="px-4 fw-bold">{b.bookingId}</td>
-                                        <td>
-                                            <div className="fw-bold">{b.user?.fullName || 'N/A'}</div>
-                                            <div className="small text-muted">{b.user?.phone || b.user?.username}</div>
-                                        </td>
-                                        <td>
-                                            <div className="fw-bold">{b.stall?.stallId || 'N/A'}</div>
-                                            <div className="small text-muted">โซน {b.stall?.zone}</div>
-                                        </td>
-                                        <td className="fw-bold text-success">
-                                            {b.stall?.price.toLocaleString() || 0}฿
-                                        </td>
-                                        <td>{getStatusBadge(b.status)}</td>
-                                        <td className="text-center">
-                                            {b.paymentSlipUrl ? (
-                                                <button
-                                                    className="btn btn-sm btn-outline-info"
-                                                    onClick={() => setSelectedSlip(b.paymentSlipUrl)}
-                                                >
-                                                    👁️ ดูสลิป
-                                                </button>
-                                            ) : '-'}
-                                        </td>
-                                        <td className="px-4 text-end">
-                                            <div className="d-flex gap-2 justify-content-end">
-                                                {b.status === 'AWAITING_APPROVAL' && (
-                                                    <>
-                                                        <button
-                                                            className="btn btn-sm btn-success"
-                                                            onClick={() => handleApprove(b._id)}
-                                                            disabled={actionLoading}
-                                                        >
-                                                            อนุมัติ
-                                                        </button>
-                                                        <button
-                                                            className="btn btn-sm btn-danger"
-                                                            onClick={() => setRejectingBooking(b)}
-                                                            disabled={actionLoading}
-                                                        >
-                                                            ปฏิเสธ
-                                                        </button>
-                                                    </>
-                                                )}
-                                                <button className="btn btn-sm btn-light">รายละเอียด</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+            {/* Bookings Table/Cards */}
+            {loading ? (
+                <div className="row g-3">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="col-12">
+                            <div className="card-custom p-4 border-0 shadow-sm animate-pulse" style={{ background: '#f8f9fa' }}>
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <div className="bg-secondary bg-opacity-10 rounded w-25" style={{ height: '20px' }}></div>
+                                    <div className="bg-secondary bg-opacity-10 rounded w-10" style={{ height: '20px' }}></div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            </div>
+            ) : filteredBookings.length === 0 ? (
+                <div className="card-custom text-center py-5 text-muted">ไม่พบข้อมูลการจอง</div>
+            ) : (
+                <>
+                    {/* Desktop View */}
+                    <div className="card-custom p-0 overflow-hidden shadow-sm d-none d-lg-block">
+                        <div className="table-responsive">
+                            <table className="table table-hover align-middle mb-0">
+                                <thead className="bg-light">
+                                    <tr>
+                                        <th className="px-4 py-3">รหัสการจอง</th>
+                                        <th className="py-3">ผู้จอง</th>
+                                        <th className="py-3">ล็อค / โซน</th>
+                                        <th className="py-3">ยอดชำระ</th>
+                                        <th className="py-3">สถานะ</th>
+                                        <th className="py-3 text-center">สลิป</th>
+                                        <th className="px-4 py-3 text-end">ดำเนินการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredBookings.map((b) => (
+                                        <tr key={b._id}>
+                                            <td className="px-4 fw-bold text-primary">{b.bookingId}</td>
+                                            <td>
+                                                <div className="fw-bold">{b.user?.fullName || 'N/A'}</div>
+                                                <div className="small text-muted">{b.user?.phone || b.user?.username}</div>
+                                            </td>
+                                            <td>
+                                                <div className="fw-bold">{b.stall?.stallId || 'N/A'}</div>
+                                                <div className="small text-muted">โซน {b.stall?.zone}</div>
+                                            </td>
+                                            <td className="fw-bold text-success">
+                                                {b.stall?.price.toLocaleString() || 0}฿
+                                            </td>
+                                            <td>{getStatusBadge(b.status)}</td>
+                                            <td className="text-center">
+                                                {b.paymentSlipUrl ? (
+                                                    <button
+                                                        className="btn btn-sm btn-outline-info"
+                                                        onClick={() => setSelectedSlip(b.paymentSlipUrl)}
+                                                    >
+                                                        👁️ ดูสลิป
+                                                    </button>
+                                                ) : <span className="text-muted small">ยังไม่อัพโหลด</span>}
+                                            </td>
+                                            <td className="px-4 text-end">
+                                                <div className="d-flex gap-2 justify-content-end">
+                                                    {b.status === 'AWAITING_APPROVAL' && (
+                                                        <>
+                                                            <button
+                                                                className="btn btn-sm btn-success"
+                                                                onClick={() => handleApprove(b._id)}
+                                                                disabled={actionLoading}
+                                                            >
+                                                                อนุมัติ
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm btn-outline-danger"
+                                                                onClick={() => setRejectingBooking(b)}
+                                                                disabled={actionLoading}
+                                                            >
+                                                                ปฏิเสธ
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    <button className="btn btn-sm btn-light border">รายละเอียด</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Mobile/Tablet View */}
+                    <div className="d-lg-none">
+                        <div className="row g-3">
+                            {filteredBookings.map((b) => (
+                                <div key={b._id} className="col-12">
+                                    <div className="card-custom p-3 border-0 shadow-sm">
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <span className="fw-bold text-primary">{b.bookingId}</span>
+                                            {getStatusBadge(b.status)}
+                                        </div>
+                                        <div className="row g-2 mb-3">
+                                            <div className="col-6">
+                                                <small className="text-muted d-block">ผู้จอง</small>
+                                                <strong>{b.user?.fullName || 'N/A'}</strong>
+                                            </div>
+                                            <div className="col-6 text-end">
+                                                <small className="text-muted d-block">ล็อค / โซน</small>
+                                                <strong>{b.stall?.stallId} ({b.stall?.zone})</strong>
+                                            </div>
+                                        </div>
+                                        <div className="d-flex justify-content-between align-items-center pt-3 border-top">
+                                            <div className="text-success fw-bold">
+                                                {b.stall?.price.toLocaleString()}฿
+                                            </div>
+                                            <div className="d-flex gap-2">
+                                                {b.paymentSlipUrl && (
+                                                    <button
+                                                        className="btn btn-sm btn-info text-white"
+                                                        onClick={() => setSelectedSlip(b.paymentSlipUrl)}
+                                                    >
+                                                        สลิป
+                                                    </button>
+                                                )}
+                                                {b.status === 'AWAITING_APPROVAL' ? (
+                                                    <button
+                                                        className="btn btn-sm btn-success px-3"
+                                                        onClick={() => handleApprove(b._id)}
+                                                        disabled={actionLoading}
+                                                    >
+                                                        อนุมัติ
+                                                    </button>
+                                                ) : (
+                                                    <button className="btn btn-sm btn-light border px-3">รายละเอียด</button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Slip Viewer Modal */}
             {selectedSlip && (

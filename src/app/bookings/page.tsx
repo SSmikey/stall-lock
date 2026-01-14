@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Booking, Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
+import Link from 'next/link';
 
 interface BookingWithStall extends Booking {
     stall?: Stall;
@@ -26,18 +27,6 @@ export default function BookingsPage() {
             const data: ApiResponse<BookingWithStall[]> = await res.json();
 
             if (data.success && data.data) {
-                // For each booking, fetch stall details (in a real app, use populate/lookup)
-                const bookingsWithStalls = await Promise.all(data.data.map(async (booking) => {
-                    const stallRes = await fetch(`/api/stalls?stallId=${booking.stallId}`);
-                    const stallData = await stallRes.json();
-                    return {
-                        ...booking,
-                        stall: stallData.success ? stallData.data.stalls.find((s: any) => s._id === booking.stallId) : null
-                    };
-                }));
-                // Note: The /api/stalls currently returns all stalls if filter is empty. 
-                // Since I don't have a single stall fetcher yet, I'll just show the booking data.
-                // Actually, let's just use what's returned.
                 setBookings(data.data);
             }
         } catch (error) {
@@ -50,11 +39,10 @@ export default function BookingsPage() {
     const getStatusBadgeClass = (status: string) => {
         switch (status) {
             case 'RESERVED': return 'badge-reserved';
-            case 'AWAITING_PAYMENT': return 'badge-reserved';
-            case 'AWAITING_APPROVAL': return 'badge-booked';
-            case 'CONFIRMED': return 'badge-available'; // Using existing colors or custom
-            case 'EXPIRED':
-            case 'CANCELLED': return 'bg-secondary text-white';
+            case 'AWAITING_APPROVAL': return 'bg-info bg-opacity-10 text-info border border-info border-opacity-25';
+            case 'CONFIRMED': return 'badge-available';
+            case 'CANCELLED':
+            case 'EXPIRED': return 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
             default: return 'bg-light text-dark';
         }
     };
@@ -62,7 +50,6 @@ export default function BookingsPage() {
     const getStatusText = (status: string) => {
         switch (status) {
             case 'RESERVED': return 'รอการชำระเงิน';
-            case 'AWAITING_PAYMENT': return 'รอตรวจสอบสลิป';
             case 'AWAITING_APPROVAL': return 'รอการอนุมัติ';
             case 'CONFIRMED': return 'จองสำเร็จ';
             case 'EXPIRED': return 'หมดอายุ';
@@ -76,26 +63,28 @@ export default function BookingsPage() {
             <h1 className="h2 fw-bold mb-4">การจองของฉัน</h1>
 
             {loading ? (
-                <div className="text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
+                <div className="row g-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="col-md-6 col-lg-4">
+                            <div className="card-custom h-100 animate-pulse bg-light" style={{ height: '200px' }}></div>
+                        </div>
+                    ))}
                 </div>
             ) : bookings.length === 0 ? (
-                <div className="card-custom text-center py-5">
-                    <div className="mb-3 text-muted" style={{ fontSize: '3rem' }}>📋</div>
-                    <h5>คุณยังไม่มีการจองในขณะนี้</h5>
-                    <p className="text-muted">ไปที่หน้าตลาดเพื่อเลือกจองล็อคที่ต้องการ</p>
-                    <a href="/market" className="btn btn-primary-custom mt-2">ไปที่หน้าตลาด</a>
+                <div className="card-custom text-center py-5 shadow-sm border-0">
+                    <div className="mb-4 text-muted" style={{ fontSize: '4rem' }}>📋</div>
+                    <h4 className="fw-bold">คุณยังไม่มีการจองในขณะนี้</h4>
+                    <p className="text-muted mb-4">ค้นหาล็อคที่ถูกใจและเริ่มจองเพื่อเริ่มธุรกิจของคุณ</p>
+                    <Link href="/market" className="btn btn-primary-custom px-5 py-2">ไปที่หน้าตลาด</Link>
                 </div>
             ) : (
                 <div className="row g-4">
                     {bookings.map((booking) => (
                         <div key={booking.bookingId} className="col-md-6 col-lg-4">
                             <motion.div
-                                initial={{ opacity: 0, y: 10 }}
+                                initial={{ opacity: 0, y: 15 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="card-custom h-100"
+                                className="card-custom h-100 shadow-sm border-0"
                             >
                                 <div className="d-flex justify-content-between align-items-start mb-3">
                                     <div>
@@ -108,32 +97,23 @@ export default function BookingsPage() {
                                 </div>
 
                                 <div className="p-3 bg-light rounded-3 mb-3">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <span className="text-muted">รหัสล็อค:</span>
-                                        <span className="fw-bold">{booking.stallId.toString().slice(-6).toUpperCase()}</span>
-                                    </div>
-                                    <div className="d-flex justify-content-between align-items-center mt-1">
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
                                         <span className="text-muted">วันที่จอง:</span>
-                                        <span className="small">{new Date(booking.reservedAt).toLocaleDateString('th-TH')}</span>
+                                        <span className="small fw-bold">{new Date(booking.reservedAt).toLocaleDateString('th-TH')}</span>
+                                    </div>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="text-muted">ชำระภายใน:</span>
+                                        <span className="small text-danger fw-bold">{new Date(booking.expiresAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.</span>
                                     </div>
                                 </div>
 
-                                {booking.status === 'RESERVED' && (
-                                    <div className="alert alert-warning py-2 small mb-3">
-                                        <strong>⚠️ กรุณาชำระเงิน</strong><br />
-                                        ภายใน {new Date(booking.expiresAt).toLocaleTimeString('th-TH')}
-                                    </div>
-                                )}
-
-                                <div className="d-grid gap-2">
-                                    {booking.status === 'RESERVED' && (
-                                        <button className="btn btn-primary-custom w-100">
-                                            อัพโหลดสลิปชำระเงิน
-                                        </button>
-                                    )}
-                                    <button className="btn btn-outline-secondary btn-sm">
-                                        รายละเอียดเพิ่มเติม
-                                    </button>
+                                <div className="d-grid gap-2 mt-4">
+                                    <Link
+                                        href={`/bookings/${booking.bookingId}`}
+                                        className={`btn ${booking.status === 'RESERVED' ? 'btn-primary-custom' : 'btn-outline-primary'}`}
+                                    >
+                                        {booking.status === 'RESERVED' ? 'แจ้งชำระเงิน' : 'ดูรายละเอียด'}
+                                    </Link>
                                 </div>
                             </motion.div>
                         </div>

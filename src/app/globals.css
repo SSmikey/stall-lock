@@ -7,7 +7,7 @@
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-900: #111827;
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -89,4 +89,24 @@ body {
   border-radius: 16px;
   font-size: 12px;
   font-weight: 600;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.hover-bg-light:hover {
+  background-color: #fff1f2 !important;
 }

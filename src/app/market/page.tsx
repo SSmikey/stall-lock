@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
@@ -13,6 +14,7 @@ export default function MarketPage() {
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const router = useRouter();
 
     const zones = ['A', 'B', 'C', 'D'];
 
@@ -66,13 +68,12 @@ export default function MarketPage() {
 
             const data = await res.json();
             if (data.success) {
-                setMessage({ type: 'success', text: 'จองล็อคสำเร็จ! กรุณาชำระเงินภายใน 1 ชั่วโมง' });
-                fetchStalls();
-                // Keep modal open briefly to show success message
+                setMessage({ type: 'success', text: 'จองล็อคสำเร็จ! กำลังนำคุณไปหน้าชำระเงิน...' });
+
+                // Redirect to booking details page after success
                 setTimeout(() => {
-                    setSelectedStall(null);
-                    setMessage(null);
-                }, 2000);
+                    router.push(`/bookings/${data.data.bookingId}`);
+                }, 1500);
             } else {
                 setMessage({ type: 'error', text: data.error?.message || 'เกิดข้อผิดพลาดในการจอง' });
             }
