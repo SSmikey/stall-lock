@@ -21,7 +21,18 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body className={notoSansThai.className}>
-        {children}
+        <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+          <div className="container">
+            <a className="navbar-brand fw-bold text-primary" href="/">MARKET LOCK</a>
+            <div className="d-flex gap-3">
+              <a href="/market" className="nav-link">ตลาด</a>
+              <a href="/bookings" className="nav-link">การจองของฉัน</a>
+            </div>
+          </div>
+        </nav>
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   );
