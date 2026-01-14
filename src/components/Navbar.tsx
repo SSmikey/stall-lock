@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,13 +8,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
+    const [userRole, setUserRole] = useState<'USER' | 'ADMIN' | null>(null);
+
+    useEffect(() => {
+        // Fetch user role from API
+        const fetchUserRole = async () => {
+            try {
+                const response = await fetch('/api/auth/me');
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserRole(data.data.user.role);
+                }
+            } catch (error) {
+                // Ignore error - user might not be logged in
+            }
+        };
+
+        fetchUserRole();
+    }, []);
 
     const navLinks = [
-        { name: 'หน้าแรก', href: '/', icon: '🏠' },
-        { name: 'ตลาด', href: '/market', icon: '🏪' },
-        { name: 'การจองของฉัน', href: '/bookings', icon: '📋' },
-        { name: 'โปรไฟล์', href: '/profile', icon: '👤' },
-    ];
+        { name: 'หน้าแรก', href: '/', icon: '🏠', roles: ['USER', 'ADMIN'] },
+        { name: 'ตลาด', href: '/market', icon: '🏪', roles: ['USER', 'ADMIN'] },
+        { name: 'การจองของฉัน', href: '/bookings', icon: '📋', roles: ['USER', 'ADMIN'] },
+        { name: 'ระบบหลังบ้าน', href: '/admin', icon: '📊', roles: ['ADMIN'] },
+        { name: 'โปรไฟล์', href: '/profile', icon: '👤', roles: ['USER', 'ADMIN'] },
+    ].filter(link => !userRole || link.roles.includes(userRole));
 
     return (
         <>
