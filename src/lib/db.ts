@@ -4,11 +4,9 @@ import { ObjectId } from 'mongodb';
 export interface User {
     _id?: ObjectId;
     username: string;
-    email: string;
-    password: string;
+    phone: string; // ใช้เป็นรหัส login (required และ unique) - USER ใช้เบอร์โทรเป็น "รหัสผ่าน"
+    password?: string; // มีเฉพาะ ADMIN เท่านั้น
     role: 'USER' | 'ADMIN';
-    phone?: string;
-    fullName: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -71,8 +69,8 @@ export async function createIndexes() {
     const db = await getDb();
 
     // Users indexes
-    await db.collection('users').createIndex({ username: 1 }, { unique: true });
-    await db.collection('users').createIndex({ email: 1 }, { unique: true });
+    await db.collection('users').createIndex({ phone: 1 }, { unique: true });
+    await db.collection('users').createIndex({ username: 1 });
 
     // Stalls indexes
     await db.collection('stalls').createIndex({ stallId: 1 }, { unique: true });

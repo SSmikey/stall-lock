@@ -5,24 +5,20 @@ import { z } from 'zod';
 export const RegisterSchema = z.object({
     username: z.string()
         .min(3, 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร')
-        .max(20, 'ชื่อผู้ใช้ต้องไม่เกิน 20 ตัวอักษร')
-        .regex(/^[a-zA-Z0-9_]+$/, 'ชื่อผู้ใช้ต้องเป็นตัวอักษรภาษาอังกฤษ ตัวเลข หรือ _ เท่านั้น'),
-    email: z.string()
-        .email('รูปแบบอีเมลไม่ถูกต้อง'),
-    password: z.string()
-        .min(6, 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร')
-        .max(100, 'รหัสผ่านต้องไม่เกิน 100 ตัวอักษร'),
-    fullName: z.string()
-        .min(2, 'ชื่อ-นามสกุลต้องมีอย่างน้อย 2 ตัวอักษร')
-        .max(100, 'ชื่อ-นามสกุลต้องไม่เกิน 100 ตัวอักษร'),
+        .max(50, 'ชื่อผู้ใช้ต้องไม่เกิน 50 ตัวอักษร'),
     phone: z.string()
-        .regex(/^[0-9]{10}$/, 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก')
-        .optional(),
+        .regex(/^[0-9]{10}$/, 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก'),
 });
 
 export const LoginSchema = z.object({
-    email: z.string()
-        .email('รูปแบบอีเมลไม่ถูกต้อง'),
+    phone: z.string()
+        .regex(/^[0-9]{10}$/, 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก'),
+});
+
+// Admin login uses username instead of phone
+export const AdminLoginSchema = z.object({
+    username: z.string()
+        .min(1, 'กรุณากรอกชื่อผู้ใช้'),
     password: z.string()
         .min(1, 'กรุณากรอกรหัสผ่าน'),
 });
@@ -72,6 +68,7 @@ export const BookingQuerySchema = z.object({
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
+export type AdminLoginInput = z.infer<typeof AdminLoginSchema>;
 export type CreateBookingInput = z.infer<typeof CreateBookingSchema>;
 export type ApproveBookingInput = z.infer<typeof ApproveBookingSchema>;
 export type RejectBookingInput = z.infer<typeof RejectBookingSchema>;

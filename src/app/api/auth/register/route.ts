@@ -13,42 +13,24 @@ export async function POST(request: NextRequest) {
 
         const db = await getDb();
 
-        // Check if username already exists
-        const existingUsername = await db.collection('users').findOne({
-            username: data.username,
+        // Check if phone already exists
+        const existingPhone = await db.collection('users').findOne({
+            phone: data.phone,
         });
 
-        if (existingUsername) {
+        if (existingPhone) {
             return Response.json(
-                createApiError(ErrorCodes.INVALID_INPUT, 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว'),
                 { status: 409 }
             );
         }
 
-        // Check if email already exists
-        const existingEmail = await db.collection('users').findOne({
-            email: data.email,
-        });
-
-        if (existingEmail) {
-            return Response.json(
-                createApiError(ErrorCodes.INVALID_INPUT, 'อีเมลนี้ถูกใช้งานแล้ว'),
-                { status: 409 }
-            );
-        }
-
-        // Hash password
-        const hashedPassword = await hashPassword(data.password);
-
-        // Create user
+        // Create user (no password for USER - phone IS the authentication)
         const now = new Date();
         const result = await db.collection('users').insertOne({
             username: data.username,
-            email: data.email,
-            password: hashedPassword,
-            fullName: data.fullName,
-            phone: data.phone || null,
-            role: 'USER', // Default role
+            phone: data.phone,
+            role: 'USER',
             createdAt: now,
             updatedAt: now,
         });
@@ -58,7 +40,7 @@ export async function POST(request: NextRequest) {
         // Generate JWT token
         const token = generateToken({
             userId,
-            email: data.email,
+            email: data.phone,
             role: 'USER',
         });
 
@@ -69,8 +51,7 @@ export async function POST(request: NextRequest) {
                 user: {
                     id: userId,
                     username: data.username,
-                    email: data.email,
-                    fullName: data.fullName,
+                    phone: data.phone,
                     role: 'USER',
                 },
             }),
