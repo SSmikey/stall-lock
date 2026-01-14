@@ -84,9 +84,15 @@ export async function createIndexes() {
     await db.collection('bookings').createIndex({ status: 1 });
     await db.collection('bookings').createIndex({ stallId: 1, status: 1 });
     await db.collection('bookings').createIndex({ userId: 1, status: 1 });
+    await db.collection('bookings').createIndex({ status: 1, expiresAt: 1 }); // For cleanup query
+    await db.collection('bookings').createIndex({ status: 1, createdAt: -1 }); // For admin dashboard sort
 
     // Payments indexes
     await db.collection('payments').createIndex({ bookingId: 1 }, { unique: true });
+    await db.collection('payments').createIndex({ status: 1 });
+
+    // Counters collection (for atomic ID generation)
+    await db.collection('counters').createIndex({ _id: 1, year: 1 }, { unique: true });
 
     console.log('✅ Indexes created successfully');
 }

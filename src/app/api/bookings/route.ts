@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
                     };
                 }
 
-                // 2. Generate booking ID
-                const bookingId = await generateBookingId(db);
+                // 2. Generate booking ID (inside transaction to prevent race condition)
+                const bookingId = await generateBookingId(db, session);
                 const now = new Date();
                 const expiresAt = new Date(now.getTime() + 3600000); // 1 hour
 
@@ -115,9 +115,20 @@ export async function GET(request: NextRequest) {
     }
 }
 
-async function generateBookingId(db: any): Promise<string> {
+async function generateBookingId(db: any, session: any): Promise<string> {
     const year = new Date().getFullYear();
-    const count = await db.collection('bookings').countDocuments();
-    const number = String(count + 1).padStart(4, '0');
+
+    // Use atomic counter with findOneAndUpdate to prevent race condition
+    const counter = await db.collection('counters').findOneAndUpdate(
+        { _id: 'bookingId', year },
+        { $inc: { seq: 1 } },
+        {
+            upsert: true,
+            returnDocument: 'after',
+            session
+        }
+    );
+
+    const number = String(counter.value.seq).padStart(4, '0');
     return `BK-${year}-${number}`;
 }
