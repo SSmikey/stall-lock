@@ -77,8 +77,16 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                     <div className="card-custom mb-4 p-4">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h2 className="h4 fw-bold mb-0">รายละเอียดการจอง</h2>
-                            <span className={`badge rounded-pill px-3 py-2 badge-reserved`}>
-                                {booking.status === 'RESERVED' ? 'รอชำระเงิน' : booking.status}
+                            <span className={`badge rounded-pill px-3 py-2 ${booking.status === 'RESERVED' ? 'badge-reserved' :
+                                    booking.status === 'AWAITING_APPROVAL' ? 'bg-info bg-opacity-10 text-info border border-info border-opacity-25' :
+                                        booking.status === 'CONFIRMED' ? 'badge-available' :
+                                            'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'
+                                }`}>
+                                {booking.status === 'RESERVED' ? 'รอชำระเงิน' :
+                                    booking.status === 'AWAITING_APPROVAL' ? 'รอการตรวจสอบ' :
+                                        booking.status === 'CONFIRMED' ? 'จองสำเร็จ' :
+                                            booking.status === 'EXPIRED' ? 'หมดอายุ' :
+                                                booking.status === 'CANCELLED' ? 'ถูกยกเลิก' : booking.status}
                             </span>
                         </div>
 

@@ -81,12 +81,9 @@ export async function createIndexes() {
 
     // Bookings indexes
     await db.collection('bookings').createIndex({ bookingId: 1 }, { unique: true });
+    await db.collection('bookings').createIndex({ status: 1 });
     await db.collection('bookings').createIndex({ stallId: 1, status: 1 });
     await db.collection('bookings').createIndex({ userId: 1, status: 1 });
-    await db.collection('bookings').createIndex(
-        { expiresAt: 1 },
-        { expireAfterSeconds: 0 }
-    );
 
     // Payments indexes
     await db.collection('payments').createIndex({ bookingId: 1 }, { unique: true });

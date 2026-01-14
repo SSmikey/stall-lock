@@ -104,7 +104,8 @@ export default function AdminDashboard() {
     const stats = {
         total: bookings.length,
         pending: bookings.filter(b => b.status === 'AWAITING_APPROVAL').length,
-        confirmed: bookings.filter(b => b.status === 'CONFIRMED').length
+        confirmed: bookings.filter(b => b.status === 'CONFIRMED').length,
+        expired: bookings.filter(b => b.status === 'EXPIRED' || b.status === 'CANCELLED').length
     };
 
     return (
@@ -114,29 +115,55 @@ export default function AdminDashboard() {
                     <h1 className="fw-bold mb-1">ระบบหลังบ้าน (Admin)</h1>
                     <p className="text-muted mb-0">จัดการการจองและตรวจสอบการชำระเงิน</p>
                 </div>
-                <button className="btn btn-outline-primary" onClick={fetchBookings}>
-                    🔄 รีเฟรชข้อมูล
-                </button>
+                <div className="d-flex gap-2">
+                    <button
+                        className="btn btn-outline-warning"
+                        onClick={async () => {
+                            if (!confirm('ยืนยันการเคลียร์รายการการจองที่หมดอายุ?')) return;
+                            try {
+                                const res = await fetch('/api/admin/system/cleanup', { method: 'POST' });
+                                const data = await res.json();
+                                if (data.success) {
+                                    alert(`ทำความสะอาดเรียบร้อย: ${data.data.count} รายการ`);
+                                    fetchBookings();
+                                }
+                            } catch (e) {
+                                alert('เกิดข้อผิดพลาดในการ Cleanup');
+                            }
+                        }}
+                    >
+                        🧹 เคลียร์รายการหมดอายุ
+                    </button>
+                    <button className="btn btn-outline-primary" onClick={fetchBookings}>
+                        🔄 รีเฟรชข้อมูล
+                    </button>
+                </div>
             </div>
 
             {/* Stats Overview */}
             <div className="row g-4 mb-5">
-                <div className="col-md-4">
+                <div className="col-lg-3 col-md-6">
                     <div className="card-custom text-center p-4">
                         <div className="h3 fw-bold mb-1">{stats.total}</div>
                         <div className="text-muted small uppercase">การจองทั้งหมด</div>
                     </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-lg-3 col-md-6">
                     <div className="card-custom text-center p-4 border-start border-4 border-info">
                         <div className="h3 fw-bold text-info mb-1">{stats.pending}</div>
                         <div className="text-muted small uppercase">รอตรวจสอบสลิป</div>
                     </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-lg-3 col-md-6">
                     <div className="card-custom text-center p-4 border-start border-4 border-success">
                         <div className="h3 fw-bold text-success mb-1">{stats.confirmed}</div>
                         <div className="text-muted small uppercase">จองสำเร็จแล้ว</div>
+                    </div>
+                </div>
+                <div className="col-lg-3 col-md-6">
+                    <div className="card-custom text-center p-4 border-start border-4 border-secondary">
+                        <div className="h3 fw-bold text-secondary mb-1">{stats.expired}</div>
+                        <div className="text-muted small uppercase">รายการที่เสียสิทธิ์</div>
                     </div>
                 </div>
             </div>
