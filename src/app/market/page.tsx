@@ -229,7 +229,7 @@ export default function MarketPage() {
                                     <div className="mt-auto pt-3 border-top d-flex flex-column gap-2">
                                         <div className="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <div className="small text-muted mb-0">ราคา/เดือน</div>
+                                                <div className="small text-muted mb-0">ราคา/วัน</div>
                                                 <div className="fw-bold text-success fs-6">
                                                     {stall.price.toLocaleString()}฿
                                                 </div>
@@ -381,7 +381,7 @@ export default function MarketPage() {
                                         border: '2px solid rgba(99, 102, 241, 0.2)',
                                     }}>
                                         <div className="text-center text-md-start">
-                                            <div className="text-muted small mb-1">💰 ราคาเช่ารายเดือน</div>
+                                            <div className="text-muted small mb-1">💰 ราคาเช่ารายวัน</div>
                                             <div className="h3 mb-0 fw-bold text-gradient">{selectedStall.price.toLocaleString()}฿</div>
                                         </div>
                                         <button
