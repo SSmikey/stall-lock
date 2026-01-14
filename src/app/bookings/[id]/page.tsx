@@ -210,10 +210,16 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                             {(booking.status === 'EXPIRED' || booking.status === 'CANCELLED') && (
                                 <div className="py-4 text-center">
                                     <div className="display-4 text-danger mb-3">❌</div>
-                                    <span className="badge rounded-pill px-4 py-3 h5 mb-0 bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 w-100">
+                                    <span className="badge rounded-pill px-4 py-3 h5 mb-0 bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 w-100 mb-3">
                                         {booking.status === 'EXPIRED' ? 'หมดเวลาการจอง' : 'การจองถูกยกเลิก'}
                                     </span>
-                                    <p className="text-muted small mt-3">ขออภัย คุณไม่สามารถดำเนินการต่อสำหรับรายการนี้ได้</p>
+                                    {(booking as any).rejectedReason && (
+                                        <div className="p-3 bg-danger bg-opacity-5 border border-danger border-opacity-20 rounded-4 text-start mb-3">
+                                            <div className="small fw-bold text-danger mb-1">เหตุผล:</div>
+                                            <div className="small text-muted">{(booking as any).rejectedReason}</div>
+                                        </div>
+                                    )}
+                                    <p className="text-muted small">ขออภัย คุณไม่สามารถดำเนินการต่อสำหรับรายการนี้ได้</p>
                                 </div>
                             )}
                         </div>
