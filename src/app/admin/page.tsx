@@ -12,6 +12,16 @@ export default function AdminDashboard() {
     const [rejectReason, setRejectReason] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
     const [filterStatus, setFilterStatus] = useState('ALL');
+    const [showCreateStallModal, setShowCreateStallModal] = useState(false);
+    const [stallFormData, setStallFormData] = useState({
+        zone: '',
+        size: '',
+        price: '',
+        description: '',
+        quantity: '1',
+        startNumber: '1',
+    });
+    const [stallFormError, setStallFormError] = useState('');
 
     useEffect(() => {
         fetchBookings();
@@ -85,6 +95,50 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleCreateStall = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setStallFormError('');
+        setActionLoading(true);
+
+        try {
+            const response = await fetch('/api/admin/stalls/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    zone: stallFormData.zone,
+                    size: stallFormData.size,
+                    price: parseFloat(stallFormData.price),
+                    description: stallFormData.description || undefined,
+                    quantity: parseInt(stallFormData.quantity),
+                    startNumber: parseInt(stallFormData.startNumber),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setStallFormError(data.error?.message || 'ไม่สามารถเพิ่มแผงตลาดได้');
+                return;
+            }
+
+            alert(`เพิ่มแผงตลาดสำเร็จ ${data.data.count} แผง!`);
+
+            setShowCreateStallModal(false);
+            setStallFormData({
+                zone: '',
+                size: '',
+                price: '',
+                description: '',
+                quantity: '1',
+                startNumber: '1',
+            });
+        } catch (err) {
+            setStallFormError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'RESERVED': return <span className="badge bg-warning text-dark">รอชำระเงิน</span>;
@@ -115,7 +169,13 @@ export default function AdminDashboard() {
                     <h1 className="fw-bold mb-1">ระบบหลังบ้าน (Admin)</h1>
                     <p className="text-muted mb-0">จัดการการจองและตรวจสอบการชำระเงิน</p>
                 </div>
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => setShowCreateStallModal(true)}
+                    >
+                        ➕ เพิ่มแผงตลาด
+                    </button>
                     <button
                         className="btn btn-outline-warning"
                         onClick={async () => {
@@ -382,6 +442,177 @@ export default function AdminDashboard() {
                                             {actionLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการปฏิเสธ'}
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Create Stall Modal */}
+            <AnimatePresence>
+                {showCreateStallModal && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="modal-dialog modal-dialog-centered modal-lg"
+                        >
+                            <div className="modal-content border-0 shadow">
+                                <div className="modal-header border-0">
+                                    <h5 className="modal-title fw-bold">➕ เพิ่มแผงตลาด</h5>
+                                    <button type="button" className="btn-close" onClick={() => setShowCreateStallModal(false)}></button>
+                                </div>
+                                <div className="modal-body p-4">
+                                    {stallFormError && (
+                                        <div className="alert alert-danger mb-3" role="alert">
+                                            {stallFormError}
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleCreateStall}>
+                                        <div className="row g-3">
+                                            <div className="col-md-6">
+                                                <label htmlFor="quantity" className="form-label fw-semibold small">
+                                                    จำนวนแผง <span className="text-danger">*</span>
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    id="quantity"
+                                                    placeholder="เช่น 10"
+                                                    min="1"
+                                                    max="100"
+                                                    value={stallFormData.quantity}
+                                                    onChange={(e) =>
+                                                        setStallFormData({ ...stallFormData, quantity: e.target.value })
+                                                    }
+                                                    required
+                                                    disabled={actionLoading}
+                                                />
+                                            </div>
+
+                                            <div className="col-md-6">
+                                                <label htmlFor="startNumber" className="form-label fw-semibold small">
+                                                    เลขเริ่มต้น <span className="text-danger">*</span>
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    id="startNumber"
+                                                    placeholder="เช่น 1"
+                                                    min="1"
+                                                    value={stallFormData.startNumber}
+                                                    onChange={(e) =>
+                                                        setStallFormData({ ...stallFormData, startNumber: e.target.value })
+                                                    }
+                                                    required
+                                                    disabled={actionLoading}
+                                                />
+                                                <div className="form-text">
+                                                    {stallFormData.zone && `จะสร้างรหัสแผงเป็น ${stallFormData.zone}-${String(stallFormData.startNumber).padStart(3, '0')} ถึง ${stallFormData.zone}-${String(parseInt(stallFormData.startNumber || '1') + parseInt(stallFormData.quantity || '1') - 1).padStart(3, '0')}`}
+                                                </div>
+                                            </div>
+
+                                            <div className="col-md-6">
+                                                <label htmlFor="zone" className="form-label fw-semibold small">
+                                                    โซน <span className="text-danger">*</span>
+                                                </label>
+                                                <select
+                                                    className="form-select"
+                                                    id="zone"
+                                                    value={stallFormData.zone}
+                                                    onChange={(e) =>
+                                                        setStallFormData({ ...stallFormData, zone: e.target.value })
+                                                    }
+                                                    required
+                                                    disabled={actionLoading}
+                                                >
+                                                    <option value="">เลือกโซน</option>
+                                                    <option value="A">โซน A</option>
+                                                    <option value="B">โซน B</option>
+                                                    <option value="C">โซน C</option>
+                                                    <option value="D">โซน D</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="col-md-6">
+                                                <label htmlFor="size" className="form-label fw-semibold small">
+                                                    ขนาด <span className="text-danger">*</span>
+                                                </label>
+                                                <select
+                                                    className="form-select"
+                                                    id="size"
+                                                    value={stallFormData.size}
+                                                    onChange={(e) =>
+                                                        setStallFormData({ ...stallFormData, size: e.target.value })
+                                                    }
+                                                    required
+                                                    disabled={actionLoading}
+                                                >
+                                                    <option value="">เลือกขนาด</option>
+                                                    <option value="SMALL">เล็ก (2x2 เมตร)</option>
+                                                    <option value="MEDIUM">กลาง (3x3 เมตร)</option>
+                                                    <option value="LARGE">ใหญ่ (4x4 เมตร)</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="col-md-6">
+                                                <label htmlFor="price" className="form-label fw-semibold small">
+                                                    ราคา (บาท/วัน) <span className="text-danger">*</span>
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    id="price"
+                                                    placeholder="เช่น 500"
+                                                    min="0"
+                                                    step="1"
+                                                    value={stallFormData.price}
+                                                    onChange={(e) =>
+                                                        setStallFormData({ ...stallFormData, price: e.target.value })
+                                                    }
+                                                    required
+                                                    disabled={actionLoading}
+                                                />
+                                            </div>
+
+                                            <div className="col-12">
+                                                <label htmlFor="description" className="form-label fw-semibold small">
+                                                    รายละเอียดเพิ่มเติม
+                                                </label>
+                                                <textarea
+                                                    className="form-control"
+                                                    id="description"
+                                                    rows={3}
+                                                    placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับแผง (ถ้ามี)"
+                                                    value={stallFormData.description}
+                                                    onChange={(e) =>
+                                                        setStallFormData({ ...stallFormData, description: e.target.value })
+                                                    }
+                                                    disabled={actionLoading}
+                                                ></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div className="d-grid mt-4">
+                                            <button
+                                                type="submit"
+                                                className="btn btn-primary py-2"
+                                                disabled={actionLoading}
+                                            >
+                                                {actionLoading ? (
+                                                    <>
+                                                        <span className="spinner-border spinner-border-sm me-2" />
+                                                        กำลังเพิ่มแผงตลาด...
+                                                    </>
+                                                ) : (
+                                                    '✓ เพิ่มแผงตลาด'
+                                                )}
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </motion.div>
