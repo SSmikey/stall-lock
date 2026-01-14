@@ -78,9 +78,9 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h2 className="h4 fw-bold mb-0">รายละเอียดการจอง</h2>
                             <span className={`badge rounded-pill px-3 py-2 ${booking.status === 'RESERVED' ? 'badge-reserved' :
-                                    booking.status === 'AWAITING_APPROVAL' ? 'bg-info bg-opacity-10 text-info border border-info border-opacity-25' :
-                                        booking.status === 'CONFIRMED' ? 'badge-available' :
-                                            'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'
+                                booking.status === 'AWAITING_APPROVAL' ? 'bg-info bg-opacity-10 text-info border border-info border-opacity-25' :
+                                    booking.status === 'CONFIRMED' ? 'badge-available' :
+                                        'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'
                                 }`}>
                                 {booking.status === 'RESERVED' ? 'รอชำระเงิน' :
                                     booking.status === 'AWAITING_APPROVAL' ? 'รอการตรวจสอบ' :
@@ -95,7 +95,12 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                                 <div className="p-3 bg-light rounded-3">
                                     <div className="text-muted small">ล็อคที่เลือก</div>
                                     <div className="h4 fw-bold text-primary mb-1">{stall?.stallId || '---'}</div>
-                                    <div className="text-muted">{stall?.name || '---'}</div>
+                                    <div className="text-muted">{stall?.name || `แผงล็อค ${stall?.stallId}`}</div>
+                                    {stall?.description && (
+                                        <div className="mt-2 small text-muted border-top pt-2">
+                                            <strong>📝 รายละเอียด:</strong> {stall.description}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="col-md-6">

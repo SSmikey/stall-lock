@@ -203,10 +203,25 @@ export default function MarketPage() {
                                                 {getStatusText(stall.status)}
                                             </span>
                                         </div>
-                                        <h6 className="mb-1 fw-semibold">{stall.name}</h6>
+                                        <h6 className="mb-1 fw-semibold text-truncate">{stall.name || `แผงล็อค ${stall.stallId}`}</h6>
+                                        {stall.description && (
+                                            <div className="bg-light p-2 rounded-2 mb-2 border-start border-2 border-primary-light" style={{ minHeight: '44px' }}>
+                                                <p className="small text-muted mb-0" style={{
+                                                    fontSize: '0.7rem',
+                                                    lineHeight: '1.4',
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: 'vertical',
+                                                    overflow: 'hidden'
+                                                }}>
+                                                    <span className="fw-bold text-primary pe-1">📝</span>
+                                                    {stall.description}
+                                                </p>
+                                            </div>
+                                        )}
                                         <p className="small text-muted mb-0">
-                                            <span className="d-inline-block me-2">📍 {stall.zone}</span>
-                                            <span className="d-inline-block">#{stall.row}</span>
+                                            <span className="d-inline-block me-2">📍 โซน {stall.zone}</span>
+                                            {stall.row && <span className="d-inline-block">แถว {stall.row}</span>}
                                         </p>
                                     </div>
 
@@ -296,7 +311,17 @@ export default function MarketPage() {
                                         borderRadius: 'var(--radius-lg)',
                                     }}>
                                         <div className="display-6 fw-bold text-gradient mb-1">{selectedStall.stallId}</div>
-                                        <div className="text-muted fw-medium">{selectedStall.name}</div>
+                                        <div className="text-muted fw-medium mb-2">{selectedStall.name}</div>
+                                        {selectedStall.description && (
+                                            <div className="px-3">
+                                                <div className="p-3 bg-white bg-opacity-50 rounded-3 border-start border-3 border-primary shadow-sm">
+                                                    <div className="small fw-bold text-primary mb-1">📝 รายละเอียดเพิ่มเติม</div>
+                                                    <p className="small text-muted mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                                                        {selectedStall.description}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Info Grid */}
