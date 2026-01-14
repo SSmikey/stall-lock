@@ -22,6 +22,7 @@ export default function AdminDashboard() {
         startNumber: '1',
     });
     const [stallFormError, setStallFormError] = useState('');
+    const [viewingBooking, setViewingBooking] = useState<any | null>(null);
 
     useEffect(() => {
         fetchBookings();
@@ -88,6 +89,28 @@ export default function AdminDashboard() {
                 alert('ปฏิเสธการจองเรียบร้อยแล้ว');
                 setRejectingBooking(null);
                 setRejectReason('');
+                fetchBookings();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleDelete = async (bookingId: string) => {
+        if (!confirm('ยืนยันการลบรายการจองนี้? ข้อมูลทั้งหมดรวมถึงหลักฐานการชำระเงินจะถูกลบออก และสถานะล็อคจะกลับเป็น "ว่าง"')) return;
+
+        setActionLoading(true);
+        try {
+            const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('ลบรายการเรียบร้อยแล้ว');
                 fetchBookings();
             } else {
                 alert(data.error?.message || 'เกิดข้อผิดพลาด');
@@ -330,7 +353,19 @@ export default function AdminDashboard() {
                                                             </button>
                                                         </>
                                                     )}
-                                                    <button className="btn btn-sm btn-light border">รายละเอียด</button>
+                                                    <button
+                                                        className="btn btn-sm btn-light border"
+                                                        onClick={() => setViewingBooking(b)}
+                                                    >
+                                                        รายละเอียด
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-danger"
+                                                        onClick={() => handleDelete(b._id)}
+                                                        disabled={actionLoading}
+                                                    >
+                                                        ลบ
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -382,7 +417,21 @@ export default function AdminDashboard() {
                                                         อนุมัติ
                                                     </button>
                                                 ) : (
-                                                    <button className="btn btn-sm btn-light border px-3">รายละเอียด</button>
+                                                    <div className="d-flex gap-2">
+                                                        <button
+                                                            className="btn btn-sm btn-light border px-2"
+                                                            onClick={() => setViewingBooking(b)}
+                                                        >
+                                                            รายละเอียด
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-danger px-2"
+                                                            onClick={() => handleDelete(b._id)}
+                                                            disabled={actionLoading}
+                                                        >
+                                                            ลบ
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -442,6 +491,134 @@ export default function AdminDashboard() {
                                         >
                                             {actionLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการปฏิเสธ'}
                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Booking Detail Modal */}
+            <AnimatePresence>
+                {viewingBooking && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1060 }}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="modal-dialog modal-dialog-centered modal-lg"
+                        >
+                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div className="modal-header border-0 bg-primary text-white p-4">
+                                    <h5 className="modal-title fw-bold">รายละเอียดการจอง {viewingBooking.bookingId}</h5>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setViewingBooking(null)}></button>
+                                </div>
+                                <div className="modal-body p-0">
+                                    <div className="row g-0">
+                                        <div className="col-md-7 p-4">
+                                            <div className="mb-4">
+                                                <h6 className="text-muted small fw-bold mb-3">👤 ข้อมูลผู้เช่า</h6>
+                                                <div className="p-3 bg-light rounded-3">
+                                                    <div className="mb-2"><strong>ชื่อ-นามสกุล:</strong> {viewingBooking.user?.fullName || 'N/A'}</div>
+                                                    <div className="mb-2"><strong>เบอร์โทรศัพท์:</strong> {viewingBooking.user?.phone || 'N/A'}</div>
+                                                    <div><strong>Username:</strong> {viewingBooking.user?.username || 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                            <div className="mb-4">
+                                                <h6 className="text-muted small fw-bold mb-3">🏪 ข้อมูลล็อค</h6>
+                                                <div className="p-3 bg-light rounded-3">
+                                                    <div className="mb-2"><strong>รหัสล็อค:</strong> <span className="text-primary fw-bold">{viewingBooking.stall?.stallId}</span></div>
+                                                    <div className="mb-2"><strong>โซน:</strong> {viewingBooking.stall?.zone}</div>
+                                                    <div className="mb-2"><strong>ขนาด:</strong> {viewingBooking.stall?.size} ตร.ม.</div>
+                                                    <div><strong>ชื่อแผง:</strong> {viewingBooking.stall?.name}</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 className="text-muted small fw-bold mb-3">🕒 สถานะและเวลา</h6>
+                                                <div className="p-3 bg-light rounded-3">
+                                                    <div className="mb-2"><strong>สถานะปัจจุบัน:</strong> {getStatusBadge(viewingBooking.status)}</div>
+                                                    <div className="mb-2"><strong>วันที่จอง:</strong> {new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}</div>
+                                                    {viewingBooking.paymentUploadedAt && (
+                                                        <div className="mb-2"><strong>วันที่โอนเงิน:</strong> {new Date(viewingBooking.paymentUploadedAt).toLocaleString('th-TH')}</div>
+                                                    )}
+                                                    {viewingBooking.rejectedReason && (
+                                                        <div className="text-danger mt-2 p-2 border border-danger rounded">
+                                                            <strong>เหตุผลที่ปฏิเสธ:</strong> {viewingBooking.rejectedReason}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-5 bg-light p-4 border-start">
+                                            <h6 className="text-muted small fw-bold mb-3">💰 หลักฐานการชำระเงิน</h6>
+                                            {viewingBooking.paymentSlipUrl ? (
+                                                <div className="text-center">
+                                                    <img
+                                                        src={viewingBooking.paymentSlipUrl}
+                                                        className="img-fluid rounded shadow-sm mb-3"
+                                                        style={{ maxHeight: '300px', cursor: 'pointer' }}
+                                                        alt="Slip"
+                                                        onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
+                                                    />
+                                                    <div className="d-grid">
+                                                        <button
+                                                            className="btn btn-outline-primary btn-sm"
+                                                            onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
+                                                        >
+                                                            🔍 ขยายรูปสลิป
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-5 text-muted">
+                                                    <div className="h1">💳</div>
+                                                    <p>ยังไม่มีการอัพโหลดสลิป</p>
+                                                </div>
+                                            )}
+
+                                            <div className="mt-4 pt-4 border-top">
+                                                <div className="d-flex justify-content-between h5 fw-bold text-success mb-3">
+                                                    <span>ยอดรวม:</span>
+                                                    <span>{viewingBooking.stall?.price?.toLocaleString()}฿</span>
+                                                </div>
+
+                                                {viewingBooking.status === 'AWAITING_APPROVAL' ? (
+                                                    <div className="d-grid gap-2">
+                                                        <button
+                                                            className="btn btn-success py-2"
+                                                            onClick={() => {
+                                                                handleApprove(viewingBooking._id);
+                                                                setViewingBooking(null);
+                                                            }}
+                                                        >
+                                                            อนุมัติทันที
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-outline-danger py-2"
+                                                            onClick={() => {
+                                                                setRejectingBooking(viewingBooking);
+                                                                setViewingBooking(null);
+                                                            }}
+                                                        >
+                                                            ปฏิเสธ
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="d-grid">
+                                                        <button
+                                                            className="btn btn-danger py-2"
+                                                            onClick={() => {
+                                                                handleDelete(viewingBooking._id);
+                                                                setViewingBooking(null);
+                                                            }}
+                                                        >
+                                                            ลบรายการนี้
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
