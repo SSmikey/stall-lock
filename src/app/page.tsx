@@ -1,66 +1,51 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-vh-100 d-flex flex-column">
+      {/* Hero Section */}
+      <div className="container py-5">
+        <div className="text-center py-5">
+          <h1 className="display-4 fw-bold mb-3">ระบบจองล็อคตลาด</h1>
+          <p className="lead text-muted mb-4">
+            จองล็อคขายของในตลาดได้ง่ายๆ ผ่านระบบออนไลน์
           </p>
+
+          <div className="d-flex gap-3 justify-content-center flex-wrap">
+            <Link href="/market" className="btn btn-primary-custom btn-lg">
+              เริ่มจองล็อค
+            </Link>
+            <Link href="/bookings" className="btn btn-outline-primary btn-lg">
+              ดูการจองของฉัน
+            </Link>
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Stats */}
+        <div className="row mt-5">
+          <div className="col-md-4 mb-3">
+            <div className="card-custom text-center">
+              <h3 className="text-primary mb-2">128</h3>
+              <p className="text-muted mb-0">ล็อคว่าง</p>
+            </div>
+          </div>
+          <div className="col-md-4 mb-3">
+            <div className="card-custom text-center">
+              <h3 className="text-warning mb-2">45</h3>
+              <p className="text-muted mb-0">รอชำระเงิน</p>
+            </div>
+          </div>
+          <div className="col-md-4 mb-3">
+            <div className="card-custom text-center">
+              <h3 className="text-success mb-2">327</h3>
+              <p className="text-muted mb-0">จองสำเร็จ</p>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
