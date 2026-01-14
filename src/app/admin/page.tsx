@@ -1,0 +1,307 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ApiResponse } from '@/lib/api';
+
+export default function AdminDashboard() {
+    const [bookings, setBookings] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedSlip, setSelectedSlip] = useState<string | null>(null);
+    const [rejectingBooking, setRejectingBooking] = useState<any | null>(null);
+    const [rejectReason, setRejectReason] = useState('');
+    const [actionLoading, setActionLoading] = useState(false);
+    const [filterStatus, setFilterStatus] = useState('ALL');
+
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    const fetchBookings = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/bookings');
+            const data: ApiResponse<any[]> = await res.json();
+            if (data.success && data.data) {
+                setBookings(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch admin bookings:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleApprove = async (bookingId: string) => {
+        if (!confirm('ยืนยันการอนุมัติการจองนี้?')) return;
+
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookingId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('อนุมัติเรียบร้อยแล้ว');
+                fetchBookings();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleReject = async () => {
+        if (!rejectingBooking || !rejectReason) return;
+
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/reject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId: rejectingBooking._id,
+                    reason: rejectReason
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('ปฏิเสธการจองเรียบร้อยแล้ว');
+                setRejectingBooking(null);
+                setRejectReason('');
+                fetchBookings();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'RESERVED': return <span className="badge bg-warning text-dark">รอชำระเงิน</span>;
+            case 'AWAITING_APPROVAL': return <span className="badge bg-info text-dark">รอตรวจสอบ</span>;
+            case 'CONFIRMED': return <span className="badge bg-success">จองสำเร็จ</span>;
+            case 'CANCELLED': return <span className="badge bg-danger">ยกเลิก/ปฏิเสธ</span>;
+            case 'EXPIRED': return <span className="badge bg-secondary">หมดอายุ</span>;
+            default: return <span className="badge bg-light text-dark">{status}</span>;
+        }
+    };
+
+    const filteredBookings = filterStatus === 'ALL'
+        ? bookings
+        : bookings.filter(b => b.status === filterStatus);
+
+    // Stats calculation
+    const stats = {
+        total: bookings.length,
+        pending: bookings.filter(b => b.status === 'AWAITING_APPROVAL').length,
+        confirmed: bookings.filter(b => b.status === 'CONFIRMED').length
+    };
+
+    return (
+        <div className="container py-5">
+            <div className="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <h1 className="fw-bold mb-1">ระบบหลังบ้าน (Admin)</h1>
+                    <p className="text-muted mb-0">จัดการการจองและตรวจสอบการชำระเงิน</p>
+                </div>
+                <button className="btn btn-outline-primary" onClick={fetchBookings}>
+                    🔄 รีเฟรชข้อมูล
+                </button>
+            </div>
+
+            {/* Stats Overview */}
+            <div className="row g-4 mb-5">
+                <div className="col-md-4">
+                    <div className="card-custom text-center p-4">
+                        <div className="h3 fw-bold mb-1">{stats.total}</div>
+                        <div className="text-muted small uppercase">การจองทั้งหมด</div>
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="card-custom text-center p-4 border-start border-4 border-info">
+                        <div className="h3 fw-bold text-info mb-1">{stats.pending}</div>
+                        <div className="text-muted small uppercase">รอตรวจสอบสลิป</div>
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="card-custom text-center p-4 border-start border-4 border-success">
+                        <div className="h3 fw-bold text-success mb-1">{stats.confirmed}</div>
+                        <div className="text-muted small uppercase">จองสำเร็จแล้ว</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Filter */}
+            <div className="mb-4 d-flex gap-2">
+                <button
+                    className={`btn btn-sm ${filterStatus === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilterStatus('ALL')}
+                >
+                    ทั้งหมด
+                </button>
+                <button
+                    className={`btn btn-sm ${filterStatus === 'AWAITING_APPROVAL' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilterStatus('AWAITING_APPROVAL')}
+                >
+                    รอตรวจสอบ ({stats.pending})
+                </button>
+                <button
+                    className={`btn btn-sm ${filterStatus === 'CONFIRMED' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilterStatus('CONFIRMED')}
+                >
+                    อนุมัติแล้ว
+                </button>
+            </div>
+
+            {/* Bookings Table */}
+            <div className="card-custom p-0 overflow-hidden shadow-sm">
+                <div className="table-responsive">
+                    <table className="table table-hover align-middle mb-0">
+                        <thead className="bg-light">
+                            <tr>
+                                <th className="px-4 py-3">รหัสการจอง</th>
+                                <th className="py-3">ผู้จอง</th>
+                                <th className="py-3">ล็อค / โซน</th>
+                                <th className="py-3">ยอดชำระ</th>
+                                <th className="py-3">สถานะ</th>
+                                <th className="py-3 text-center">สลิป</th>
+                                <th className="px-4 py-3 text-end">ดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-5">
+                                        <div className="spinner-border spinner-border-sm text-primary me-2"></div>
+                                        กำลังโหลดข้อมูล...
+                                    </td>
+                                </tr>
+                            ) : filteredBookings.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-5 text-muted">ไม่พบข้อมูลการจอง</td>
+                                </tr>
+                            ) : (
+                                filteredBookings.map((b) => (
+                                    <tr key={b._id}>
+                                        <td className="px-4 fw-bold">{b.bookingId}</td>
+                                        <td>
+                                            <div className="fw-bold">{b.user?.fullName || 'N/A'}</div>
+                                            <div className="small text-muted">{b.user?.phone || b.user?.username}</div>
+                                        </td>
+                                        <td>
+                                            <div className="fw-bold">{b.stall?.stallId || 'N/A'}</div>
+                                            <div className="small text-muted">โซน {b.stall?.zone}</div>
+                                        </td>
+                                        <td className="fw-bold text-success">
+                                            {b.stall?.price.toLocaleString() || 0}฿
+                                        </td>
+                                        <td>{getStatusBadge(b.status)}</td>
+                                        <td className="text-center">
+                                            {b.paymentSlipUrl ? (
+                                                <button
+                                                    className="btn btn-sm btn-outline-info"
+                                                    onClick={() => setSelectedSlip(b.paymentSlipUrl)}
+                                                >
+                                                    👁️ ดูสลิป
+                                                </button>
+                                            ) : '-'}
+                                        </td>
+                                        <td className="px-4 text-end">
+                                            <div className="d-flex gap-2 justify-content-end">
+                                                {b.status === 'AWAITING_APPROVAL' && (
+                                                    <>
+                                                        <button
+                                                            className="btn btn-sm btn-success"
+                                                            onClick={() => handleApprove(b._id)}
+                                                            disabled={actionLoading}
+                                                        >
+                                                            อนุมัติ
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-danger"
+                                                            onClick={() => setRejectingBooking(b)}
+                                                            disabled={actionLoading}
+                                                        >
+                                                            ปฏิเสธ
+                                                        </button>
+                                                    </>
+                                                )}
+                                                <button className="btn btn-sm btn-light">รายละเอียด</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Slip Viewer Modal */}
+            {selectedSlip && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }} onClick={() => setSelectedSlip(null)}>
+                    <div className="modal-dialog modal-dialog-centered modal-lg">
+                        <div className="modal-content border-0 bg-transparent">
+                            <div className="modal-body p-0 text-center position-relative">
+                                <button className="btn btn-light rounded-circle position-absolute top-0 end-0 m-3 shadow" onClick={() => setSelectedSlip(null)}>✕</button>
+                                <img src={selectedSlip} className="img-fluid rounded shadow-lg" alt="Payment Slip" style={{ maxHeight: '90vh' }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reject Modal */}
+            <AnimatePresence>
+                {rejectingBooking && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="modal-dialog modal-dialog-centered"
+                        >
+                            <div className="modal-content border-0 shadow">
+                                <div className="modal-header border-0">
+                                    <h5 className="modal-title fw-bold">ปฏิเสธการจอง {rejectingBooking.bookingId}</h5>
+                                    <button type="button" className="btn-close" onClick={() => setRejectingBooking(null)}></button>
+                                </div>
+                                <div className="modal-body p-4">
+                                    <div className="mb-3">
+                                        <label className="form-label fw-bold small">เหตุผลที่ปฏิเสธ</label>
+                                        <textarea
+                                            className="form-control"
+                                            rows={3}
+                                            value={rejectReason}
+                                            onChange={(e) => setRejectReason(e.target.value)}
+                                            placeholder="เช่น ภาพสลิปไม่ชัดเจนเงินเข้าไม่ตรงยอด..."
+                                        ></textarea>
+                                    </div>
+                                    <div className="d-grid">
+                                        <button
+                                            className="btn btn-danger py-2"
+                                            disabled={!rejectReason || actionLoading}
+                                            onClick={handleReject}
+                                        >
+                                            {actionLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการปฏิเสธ'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}

@@ -27,6 +27,7 @@ export default function RootLayout({
             <div className="d-flex gap-3">
               <a href="/market" className="nav-link">ตลาด</a>
               <a href="/bookings" className="nav-link">การจองของฉัน</a>
+              <a href="/admin" className="nav-link text-danger fw-bold">ADMIN</a>
             </div>
           </div>
         </nav>
