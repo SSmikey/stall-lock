@@ -33,13 +33,13 @@ export async function GET(request: NextRequest) {
         // Return user data (without password)
         return Response.json(
             createApiResponse({
-                id: user._id.toString(),
-                username: user.username,
-                email: user.email,
-                fullName: user.fullName,
-                phone: user.phone,
-                role: user.role,
-                createdAt: user.createdAt,
+                user: {
+                    id: user._id.toString(),
+                    username: user.username,
+                    phone: user.phone,
+                    role: user.role,
+                    createdAt: user.createdAt,
+                }
             })
         );
     } catch (error) {

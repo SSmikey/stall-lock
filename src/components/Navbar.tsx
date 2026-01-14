@@ -13,6 +13,7 @@ export default function Navbar() {
         { name: 'หน้าแรก', href: '/', icon: '🏠' },
         { name: 'ตลาด', href: '/market', icon: '🏪' },
         { name: 'การจองของฉัน', href: '/bookings', icon: '📋' },
+        { name: 'โปรไฟล์', href: '/profile', icon: '👤' },
     ];
 
     return (
@@ -47,22 +48,6 @@ export default function Navbar() {
                                 {link.name}
                             </Link>
                         ))}
-                        <Link
-                            href="/admin"
-                            className={`nav-link px-4 py-2 rounded-pill ms-2 fw-bold smooth ${
-                                pathname === '/admin'
-                                    ? 'bg-danger text-white'
-                                    : 'text-danger'
-                            }`}
-                            style={{
-                                border: pathname === '/admin' ? 'none' : '2px solid var(--danger)',
-                                ...(pathname === '/admin' && {
-                                    boxShadow: 'var(--shadow-md)'
-                                })
-                            }}
-                        >
-                            👤 ADMIN
-                        </Link>
                     </div>
 
                     {/* Mobile Hamburger Button */}
@@ -111,19 +96,6 @@ export default function Navbar() {
                                             {link.name}
                                         </Link>
                                     ))}
-                                    <Link
-                                        href="/admin"
-                                        className={`btn btn-lg text-start ps-4 ${
-                                            pathname === '/admin'
-                                                ? 'btn-danger'
-                                                : 'btn-outline-danger'
-                                        }`}
-                                        onClick={() => setIsOpen(false)}
-                                        style={{ borderRadius: 'var(--radius-md)' }}
-                                    >
-                                        <span className="me-3 fs-5">👤</span>
-                                        ADMIN
-                                    </Link>
                                 </div>
                             </div>
                         </motion.div>
@@ -165,32 +137,6 @@ export default function Navbar() {
                             )}
                         </Link>
                     ))}
-                    <Link
-                        href="/admin"
-                        className={`d-flex flex-column align-items-center gap-1 text-decoration-none smooth tap-target px-3 ${
-                            pathname === '/admin' ? 'text-danger' : 'text-muted'
-                        }`}
-                        style={{
-                            fontSize: '0.75rem',
-                            fontWeight: pathname === '/admin' ? 700 : 500,
-                        }}
-                    >
-                        <span style={{ fontSize: '1.5rem' }}>👤</span>
-                        <span>Admin</span>
-                        {pathname === '/admin' && (
-                            <motion.div
-                                layoutId="activeTab"
-                                className="position-absolute"
-                                style={{
-                                    bottom: 0,
-                                    width: '40px',
-                                    height: '3px',
-                                    background: 'var(--danger)',
-                                    borderRadius: '3px 3px 0 0',
-                                }}
-                            />
-                        )}
-                    </Link>
                 </div>
             </div>
         </>
