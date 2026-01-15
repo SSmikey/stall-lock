@@ -138,6 +138,61 @@
   color: white;
 }
 
+.btn-brand-inverse {
+  background: white;
+  border: none;
+  color: var(--brand-primary);
+  border-radius: 30px;
+  padding: 12px 30px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-brand-inverse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  color: var(--brand-secondary);
+  background: white;
+}
+
+.home-hero {
+  background: var(--brand-gradient);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  padding-top: 5rem;
+  padding-bottom: 6rem;
+  margin-bottom: 3rem;
+  border-bottom-right-radius: 50% 40px;
+  border-bottom-left-radius: 50% 40px;
+}
+
+@media (min-width: 992px) {
+  .home-hero {
+    padding-top: 6rem;
+    padding-bottom: 8rem;
+    border-bottom-right-radius: 50% 60px;
+    border-bottom-left-radius: 50% 60px;
+  }
+}
+
+.hero-circle {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -400px;
+  right: -200px;
+  pointer-events: none;
+}
+
+.full-width-breakout {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
 .form-control-brand {
   background-color: #F7FAFC;
   border: 1px solid #E2E8F0;
