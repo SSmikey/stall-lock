@@ -127,7 +127,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="col-md-8">
-                  <div className="card-body p-4 p-lg-5">
+                  <div className="card-body p-4 p-lg-5 h-100 d-flex flex-column justify-content-center">
                     <div className="row g-4">
                       <div className="col-sm-6">
                         <div className="d-flex align-items-start">
@@ -147,24 +147,7 @@ export default function HomePage() {
                           </div>
                         </div>
                       </div>
-                      <div className="col-sm-6">
-                        <div className="d-flex align-items-start">
-                          <span className="me-3 fs-4">✅</span>
-                          <div>
-                            <h6 className="fw-bold mb-1">ชำระเงินปลอดภัย</h6>
-                            <p className="text-muted small mb-0">รองรับ QR Code และบัตรเครดิต</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="d-flex align-items-start">
-                          <span className="me-3 fs-4">✅</span>
-                          <div>
-                            <h6 className="fw-bold mb-1">ช่วยเหลือ</h6>
-                            <p className="text-muted small mb-0">ติดต่อเจ้าหน้าที่ 02-123-4567</p>
-                          </div>
-                        </div>
-                      </div>
+
                     </div>
                   </div>
                 </div>
