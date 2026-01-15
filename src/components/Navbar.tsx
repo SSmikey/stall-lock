@@ -40,8 +40,8 @@ export default function Navbar() {
             {/* Desktop & Mobile Top Navbar */}
             <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top" style={{ boxShadow: 'var(--shadow-sm)' }}>
                 <div className="container">
-                    <Link href="/" className="navbar-brand fw-bold text-gradient fs-4 d-flex align-items-center gap-2">
-                        <span className="d-inline-block" style={{ fontSize: '1.5rem' }}>🔒</span>
+                    <Link href="/" className="navbar-brand fw-bold text-gradient-brand fs-4 d-flex align-items-center gap-2">
+                        <span className="d-inline-block text-brand" style={{ fontSize: '1.5rem' }}>🔒</span>
                         <span className="d-none d-sm-inline">STALL LOCK</span>
                         <span className="d-inline d-sm-none">SL</span>
                     </Link>
@@ -52,14 +52,15 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`nav-link px-4 py-2 rounded-pill fw-medium smooth ${
-                                    pathname === link.href
-                                        ? 'bg-primary text-white'
+                                className={`nav-link px-4 py-2 rounded-pill fw-medium smooth ${pathname === link.href
+                                        ? 'text-white'
                                         : 'text-dark hover-shadow'
-                                }`}
+                                    }`}
                                 style={{
                                     ...(pathname === link.href && {
-                                        boxShadow: 'var(--shadow-md)'
+                                        background: 'var(--brand-gradient)',
+                                        boxShadow: 'var(--shadow-md)',
+                                        border: 'none'
                                     })
                                 }}
                             >
@@ -103,13 +104,18 @@ export default function Navbar() {
                                         <Link
                                             key={link.href}
                                             href={link.href}
-                                            className={`btn btn-lg text-start ps-4 ${
-                                                pathname === link.href
-                                                    ? 'btn-primary'
+                                            className={`btn btn-lg text-start ps-4 ${pathname === link.href
+                                                    ? 'text-white'
                                                     : 'btn-light'
-                                            }`}
+                                                }`}
                                             onClick={() => setIsOpen(false)}
-                                            style={{ borderRadius: 'var(--radius-md)' }}
+                                            style={{
+                                                borderRadius: 'var(--radius-md)',
+                                                ...(pathname === link.href && {
+                                                    background: 'var(--brand-gradient)',
+                                                    border: 'none'
+                                                })
+                                            }}
                                         >
                                             <span className="me-3 fs-5">{link.icon}</span>
                                             {link.name}
@@ -129,9 +135,8 @@ export default function Navbar() {
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={`d-flex flex-column align-items-center gap-1 text-decoration-none smooth tap-target px-3 ${
-                                pathname === link.href ? 'text-primary' : 'text-muted'
-                            }`}
+                            className={`d-flex flex-column align-items-center gap-1 text-decoration-none smooth tap-target px-3 ${pathname === link.href ? 'text-brand' : 'text-muted'
+                                }`}
                             style={{
                                 fontSize: '0.75rem',
                                 fontWeight: pathname === link.href ? 700 : 500,
@@ -149,7 +154,7 @@ export default function Navbar() {
                                         bottom: 0,
                                         width: '40px',
                                         height: '3px',
-                                        background: 'var(--primary)',
+                                        background: 'var(--brand-primary)',
                                         borderRadius: '3px 3px 0 0',
                                     }}
                                 />
