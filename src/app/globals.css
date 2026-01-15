@@ -61,6 +61,11 @@
   --brand-radius: 20px;
 }
 
+.bg-brand-gradient-subtle {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(255, 179, 71, 0.08) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.15);
+}
+
 /* Auth Layout Utilities */
 .auth-wrapper {
   min-height: 100vh;

@@ -30,7 +30,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="row justify-content-center mb-5">
         <div className="col-lg-8 text-center">
-          <div className="bg-brand-gradient-subtle rounded-4 p-5 mb-5 shadow-sm">
+          <div className="bg-brand-gradient-subtle rounded-4 p-5 mb-5 shadow">
             <h1 className="display-4 fw-bold text-gradient-brand mb-3">
               ระบบจองล็อคตลาด
             </h1>
