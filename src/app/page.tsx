@@ -29,7 +29,7 @@ export default function HomePage() {
     <div className="container py-5">
       <div className="row">
         <div className="col-12 text-center mb-5">
-          <h1 className="display-4 fw-bold text-gradient mb-3">
+          <h1 className="display-4 fw-bold text-gradient-brand mb-3">
             🔒 ระบบจองล็อคตลาด
           </h1>
           <p className="lead text-muted">
@@ -72,7 +72,7 @@ export default function HomePage() {
             <div className="card-body text-center p-4">
               <div className="fs-1 mb-3">💰</div>
               <h5 className="card-title fw-bold">ราคาเริ่มต้น</h5>
-              <p className="card-text text-primary fw-bold fs-4">
+              <p className="card-text text-brand fw-bold fs-4">
                 ฿500/วัน
               </p>
             </div>

@@ -53,122 +53,137 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-md-6 col-lg-5">
-                        <div className="card shadow-sm">
-                            <div className="card-body p-4">
-                                <h2 className="text-center mb-4">
-                                    {isAdmin ? 'เข้าสู่ระบบ Admin' : 'เข้าสู่ระบบ'}
-                                </h2>
+        <div className="auth-wrapper">
+            {/* Left Side - Branding */}
+            <div className="auth-left">
+                <div className="auth-circle"></div>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <h1 className="display-4 fw-bold mb-3">
+                        STALL LOCK<br />ระบบจองล็อคตลาด
+                    </h1>
+                </div>
+            </div>
 
-                                {/* Toggle Admin/User Login */}
-                                <div className="d-flex justify-content-center mb-4">
-                                    <div className="btn-group" role="group">
-                                        <button
-                                            type="button"
-                                            className={`btn ${!isAdmin ? 'btn-primary' : 'btn-outline-primary'}`}
-                                            onClick={() => setIsAdmin(false)}
-                                        >
-                                            ผู้ใช้งาน
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`btn ${isAdmin ? 'btn-primary' : 'btn-outline-primary'}`}
-                                            onClick={() => setIsAdmin(true)}
-                                        >
-                                            Admin
-                                        </button>
-                                    </div>
-                                </div>
+            {/* Right Side - Login Form */}
+            <div className="auth-right">
+                <div className="w-100" style={{ maxWidth: '400px' }}>
+                    <div className="text-center mb-5">
+                        <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
+                            <span className="fs-1 text-muted">👤</span>
+                        </div>
+                        <h4 className="text-muted mb-2">เข้าสู่ระบบเพื่อเริ่มต้นใช้งาน</h4>
+                    </div>
 
-                                {error && (
-                                    <div className="alert alert-danger" role="alert">
-                                        {error}
-                                    </div>
-                                )}
-
-                                <form onSubmit={handleSubmit}>
-                                    <div className="mb-3">
-                                        <label htmlFor={isAdmin ? "username" : "phone"} className="form-label">
-                                            {isAdmin ? 'ชื่อผู้ใช้' : 'เบอร์โทรศัพท์'}
-                                        </label>
-                                        {isAdmin ? (
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="username"
-                                                value={formData.username}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, username: e.target.value })
-                                                }
-                                                required
-                                                disabled={loading}
-                                            />
-                                        ) : (
-                                            <input
-                                                type="tel"
-                                                className="form-control"
-                                                id="phone"
-                                                placeholder="0812345678"
-                                                maxLength={10}
-                                                value={formData.phone}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, phone: e.target.value })
-                                                }
-                                                required
-                                                disabled={loading}
-                                            />
-                                        )}
-                                    </div>
-
-                                    {isAdmin && (
-                                        <div className="mb-3">
-                                            <label htmlFor="password" className="form-label">
-                                                รหัสผ่าน
-                                            </label>
-                                            <input
-                                                type="password"
-                                                className="form-control"
-                                                id="password"
-                                                value={formData.password}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, password: e.target.value })
-                                                }
-                                                required
-                                                disabled={loading}
-                                            />
-                                        </div>
-                                    )}
-
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary w-100 mb-3"
-                                        disabled={loading}
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2" />
-                                                กำลังเข้าสู่ระบบ...
-                                            </>
-                                        ) : (
-                                            'เข้าสู่ระบบ'
-                                        )}
-                                    </button>
-
-                                    {!isAdmin && (
-                                        <div className="text-center">
-                                            <span className="text-muted">ยังไม่มีบัญชี? </span>
-                                            <Link href="/register" className="text-decoration-none">
-                                                สมัครสมาชิก
-                                            </Link>
-                                        </div>
-                                    )}
-                                </form>
-                            </div>
+                    <div className="d-flex justify-content-center mb-4">
+                        <div className="btn-group w-100" role="group">
+                            <button
+                                type="button"
+                                className={`btn ${!isAdmin ? 'btn-brand text-white' : 'btn-outline-secondary border-0'}`}
+                                onClick={() => setIsAdmin(false)}
+                                style={{ borderRadius: '30px' }}
+                            >
+                                ผู้ใช้งาน
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn ${isAdmin ? 'btn-brand text-white' : 'btn-outline-secondary border-0'}`}
+                                onClick={() => setIsAdmin(true)}
+                                style={{ borderRadius: '30px' }}
+                            >
+                                Admin
+                            </button>
                         </div>
                     </div>
+
+                    {error && (
+                        <div className="alert alert-danger rounded-4 border-0 mb-4" role="alert">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-4">
+                            <div className="input-group">
+                                <span className="input-group-text border-0 bg-transparent ps-0">
+                                    <span className="text-muted">{isAdmin ? 'ชื่อผู้ใช้' : 'เบอร์โทรศัพท์'}</span>
+                                </span>
+                            </div>
+
+                            {isAdmin ? (
+                                <input
+                                    type="text"
+                                    className="form-control form-control-brand"
+                                    placeholder="ชื่อผู้ใช้"
+                                    value={formData.username}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, username: e.target.value })
+                                    }
+                                    required
+                                    disabled={loading}
+                                />
+                            ) : (
+                                <input
+                                    type="tel"
+                                    className="form-control form-control-brand"
+                                    placeholder="เบอร์โทรศัพท์ (0812345678)"
+                                    maxLength={10}
+                                    value={formData.phone}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, phone: e.target.value })
+                                    }
+                                    required
+                                    disabled={loading}
+                                />
+                            )}
+                        </div>
+
+                        {isAdmin && (
+                            <div className="mb-4">
+                                <input
+                                    type="password"
+                                    className="form-control form-control-brand"
+                                    placeholder="รหัสผ่าน"
+                                    value={formData.password}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, password: e.target.value })
+                                    }
+                                    required
+                                    disabled={loading}
+                                />
+                            </div>
+                        )}
+
+                        <div className="form-check mb-4">
+                            <input className="form-check-input" type="checkbox" id="keepLoggedIn" />
+                            <label className="form-check-label text-muted" htmlFor="keepLoggedIn">
+                                จดจำการเข้าสู่ระบบ
+                            </label>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="btn btn-brand w-100 mb-4"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2" />
+                                    กำลังเข้าสู่ระบบ...
+                                </>
+                            ) : (
+                                'เข้าสู่ระบบ'
+                            )}
+                        </button>
+
+                        {!isAdmin && (
+                            <div className="text-center">
+                                <span className="text-muted">ยังไม่มีบัญชี? </span>
+                                <Link href="/register" className="fw-bold text-decoration-none" style={{ color: 'var(--brand-primary)' }}>
+                                    สมัครสมาชิก
+                                </Link>
+                            </div>
+                        )}
+                    </form>
                 </div>
             </div>
         </div>

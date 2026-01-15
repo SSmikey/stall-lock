@@ -49,6 +49,101 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
+
+  /* Glowrose Brand Colors */
+  --brand-primary: #FF6B35;
+  /* Orange */
+  --brand-secondary: #FFB347;
+  /* Soft Orange/Yellow */
+  --brand-light: #FFF5EB;
+  --brand-text: #2D3748;
+  --brand-gradient: linear-gradient(135deg, #FF6B35 0%, #FFB347 100%);
+  --brand-radius: 20px;
+}
+
+/* Auth Layout Utilities */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.auth-left {
+  background: var(--brand-gradient);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative circle for the left side */
+.auth-circle {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -25%;
+  right: 50%;
+}
+
+.auth-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  padding: 2rem;
+}
+
+@media (min-width: 992px) {
+  .auth-wrapper {
+    flex-direction: row;
+  }
+
+  .auth-left {
+    flex: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 50% 100%;
+    /* Curved edge effect */
+  }
+
+  .auth-right {
+    flex: 1;
+  }
+}
+
+.btn-brand {
+  background: var(--brand-gradient);
+  border: none;
+  color: white;
+  border-radius: 30px;
+  padding: 12px 30px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-brand:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+  color: white;
+}
+
+.form-control-brand {
+  background-color: #F7FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px 20px;
+}
+
+.form-control-brand:focus {
+  background-color: white;
+  border-color: var(--brand-secondary);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 * {
@@ -67,7 +162,8 @@ body {
 
 /* Mobile-First Typography */
 html {
-  font-size: 14px; /* Base for mobile */
+  font-size: 14px;
+  /* Base for mobile */
 }
 
 @media (min-width: 768px) {
@@ -76,12 +172,20 @@ html {
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   line-height: 1.2;
 }
 
-.display-1, .display-2, .display-3, .display-4 {
+.display-1,
+.display-2,
+.display-3,
+.display-4 {
   font-weight: 800;
 }
 
@@ -316,7 +420,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Mobile Grid Adjustments */
 @media (max-width: 767px) {
-  .row-cols-2 > * {
+  .row-cols-2>* {
     width: 50%;
   }
 
@@ -343,6 +447,7 @@ html {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -368,6 +473,17 @@ html {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.text-gradient-brand {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-brand {
+  color: var(--brand-primary) !important;
 }
 
 /* Safe Area for Mobile (notch support) */
@@ -418,10 +534,30 @@ html {
 }
 
 /* Z-Index Scale */
-.z-dropdown { z-index: 1000; }
-.z-sticky { z-index: 1020; }
-.z-fixed { z-index: 1030; }
-.z-modal-backdrop { z-index: 1040; }
-.z-modal { z-index: 1050; }
-.z-popover { z-index: 1060; }
-.z-tooltip { z-index: 1070; }
+.z-dropdown {
+  z-index: 1000;
+}
+
+.z-sticky {
+  z-index: 1020;
+}
+
+.z-fixed {
+  z-index: 1030;
+}
+
+.z-modal-backdrop {
+  z-index: 1040;
+}
+
+.z-modal {
+  z-index: 1050;
+}
+
+.z-popover {
+  z-index: 1060;
+}
+
+.z-tooltip {
+  z-index: 1070;
+}

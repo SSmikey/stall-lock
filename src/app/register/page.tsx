@@ -53,88 +53,93 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-md-6 col-lg-5">
-                        <div className="card shadow-sm">
-                            <div className="card-body p-4">
-                                <h2 className="text-center mb-4">สมัครสมาชิก</h2>
+        <div className="auth-wrapper">
+            {/* Left Side - Branding */}
+            <div className="auth-left">
+                <div className="auth-circle"></div>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <h1 className="display-4 fw-bold mb-3">
+                        STALL LOCK<br />ระบบจองล็อคตลาด
+                    </h1>
+                </div>
+            </div>
 
-                                {error && (
-                                    <div className="alert alert-danger" role="alert">
-                                        {error}
-                                    </div>
-                                )}
-
-                                <form onSubmit={handleSubmit}>
-                                    <div className="mb-3">
-                                        <label htmlFor="username" className="form-label">
-                                            ชื่อผู้ใช้
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="username"
-                                            value={formData.username}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, username: e.target.value })
-                                            }
-                                            required
-                                            disabled={loading}
-                                            minLength={3}
-                                            maxLength={50}
-                                        />
-                                        <div className="form-text">ชื่อผู้ใช้ 3-50 ตัวอักษร</div>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <label htmlFor="phone" className="form-label">
-                                            เบอร์โทรศัพท์
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            className="form-control"
-                                            id="phone"
-                                            placeholder="0812345678"
-                                            maxLength={10}
-                                            value={formData.phone}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, phone: e.target.value })
-                                            }
-                                            required
-                                            disabled={loading}
-                                        />
-                                        <div className="form-text">
-                                            เบอร์โทรศัพท์จะใช้ในการเข้าสู่ระบบ
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary w-100 mb-3"
-                                        disabled={loading}
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2" />
-                                                กำลังสมัครสมาชิก...
-                                            </>
-                                        ) : (
-                                            'สมัครสมาชิก'
-                                        )}
-                                    </button>
-
-                                    <div className="text-center">
-                                        <span className="text-muted">มีบัญชีอยู่แล้ว? </span>
-                                        <Link href="/login" className="text-decoration-none">
-                                            เข้าสู่ระบบ
-                                        </Link>
-                                    </div>
-                                </form>
-                            </div>
+            {/* Right Side - Register Form */}
+            <div className="auth-right">
+                <div className="w-100" style={{ maxWidth: '400px' }}>
+                    <div className="text-center mb-5">
+                        <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
+                            <span className="fs-1 text-muted">👤</span>
                         </div>
+                        <h4 className="text-muted mb-2">สมัครสมาชิกใหม่</h4>
                     </div>
+
+                    {error && (
+                        <div className="alert alert-danger rounded-4 border-0 mb-4" role="alert">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-4">
+                            <label htmlFor="username" className="form-label text-muted">ชื่อผู้ใช้</label>
+                            <input
+                                type="text"
+                                className="form-control form-control-brand"
+                                id="username"
+                                placeholder="ตั้งชื่อผู้ใช้ของคุณ"
+                                value={formData.username}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, username: e.target.value })
+                                }
+                                required
+                                disabled={loading}
+                                minLength={3}
+                                maxLength={50}
+                            />
+                            <div className="form-text">3-50 ตัวอักษร</div>
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="phone" className="form-label text-muted">เบอร์โทรศัพท์</label>
+                            <input
+                                type="tel"
+                                className="form-control form-control-brand"
+                                id="phone"
+                                placeholder="0812345678"
+                                maxLength={10}
+                                value={formData.phone}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, phone: e.target.value })
+                                }
+                                required
+                                disabled={loading}
+                            />
+                            <div className="form-text">ใช้สำหรับเข้าสู่ระบบ</div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="btn btn-brand w-100 mb-4"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2" />
+                                    กำลังลงทะเบียน...
+                                </>
+                            ) : (
+                                'สมัครสมาชิก'
+                            )}
+                        </button>
+
+                        <div className="text-center">
+                            <span className="text-muted">มีบัญชีอยู่แล้ว? </span>
+                            <Link href="/login" className="fw-bold text-decoration-none" style={{ color: 'var(--brand-primary)' }}>
+                                เข้าสู่ระบบ
+                            </Link>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
