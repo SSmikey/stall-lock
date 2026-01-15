@@ -139,21 +139,22 @@
 }
 
 .btn-brand-inverse {
-  background: white;
-  border: none;
-  color: var(--brand-primary);
+  background: var(--brand-text);
+  border: 2px solid white;
+  color: white;
   border-radius: 30px;
   padding: 12px 30px;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-weight: 800;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .btn-brand-inverse:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  color: var(--brand-secondary);
-  background: white;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  background: black;
+  color: white;
+  border-color: white;
 }
 
 .home-hero {
