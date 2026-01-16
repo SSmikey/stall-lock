@@ -5,41 +5,25 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
+import './market.css';
 
 export default function MarketPage() {
     const [stalls, setStalls] = useState<Stall[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterZone, setFilterZone] = useState<string>('ALL');
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const router = useRouter();
 
     const zones = ['A', 'B', 'C', 'D'];
 
     // Fetch current user on mount
     useEffect(() => {
-        const fetchCurrentUser = async () => {
-            console.log('[MarketPage] Fetching current user...');
-            try {
-                const res = await fetch('/api/auth/me');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.data?.user?.id) {
-                        console.log('[MarketPage] User found:', data.data.user.id);
-                        setCurrentUserId(data.data.user.id);
-                    } else {
-                        console.log('[MarketPage] No authenticated user');
-                    }
-                }
-            } catch (error) {
-                console.error('[MarketPage] Failed to fetch user:', error);
-            }
-        };
-        fetchCurrentUser();
-    }, []);
+        fetchStalls();
+    }, [filterZone, filterStatus]);
 
     const fetchStalls = async (isSilent = false) => {
         if (!isSilent) setLoading(true);
@@ -130,6 +114,22 @@ export default function MarketPage() {
         }
     };
 
+    // Pagination Logic
+    const filteredStalls = stalls.filter(stall => 
+        (stall.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (stall.stallId || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const indexOfLastStall = currentPage * itemsPerPage;
+    const indexOfFirstStall = indexOfLastStall - itemsPerPage;
+    const currentStalls = filteredStalls.slice(indexOfFirstStall, indexOfLastStall);
+    const totalPages = Math.ceil(filteredStalls.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="container py-3 py-md-5">
             {/* Header Section - Mobile Optimized */}
@@ -141,7 +141,7 @@ export default function MarketPage() {
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                     <div>
                         <h1 className="h3 h2-md fw-bold mb-1 text-gradient">เลือกจองล็อคตลาด</h1>
-                        <p className="text-muted small mb-0">เลือกล็อคที่คุณต้องการได้เลย 🏪</p>
+                        <p className="text-muted small mb-0">เลือกล็อคที่คุณต้องการได้เลย </p>
                     </div>
 
                     {/* Filter Controls - Stack on mobile */}
@@ -176,6 +176,49 @@ export default function MarketPage() {
                 </div>
             </motion.div>
 
+            {/* Toolbar: Search & Pagination */}
+            {!loading && stalls.length > 0 && (
+                <div className="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    {/* Search Bar */}
+                    <div className="input-group" style={{ maxWidth: '300px', boxShadow: 'var(--shadow-sm)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                        <span className="input-group-text bg-white border-end-0 text-muted">🔍</span>
+                        <input 
+                            type="text" 
+                            className="form-control border-start-0 ps-0" 
+                            placeholder="ค้นหาชื่อล็อค..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{ boxShadow: 'none' }}
+                        />
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 0 && (
+                        <nav>
+                            <ul className="pagination mb-0">
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </button>
+                                </li>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    )}
+                </div>
+            )}
+
             {loading ? (
                 <div className="text-center py-5">
                     <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
@@ -198,13 +241,22 @@ export default function MarketPage() {
                     {/* Results Count */}
                     <div className="mb-3">
                         <p className="text-muted small mb-0">
-                            พบ <span className="fw-bold text-primary">{stalls.length}</span> ล็อค
+                            พบ <span className="fw-bold text-gradient">{filteredStalls.length}</span> ล็อค
                         </p>
                     </div>
 
+                    {/* Search Not Found State */}
+                    {filteredStalls.length === 0 && (
+                        <div className="text-center py-5">
+                            <div style={{ fontSize: '3rem' }}>🤔</div>
+                            <h5 className="text-muted mt-3">ไม่พบข้อมูลที่ค้นหา</h5>
+                            <button className="btn btn-link text-decoration-none" onClick={() => setSearchQuery('')}>ล้างคำค้นหา</button>
+                        </div>
+                    )}
+
                     {/* Responsive Grid - Mobile First */}
                     <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 justify-content-center">
-                        {stalls.map((stall, index) => (
+                        {currentStalls.map((stall, index) => (
                             <div key={stall.stallId} className="col">
                                 <motion.div
                                     layout

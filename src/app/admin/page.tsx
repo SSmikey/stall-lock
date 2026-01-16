@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ApiResponse } from '@/lib/api';
+import './admin.css';
 
 export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
@@ -193,12 +194,12 @@ export default function AdminDashboard() {
         <div className="container py-5">
             <div className="d-flex justify-content-between align-items-center mb-5">
                 <div>
-                    <h1 className="fw-bold mb-1">ระบบหลังบ้าน (Admin)</h1>
+                    <h1 className="fw-bold mb-1 text-gradient">ระบบหลังบ้าน (Admin)</h1>
                     <p className="text-muted mb-0">จัดการการจองและตรวจสอบการชำระเงิน</p>
                 </div>
                 <div className="d-flex gap-2 flex-wrap">
                     <button
-                        className="btn btn-primary"
+                        className="btn btn-primary-custom px-4"
                         onClick={() => setShowCreateStallModal(true)}
                     >
                         ➕ เพิ่มแผงตลาด
@@ -255,19 +256,19 @@ export default function AdminDashboard() {
             {/* Filter */}
             <div className="mb-4 d-flex gap-2">
                 <button
-                    className={`btn btn-sm ${filterStatus === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    className={`btn btn-sm ${filterStatus === 'ALL' ? 'btn-primary-custom' : 'btn-outline-secondary'}`}
                     onClick={() => setFilterStatus('ALL')}
                 >
                     จองที่ใช้งานอยู่
                 </button>
                 <button
-                    className={`btn btn-sm ${filterStatus === 'AWAITING_APPROVAL' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    className={`btn btn-sm ${filterStatus === 'AWAITING_APPROVAL' ? 'btn-primary-custom' : 'btn-outline-secondary'}`}
                     onClick={() => setFilterStatus('AWAITING_APPROVAL')}
                 >
                     รอตรวจสอบ ({stats.pending})
                 </button>
                 <button
-                    className={`btn btn-sm ${filterStatus === 'CONFIRMED' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    className={`btn btn-sm ${filterStatus === 'CONFIRMED' ? 'btn-primary-custom' : 'btn-outline-secondary'}`}
                     onClick={() => setFilterStatus('CONFIRMED')}
                 >
                     อนุมัติแล้ว
@@ -316,7 +317,7 @@ export default function AdminDashboard() {
                                 <tbody>
                                     {filteredBookings.map((b) => (
                                         <tr key={b._id}>
-                                            <td className="px-4 fw-bold text-primary">{b.bookingId}</td>
+                                            <td className="px-4 fw-bold text-gradient">{b.bookingId}</td>
                                             <td>
                                                 <div className="fw-bold">{b.user?.username || 'N/A'}</div>
                                                 <div className="small text-muted">{b.user?.phone || '-'}</div>
@@ -388,7 +389,7 @@ export default function AdminDashboard() {
                                 <div key={b._id} className="col-12">
                                     <div className="card-custom p-3 border-0 shadow-sm">
                                         <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <span className="fw-bold text-primary">{b.bookingId}</span>
+                                            <span className="fw-bold text-gradient">{b.bookingId}</span>
                                             {getStatusBadge(b.status)}
                                         </div>
                                         <div className="row g-2 mb-3">
@@ -517,7 +518,7 @@ export default function AdminDashboard() {
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
                             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 bg-primary text-white p-4">
+                                <div className="modal-header border-0 modal-header-gradient p-4">
                                     <h5 className="modal-title fw-bold">รายละเอียดการจอง {viewingBooking.bookingId}</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setViewingBooking(null)}></button>
                                 </div>
@@ -534,7 +535,7 @@ export default function AdminDashboard() {
                                             <div className="mb-4">
                                                 <h6 className="text-muted small fw-bold mb-3">🏪 ข้อมูลล็อค</h6>
                                                 <div className="p-3 bg-light rounded-3">
-                                                    <div className="mb-2"><strong>รหัสล็อค:</strong> <span className="text-primary fw-bold">{viewingBooking.stall?.stallId}</span></div>
+                                                    <div className="mb-2"><strong>รหัสล็อค:</strong> <span className="text-gradient fw-bold">{viewingBooking.stall?.stallId}</span></div>
                                                     <div className="mb-2"><strong>โซน:</strong> {viewingBooking.stall?.zone}</div>
                                                     <div className="mb-2"><strong>ขนาด:</strong> {viewingBooking.stall?.size} ตร.ม.</div>
                                                     <div><strong>ชื่อแผง:</strong> {viewingBooking.stall?.name}</div>
@@ -569,7 +570,7 @@ export default function AdminDashboard() {
                                                     />
                                                     <div className="d-grid">
                                                         <button
-                                                            className="btn btn-outline-primary btn-sm"
+                                                            className="btn btn-outline-secondary btn-sm"
                                                             onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
                                                         >
                                                             🔍 ขยายรูปสลิป
@@ -783,7 +784,7 @@ export default function AdminDashboard() {
                                         <div className="d-grid mt-4">
                                             <button
                                                 type="submit"
-                                                className="btn btn-primary py-2"
+                                                className="btn btn-primary-custom py-2"
                                                 disabled={actionLoading}
                                             >
                                                 {actionLoading ? (
