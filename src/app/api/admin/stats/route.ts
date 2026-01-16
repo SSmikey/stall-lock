@@ -45,6 +45,28 @@ export async function GET(request: NextRequest) {
             return sum + stallPrice;
         }, 0);
 
+        // Calculate monthly stats for the last 6 months
+        const monthsLabel = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const monthlyStats = [];
+        const now = new Date();
+
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const mIndex = d.getMonth();
+            const y = d.getFullYear();
+
+            const monthBookings = bookings.filter(b => {
+                const bDate = new Date(b.createdAt);
+                return bDate.getMonth() === mIndex && bDate.getFullYear() === y;
+            });
+
+            monthlyStats.push({
+                month: monthsLabel[mIndex],
+                total: monthBookings.length,
+                confirmed: monthBookings.filter(b => b.status === 'CONFIRMED').length
+            });
+        }
+
         const stats = {
             totalUsers,
             totalStalls,
@@ -54,7 +76,8 @@ export async function GET(request: NextRequest) {
             pendingBookings,
             confirmedBookings: confirmedCount,
             cancelledBookings,
-            totalRevenue
+            totalRevenue,
+            monthlyStats
         };
 
         return Response.json(createApiResponse(stats));
