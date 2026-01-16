@@ -1,10 +1,11 @@
-import { getDb } from '@/lib/db';
+import { getDb, cleanupExpiredBookings } from '@/lib/db';
 import { createApiResponse, handleApiError } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
     try {
+        await cleanupExpiredBookings();
         const db = await getDb();
 
         // Get all bookings first

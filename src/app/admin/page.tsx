@@ -178,7 +178,7 @@ export default function AdminDashboard() {
     };
 
     const filteredBookings = filterStatus === 'ALL'
-        ? bookings
+        ? bookings.filter(b => b.status !== 'EXPIRED' && b.status !== 'CANCELLED')
         : bookings.filter(b => b.status === filterStatus);
 
     // Stats calculation
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
                     className={`btn btn-sm ${filterStatus === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'}`}
                     onClick={() => setFilterStatus('ALL')}
                 >
-                    ทั้งหมด
+                    จองที่ใช้งานอยู่
                 </button>
                 <button
                     className={`btn btn-sm ${filterStatus === 'AWAITING_APPROVAL' ? 'btn-primary' : 'btn-outline-secondary'}`}
@@ -271,6 +271,12 @@ export default function AdminDashboard() {
                     onClick={() => setFilterStatus('CONFIRMED')}
                 >
                     อนุมัติแล้ว
+                </button>
+                <button
+                    className={`btn btn-sm ${filterStatus === 'EXPIRED' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilterStatus('EXPIRED')}
+                >
+                    หมดอายุ/ยกเลิก ({stats.expired})
                 </button>
             </div>
 
