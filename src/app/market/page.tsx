@@ -14,16 +14,36 @@ export default function MarketPage() {
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const router = useRouter();
 
     const zones = ['A', 'B', 'C', 'D'];
 
+    // Fetch current user on mount
     useEffect(() => {
-        fetchStalls();
-    }, [filterZone, filterStatus]);
+        const fetchCurrentUser = async () => {
+            console.log('[MarketPage] Fetching current user...');
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.data?.user?.id) {
+                        console.log('[MarketPage] User found:', data.data.user.id);
+                        setCurrentUserId(data.data.user.id);
+                    } else {
+                        console.log('[MarketPage] No authenticated user');
+                    }
+                }
+            } catch (error) {
+                console.error('[MarketPage] Failed to fetch user:', error);
+            }
+        };
+        fetchCurrentUser();
+    }, []);
 
-    const fetchStalls = async () => {
-        setLoading(true);
+    const fetchStalls = async (isSilent = false) => {
+        if (!isSilent) setLoading(true);
+        console.log('[MarketPage] Fetching stalls... Zone:', filterZone, 'Status:', filterStatus, 'isSilent:', isSilent);
         try {
             let url = '/api/stalls';
             const params = new URLSearchParams();
@@ -37,32 +57,40 @@ export default function MarketPage() {
             const res = await fetch(url);
             const data: ApiResponse<{ stalls: Stall[] }> = await res.json();
             if (data.success && data.data) {
+                console.log('[MarketPage] Stalls received:', data.data.stalls.length);
                 setStalls(data.data.stalls);
             }
         } catch (error) {
-            console.error('Failed to fetch stalls:', error);
+            console.error('[MarketPage] Failed to fetch stalls:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
 
+    useEffect(() => {
+        // Use silent fetch if we already have stalls to prevent flickering
+        fetchStalls(stalls.length > 0);
+    }, [filterZone, filterStatus]);
+
     const handleBookStall = async () => {
         if (!selectedStall) return;
+
+        if (!currentUserId) {
+            setMessage({ type: 'error', text: 'กรุณาเข้าสู่ระบบก่อนทำการจอง' });
+            router.push('/login');
+            return;
+        }
 
         setBookingLoading(true);
         setMessage(null);
 
         try {
-            // Mock user ID for demonstration (user001 from seed)
-            // In a real app, this would be fetched from the session/JWT
-            const mockUserId = '65a3f2b4e4b0a1a2b3c4d5e6';
-
             const res = await fetch('/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     stallId: selectedStall._id,
-                    userId: mockUserId
+                    userId: currentUserId
                 })
             });
 

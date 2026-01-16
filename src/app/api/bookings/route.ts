@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import { getDb, cleanupExpiredBookings } from '@/lib/db';
 import { createApiResponse, createApiError, handleApiError, ErrorCodes } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
@@ -6,6 +6,7 @@ import clientPromise from '@/lib/mongodb';
 
 export async function POST(request: NextRequest) {
     try {
+        await cleanupExpiredBookings();
         const body = await request.json();
         const { stallId, userId } = body;
 
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
                 // 2. Generate booking ID (inside transaction to prevent race condition)
                 const bookingId = await generateBookingId(db, session);
                 const now = new Date();
-                const expiresAt = new Date(now.getTime() + 3600000); // 1 hour
+                const expiresAt = new Date(now.getTime() + 1800000); // 30 minutes (30 * 60 * 1000)
 
                 // 3. Create booking
                 const booking = await db.collection('bookings').insertOne(
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
                     status: 'RESERVED',
                     reservedAt: now,
                     expiresAt,
-                    timeRemaining: 3600,
+                    timeRemaining: 1800,
                 };
             });
 
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
     try {
+        await cleanupExpiredBookings();
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
 

@@ -31,7 +31,9 @@ export default function Navbar() {
         { name: 'หน้าแรก', href: '/', icon: '🏠', roles: ['USER', 'ADMIN'] },
         { name: 'ตลาด', href: '/market', icon: '🏪', roles: ['USER', 'ADMIN'] },
         { name: 'การจองของฉัน', href: '/bookings', icon: '📋', roles: ['USER', 'ADMIN'] },
-        { name: 'ระบบหลังบ้าน', href: '/admin', icon: '📊', roles: ['ADMIN'] },
+        { name: 'Dashboard', href: '/admin/dashboard', icon: '📊', roles: ['ADMIN'] },
+        { name: 'จัดการการจอง', href: '/admin', icon: '📋', roles: ['ADMIN'] },
+        { name: 'จัดการผู้ใช้', href: '/admin/users', icon: '👥', roles: ['ADMIN'] },
         { name: 'โปรไฟล์', href: '/profile', icon: '👤', roles: ['USER', 'ADMIN'] },
     ].filter(link => !userRole || link.roles.includes(userRole));
 

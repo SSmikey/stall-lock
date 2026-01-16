@@ -178,7 +178,7 @@ export default function AdminDashboard() {
     };
 
     const filteredBookings = filterStatus === 'ALL'
-        ? bookings
+        ? bookings.filter(b => b.status !== 'EXPIRED' && b.status !== 'CANCELLED')
         : bookings.filter(b => b.status === filterStatus);
 
     // Stats calculation
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
                     className={`btn btn-sm ${filterStatus === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'}`}
                     onClick={() => setFilterStatus('ALL')}
                 >
-                    ทั้งหมด
+                    จองที่ใช้งานอยู่
                 </button>
                 <button
                     className={`btn btn-sm ${filterStatus === 'AWAITING_APPROVAL' ? 'btn-primary' : 'btn-outline-secondary'}`}
@@ -271,6 +271,12 @@ export default function AdminDashboard() {
                     onClick={() => setFilterStatus('CONFIRMED')}
                 >
                     อนุมัติแล้ว
+                </button>
+                <button
+                    className={`btn btn-sm ${filterStatus === 'EXPIRED' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => setFilterStatus('EXPIRED')}
+                >
+                    หมดอายุ/ยกเลิก ({stats.expired})
                 </button>
             </div>
 
@@ -312,8 +318,8 @@ export default function AdminDashboard() {
                                         <tr key={b._id}>
                                             <td className="px-4 fw-bold text-primary">{b.bookingId}</td>
                                             <td>
-                                                <div className="fw-bold">{b.user?.fullName || 'N/A'}</div>
-                                                <div className="small text-muted">{b.user?.phone || b.user?.username}</div>
+                                                <div className="fw-bold">{b.user?.username || 'N/A'}</div>
+                                                <div className="small text-muted">{b.user?.phone || '-'}</div>
                                             </td>
                                             <td>
                                                 <div className="fw-bold">{b.stall?.stallId || 'N/A'}</div>
@@ -388,7 +394,8 @@ export default function AdminDashboard() {
                                         <div className="row g-2 mb-3">
                                             <div className="col-6">
                                                 <small className="text-muted d-block">ผู้จอง</small>
-                                                <strong>{b.user?.fullName || 'N/A'}</strong>
+                                                <strong>{b.user?.username || 'N/A'}</strong>
+                                                <div className="small text-muted">{b.user?.phone || '-'}</div>
                                             </div>
                                             <div className="col-6 text-end">
                                                 <small className="text-muted d-block">ล็อค / โซน</small>
@@ -520,9 +527,8 @@ export default function AdminDashboard() {
                                             <div className="mb-4">
                                                 <h6 className="text-muted small fw-bold mb-3">👤 ข้อมูลผู้เช่า</h6>
                                                 <div className="p-3 bg-light rounded-3">
-                                                    <div className="mb-2"><strong>ชื่อ-นามสกุล:</strong> {viewingBooking.user?.fullName || 'N/A'}</div>
-                                                    <div className="mb-2"><strong>เบอร์โทรศัพท์:</strong> {viewingBooking.user?.phone || 'N/A'}</div>
-                                                    <div><strong>Username:</strong> {viewingBooking.user?.username || 'N/A'}</div>
+                                                    <div className="mb-2"><strong>ชื่อ:</strong> {viewingBooking.user?.username || 'N/A'}</div>
+                                                    <div><strong>เบอร์โทรศัพท์:</strong> {viewingBooking.user?.phone || 'N/A'}</div>
                                                 </div>
                                             </div>
                                             <div className="mb-4">

@@ -13,28 +13,36 @@ interface BookingWithStall extends Booking {
 export default function BookingsPage() {
     const [bookings, setBookings] = useState<BookingWithStall[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-    const mockUserId = '65a3f2b4e4b0a1a2b3c4d5e6'; // Same mock user
-
-    useEffect(() => {
-        fetchBookings();
-    }, []);
-
-    const fetchBookings = async () => {
+    const fetchData = async () => {
         setLoading(true);
+        console.log('[BookingsPage] Fetching data...');
         try {
-            const res = await fetch(`/api/bookings?userId=${mockUserId}`);
-            const data: ApiResponse<BookingWithStall[]> = await res.json();
+            const res = await fetch('/api/auth/me');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.data?.user?.id) {
+                    const userId = data.data.user.id;
+                    setCurrentUserId(userId);
 
-            if (data.success && data.data) {
-                setBookings(data.data);
+                    const bookingsRes = await fetch(`/api/bookings?userId=${userId}`);
+                    const bookingsData = await bookingsRes.json();
+                    if (bookingsData.success && bookingsData.data) {
+                        setBookings(bookingsData.data);
+                    }
+                }
             }
         } catch (error) {
-            console.error('Failed to fetch bookings:', error);
+            console.error('[BookingsPage] Error:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const getStatusBadgeClass = (status: string) => {
         switch (status) {

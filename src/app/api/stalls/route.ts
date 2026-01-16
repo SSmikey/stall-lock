@@ -1,9 +1,10 @@
-import { getDb } from '@/lib/db';
+import { getDb, cleanupExpiredBookings } from '@/lib/db';
 import { createApiResponse, handleApiError } from '@/lib/api';
 import { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
     try {
+        await cleanupExpiredBookings();
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const zone = searchParams.get('zone');
