@@ -1,54 +1,63 @@
 import { getDb } from '@/lib/db';
 import { createApiResponse, handleApiError } from '@/lib/api';
 import { NextRequest } from 'next/server';
+import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
     try {
         const db = await getDb();
 
-        // Use aggregation to join related data
-        const bookings = await db.collection('bookings').aggregate([
-            {
-                $lookup: {
-                    from: 'stalls',
-                    localField: 'stallId',
-                    foreignField: '_id',
-                    as: 'stall'
-                }
-            },
-            { $unwind: { path: '$stall', preserveNullAndEmptyArrays: true } },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user'
-                }
-            },
-            { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
-            {
-                $lookup: {
-                    from: 'payments',
-                    localField: '_id',
-                    foreignField: 'bookingId',
-                    as: 'payment'
-                }
-            },
-            { $unwind: { path: '$payment', preserveNullAndEmptyArrays: true } },
-            {
-                $sort: { createdAt: -1 }
-            }
-        ]).toArray();
+        // Get all bookings first
+        const bookingsRaw = await db.collection('bookings').find({}).sort({ createdAt: -1 }).toArray();
 
-        // Remove sensitive information
-        const sanitizedBookings = bookings.map(b => {
-            if (b.user) {
-                delete b.user.password;
+        // Get all related data
+        const stallIds = bookingsRaw.map(b => b.stallId).filter(Boolean);
+        const userIds = bookingsRaw.map(b => {
+            if (!b.userId) return null;
+            // Handle both string and ObjectId
+            if (typeof b.userId === 'string') {
+                try {
+                    return new ObjectId(b.userId);
+                } catch {
+                    return null;
+                }
             }
-            return b;
+            return b.userId;
+        }).filter(Boolean);
+
+        const [stalls, users] = await Promise.all([
+            db.collection('stalls').find({ _id: { $in: stallIds } }).toArray(),
+            db.collection('users').find({ _id: { $in: userIds } }).toArray()
+        ]);
+
+        // Create lookup maps
+        const stallMap = new Map(stalls.map(s => [s._id.toString(), s]));
+        const userMap = new Map(users.map(u => [u._id.toString(), u]));
+
+        // Join data manually
+        const bookings = bookingsRaw.map(booking => {
+            const stall = booking.stallId ? stallMap.get(booking.stallId.toString()) : null;
+
+            let user = null;
+            if (booking.userId) {
+                const userIdStr = booking.userId.toString();
+                user = userMap.get(userIdStr);
+            }
+
+            // Remove password from user
+            if (user) {
+                const { password, ...userWithoutPassword } = user;
+                user = userWithoutPassword;
+            }
+
+            return {
+                ...booking,
+                stall: stall || null,
+                user: user || null
+            };
         });
 
-        return Response.json(createApiResponse(sanitizedBookings));
+        return Response.json(createApiResponse(bookings));
     } catch (error) {
         return handleApiError(error);
     }

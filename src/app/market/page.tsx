@@ -14,9 +14,28 @@ export default function MarketPage() {
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const router = useRouter();
 
     const zones = ['A', 'B', 'C', 'D'];
+
+    // Fetch current user on mount
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.data?.user?.id) {
+                        setCurrentUserId(data.data.user.id);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch user:', error);
+            }
+        };
+        fetchCurrentUser();
+    }, []);
 
     useEffect(() => {
         fetchStalls();
@@ -49,20 +68,22 @@ export default function MarketPage() {
     const handleBookStall = async () => {
         if (!selectedStall) return;
 
+        if (!currentUserId) {
+            setMessage({ type: 'error', text: 'กรุณาเข้าสู่ระบบก่อนทำการจอง' });
+            router.push('/login');
+            return;
+        }
+
         setBookingLoading(true);
         setMessage(null);
 
         try {
-            // Mock user ID for demonstration (user001 from seed)
-            // In a real app, this would be fetched from the session/JWT
-            const mockUserId = '65a3f2b4e4b0a1a2b3c4d5e6';
-
             const res = await fetch('/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     stallId: selectedStall._id,
-                    userId: mockUserId
+                    userId: currentUserId
                 })
             });
 
