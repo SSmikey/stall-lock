@@ -311,26 +311,21 @@ export default function AdminUsersPage() {
                             <table className="table table-hover align-middle mb-0">
                                 <thead className="bg-light">
                                     <tr>
-                                        <th className="px-4 py-3">ชื่อ-นามสกุล</th>
+                                        <th className="px-4 py-3">วันที่สมัคร</th>
                                         <th className="py-3">Username</th>
-                                        <th className="py-3">อีเมล</th>
                                         <th className="py-3">เบอร์โทร</th>
                                         <th className="py-3">Role</th>
                                         <th className="py-3 text-center">การจอง</th>
-                                        <th className="px-4 py-3 text-end">ดำเนินการ</th>
+                                        <th className="px-4 py-3 text-end">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredUsers.map((user) => (
                                         <tr key={user._id}>
                                             <td className="px-4">
-                                                <div className="fw-bold">{user.fullName}</div>
-                                                <div className="small text-muted">
-                                                    สมัคร: {new Date(user.createdAt).toLocaleDateString('th-TH')}
-                                                </div>
+                                                {new Date(user.createdAt).toLocaleDateString('th-TH')}
                                             </td>
                                             <td>{user.username}</td>
-                                            <td>{user.email}</td>
                                             <td>{user.phone || '-'}</td>
                                             <td>{getRoleBadge(user.role)}</td>
                                             <td className="text-center">
@@ -375,14 +370,14 @@ export default function AdminUsersPage() {
                                 <div key={user._id} className="col-12">
                                     <div className="card-custom p-3">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <div className="fw-bold">{user.fullName}</div>
+                                            <div className="fw-bold">@{user.username}</div>
                                             {getRoleBadge(user.role)}
                                         </div>
                                         <div className="small text-muted mb-2">
-                                            @{user.username} | {user.email}
+                                            วันที่สมัคร: {new Date(user.createdAt).toLocaleDateString('th-TH')}
                                         </div>
                                         <div className="small text-muted mb-3">
-                                            {user.phone || 'ไม่มีเบอร์โทร'} | {user.bookingCount} การจอง
+                                            โทร: {user.phone || '-'} | {user.bookingCount} รายการจอง
                                         </div>
                                         <div className="d-flex gap-2">
                                             <button
@@ -535,18 +530,7 @@ export default function AdminUsersPage() {
                                     )}
                                     <form onSubmit={handleUpdateUser}>
                                         <div className="row g-3">
-                                            <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">ชื่อ-นามสกุล *</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={formData.fullName}
-                                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                                    required
-                                                    disabled={actionLoading}
-                                                />
-                                            </div>
-                                            <div className="col-md-6">
+                                            <div className="col-md-12">
                                                 <label className="form-label small fw-semibold">Username *</label>
                                                 <input
                                                     type="text"
@@ -554,28 +538,6 @@ export default function AdminUsersPage() {
                                                     value={formData.username}
                                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                                     required
-                                                    disabled={actionLoading}
-                                                />
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">อีเมล *</label>
-                                                <input
-                                                    type="email"
-                                                    className="form-control"
-                                                    value={formData.email}
-                                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                                    required
-                                                    disabled={actionLoading}
-                                                />
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">รหัสผ่านใหม่</label>
-                                                <input
-                                                    type="password"
-                                                    className="form-control"
-                                                    value={formData.password}
-                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                                    placeholder="เว้นว่างถ้าไม่ต้องการเปลี่ยน"
                                                     disabled={actionLoading}
                                                 />
                                             </div>
