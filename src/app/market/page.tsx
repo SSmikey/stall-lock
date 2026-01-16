@@ -22,27 +22,28 @@ export default function MarketPage() {
     // Fetch current user on mount
     useEffect(() => {
         const fetchCurrentUser = async () => {
+            console.log('[MarketPage] Fetching current user...');
             try {
                 const res = await fetch('/api/auth/me');
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success && data.data?.user?.id) {
+                        console.log('[MarketPage] User found:', data.data.user.id);
                         setCurrentUserId(data.data.user.id);
+                    } else {
+                        console.log('[MarketPage] No authenticated user');
                     }
                 }
             } catch (error) {
-                console.error('Failed to fetch user:', error);
+                console.error('[MarketPage] Failed to fetch user:', error);
             }
         };
         fetchCurrentUser();
     }, []);
 
-    useEffect(() => {
-        fetchStalls();
-    }, [filterZone, filterStatus]);
-
-    const fetchStalls = async () => {
-        setLoading(true);
+    const fetchStalls = async (isSilent = false) => {
+        if (!isSilent) setLoading(true);
+        console.log('[MarketPage] Fetching stalls... Zone:', filterZone, 'Status:', filterStatus, 'isSilent:', isSilent);
         try {
             let url = '/api/stalls';
             const params = new URLSearchParams();
@@ -56,14 +57,20 @@ export default function MarketPage() {
             const res = await fetch(url);
             const data: ApiResponse<{ stalls: Stall[] }> = await res.json();
             if (data.success && data.data) {
+                console.log('[MarketPage] Stalls received:', data.data.stalls.length);
                 setStalls(data.data.stalls);
             }
         } catch (error) {
-            console.error('Failed to fetch stalls:', error);
+            console.error('[MarketPage] Failed to fetch stalls:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        // Use silent fetch if we already have stalls to prevent flickering
+        fetchStalls(stalls.length > 0);
+    }, [filterZone, filterStatus]);
 
     const handleBookStall = async () => {
         if (!selectedStall) return;
