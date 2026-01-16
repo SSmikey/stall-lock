@@ -523,6 +523,7 @@ export default function AdminDashboard() {
                                         <th className="py-3">ผู้จอง</th>
                                         <th className="py-3">ล็อค / โซน</th>
                                         <th className="py-3">ยอดชำระ</th>
+                                        <th className="py-3">วันที่จอง</th>
                                         <th className="py-3">สถานะ</th>
                                         <th className="py-3 text-center">สลิป</th>
                                         <th className="px-4 py-3 text-end">ดำเนินการ</th>
@@ -541,7 +542,12 @@ export default function AdminDashboard() {
                                                 <div className="small text-muted">โซน {b.stall?.zone}</div>
                                             </td>
                                             <td className="fw-bold text-success">
-                                                {b.stall?.price.toLocaleString() || 0}฿
+                                                {(b.totalPrice || b.stall?.price || 0).toLocaleString()}฿
+                                                {b.bookingDays > 1 && <span className="text-muted small ms-1">({b.bookingDays} วัน)</span>}
+                                            </td>
+                                            <td>
+                                                <div className="small">{b.startDate ? new Date(b.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) : '-'}</div>
+                                                <div className="small text-muted">ถึง {b.endDate ? new Date(b.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : '-'}</div>
                                             </td>
                                             <td>{getStatusBadge(b.status)}</td>
                                             <td className="text-center">
@@ -759,7 +765,12 @@ export default function AdminDashboard() {
                                                 <h6 className="text-muted small fw-bold mb-3">🕒 สถานะและเวลา</h6>
                                                 <div className="p-3 bg-light rounded-3">
                                                     <div className="mb-2"><strong>สถานะปัจจุบัน:</strong> {getStatusBadge(viewingBooking.status)}</div>
-                                                    <div className="mb-2"><strong>วันที่จอง:</strong> {new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}</div>
+                                                    <div className="mb-2"><strong>วันที่ทำรายการ:</strong> {new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}</div>
+                                                    <div className="mb-2">
+                                                        <strong>ช่วงเวลาที่จอง:</strong> <br />
+                                                        {viewingBooking.startDate ? new Date(viewingBooking.startDate).toLocaleDateString('th-TH') : '-'} ถึง {viewingBooking.endDate ? new Date(viewingBooking.endDate).toLocaleDateString('th-TH') : '-'}
+                                                        <span className="text-muted ms-2">({viewingBooking.bookingDays || 1} วัน)</span>
+                                                    </div>
                                                     {viewingBooking.paymentUploadedAt && (
                                                         <div className="mb-2"><strong>วันที่โอนเงิน:</strong> {new Date(viewingBooking.paymentUploadedAt).toLocaleString('th-TH')}</div>
                                                     )}
@@ -800,8 +811,8 @@ export default function AdminDashboard() {
 
                                             <div className="mt-4 pt-4 border-top">
                                                 <div className="d-flex justify-content-between h5 fw-bold text-success mb-3">
-                                                    <span>ยอดรวม:</span>
-                                                    <span>{viewingBooking.stall?.price?.toLocaleString()}฿</span>
+                                                    <span>ยอดรวม ({viewingBooking.bookingDays || 1} วัน):</span>
+                                                    <span>{(viewingBooking.totalPrice || viewingBooking.stall?.price || 0).toLocaleString()}฿</span>
                                                 </div>
 
                                                 {viewingBooking.status === 'AWAITING_APPROVAL' ? (
