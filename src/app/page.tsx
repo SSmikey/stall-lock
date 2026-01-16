@@ -147,6 +147,22 @@ export default function HomePage() {
                           </div>
                         </div>
                       </div>
+                      <div className="col-sm-6">
+                        <div className="d-flex align-items-start">
+                          <span className="me-3 fs-4">✅</span>
+                          <div>
+                            <h6 className="fw-bold mb-1">ชำระเงินผ่านระบบปลอดภัย</h6>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-sm-6">
+                        <div className="d-flex align-items-start">
+                          <span className="me-3 fs-4">✅</span>
+                          <div>
+                            <h6 className="fw-bold mb-1">ติดต่อเจ้าหน้าที่ 02-123-4567</h6>
+                          </div>
+                        </div>
+                      </div>
 
                     </div>
                   </div>
