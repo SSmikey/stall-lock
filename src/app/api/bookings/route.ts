@@ -1,4 +1,4 @@
-import { getDb, cleanupExpiredBookings } from '@/lib/db';
+import { getDb, cleanupExpiredBookings, autoReturnStalls } from '@/lib/db';
 import { createApiResponse, createApiError, handleApiError, ErrorCodes } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
@@ -7,6 +7,7 @@ import clientPromise from '@/lib/mongodb';
 export async function POST(request: NextRequest) {
     try {
         await cleanupExpiredBookings();
+        await autoReturnStalls();
         const body = await request.json();
         const { stallId, userId } = body;
 
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
     try {
         await cleanupExpiredBookings();
+        await autoReturnStalls();
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
 

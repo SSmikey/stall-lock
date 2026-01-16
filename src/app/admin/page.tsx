@@ -43,21 +43,83 @@ export default function AdminDashboard() {
     const [zones, setZones] = useState<Zone[]>([]);
     const [stallSizes, setStallSizes] = useState<StallSize[]>([]);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
-    const [settingsTab, setSettingsTab] = useState<'zones' | 'sizes'>('zones');
+    const [settingsTab, setSettingsTab] = useState<'zones' | 'sizes' | 'market'>('zones');
     const [zoneFormData, setZoneFormData] = useState({ name: '', description: '' });
     const [editingZone, setEditingZone] = useState<Zone | null>(null);
     const [sizeFormData, setSizeFormData] = useState({ name: '', label: '', dimensions: '' });
     const [editingSize, setEditingSize] = useState<StallSize | null>(null);
+    const [marketSettings, setMarketSettings] = useState({
+        autoReturnTime: '22:00',
+        isAutoReturnEnabled: false
+    });
 
     useEffect(() => {
         fetchBookings();
         fetchZones();
         fetchStallSizes();
+        fetchSettings();
         const interval = setInterval(() => {
             fetchBookings(false); // Background refresh every 10 seconds
         }, 10000);
         return () => clearInterval(interval);
     }, []);
+
+    const fetchSettings = async () => {
+        try {
+            const res = await fetch('/api/admin/settings');
+            const data = await res.json();
+            if (data.success && data.data) {
+                setMarketSettings({
+                    autoReturnTime: data.data.autoReturnTime || '22:00',
+                    isAutoReturnEnabled: data.data.isAutoReturnEnabled || false
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch settings:', error);
+        }
+    };
+
+    const handleSaveSettings = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(marketSettings)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('บันทึกการตั้งค่าเรียบร้อย');
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleManualReturn = async () => {
+        if (!confirm('ยืนยันรคืนแผง "ทั้งหมด" ที่จองสำเร็จแล้ว? การดำเนินการนี้จะเปลี่ยนสถานะแผงเป็น "ว่าง" ทันที เพื่อเริ่มรอบการจองใหม่')) return;
+
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/system/cleanup?forceReturn=true', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                alert(`คืนแผงเรียบร้อย: ${data.data.returnedCount} รายการ`);
+                fetchBookings();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     const fetchZones = async () => {
         try {
@@ -824,6 +886,14 @@ export default function AdminDashboard() {
                                                 📐 ขนาด ({stallSizes.length})
                                             </button>
                                         </li>
+                                        <li className="nav-item">
+                                            <button
+                                                className={`nav-link ${settingsTab === 'market' ? 'active' : ''}`}
+                                                onClick={() => setSettingsTab('market')}
+                                            >
+                                                🏪 ตั้งค่าการคืนล็อค
+                                            </button>
+                                        </li>
                                     </ul>
 
                                     <div className="p-4">
@@ -1032,6 +1102,76 @@ export default function AdminDashboard() {
                                                     </table>
                                                 </div>
                                             </>
+                                        )}
+
+                                        {/* Market Settings Tab */}
+                                        {settingsTab === 'market' && (
+                                            <div className="py-2">
+                                                <div className="alert alert-info mb-4">
+                                                    <div className="d-flex gap-2">
+                                                        <span className="fs-4">ℹ️</span>
+                                                        <div>
+                                                            <div className="fw-bold">ระบบคืนล็อคอัตโนมัติ</div>
+                                                            <div className="small">เมื่อถึงเวลาที่กำหนด ระบบจะทำการเปลี่ยนสถานะแผงที่จองสำเร็จแล้วทั้งหมดให้กลับเป็น "ว่าง" อัตโนมัติ เพื่อรองรับการจองในรอบถัดไป</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <form onSubmit={handleSaveSettings}>
+                                                    <div className="card border-0 bg-light p-4 rounded-4 mb-4">
+                                                        <div className="row g-4">
+                                                            <div className="col-md-6">
+                                                                <label className="form-label fw-bold small mb-2">สถานะการทำงาน</label>
+                                                                <div className="form-check form-switch pt-1">
+                                                                    <input
+                                                                        className="form-check-input"
+                                                                        type="checkbox"
+                                                                        role="switch"
+                                                                        id="autoReturnSwitch"
+                                                                        checked={marketSettings.isAutoReturnEnabled}
+                                                                        onChange={(e) => setMarketSettings({ ...marketSettings, isAutoReturnEnabled: e.target.checked })}
+                                                                    />
+                                                                    <label className="form-check-label ms-2" htmlFor="autoReturnSwitch">
+                                                                        {marketSettings.isAutoReturnEnabled ? 'เปิดใช้งานการคืนอัตโนมัติ' : 'ปิดการใช้งาน'}
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <label className="form-label fw-bold small mb-2">เวลาคืนล็อคอัตโนมัติ</label>
+                                                                <input
+                                                                    type="time"
+                                                                    className="form-control"
+                                                                    value={marketSettings.autoReturnTime}
+                                                                    onChange={(e) => setMarketSettings({ ...marketSettings, autoReturnTime: e.target.value })}
+                                                                    disabled={!marketSettings.isAutoReturnEnabled}
+                                                                />
+                                                                <div className="form-text small">แผงจะถูกคืนระบบเมื่อคนเข้าหน้าเว็บหลังจากเวลานี้</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-4 pt-3 border-top text-end">
+                                                            <button type="submit" className="btn btn-primary px-4" disabled={actionLoading}>
+                                                                บันทึกการตั้งค่า
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+
+                                                <div className="card border-danger bg-danger bg-opacity-10 p-4 rounded-4">
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <div className="fw-bold text-danger">คืนแผงทั้มหมด (Manual Reset)</div>
+                                                            <div className="small text-danger opacity-75">สั่งคืนล็อคทั้งหมดที่จองสำเร็จแล้วให้กลับเป็น "ว่าง" ทันที โดยไม่ต้องรอเวลา</div>
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-danger px-4"
+                                                            onClick={handleManualReturn}
+                                                            disabled={actionLoading}
+                                                        >
+                                                            🔥 คืนแผงทันที
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
