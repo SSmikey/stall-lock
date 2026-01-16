@@ -41,9 +41,9 @@ export default function HomePage() {
                 จัดการพื้นที่ขายของคุณได้ง่ายๆ จอง จ่าย จบ ในที่เดียว<br />
                 ระบบที่แม่ค้าพ่อค้าไว้วางใจ
               </p>
-              <Link href="/market" className="btn btn-brand-inverse btn-lg px-5 shadow-lg fw-bold">
+              <div className="btn btn-brand-inverse btn-lg px-5 shadow-lg fw-bold">
                 จองล็อคเลย 🏪
-              </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -53,35 +53,31 @@ export default function HomePage() {
         {/* Feature Cards */}
         <div className="row g-4 mb-5" style={{ marginTop: '-4rem' }}>
           <div className="col-md-6 col-lg-3">
-            <Link href="/market" className="text-decoration-none">
-              <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
-                <div className="card-body text-center p-4">
-                  <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
-                    <span className="fs-2 text-brand">🏪</span>
-                  </div>
-                  <h5 className="card-title fw-bold text-dark">ตลาด</h5>
-                  <p className="card-text text-muted small">
-                    สำรวจแผนผังตลาดและเลือกทำเลทองของคุณ
-                  </p>
+            <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
+              <div className="card-body text-center p-4">
+                <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
+                  <span className="fs-2 text-brand">🏪</span>
                 </div>
+                <h5 className="card-title fw-bold text-dark">ตลาด</h5>
+                <p className="card-text text-muted small">
+                  สำรวจแผนผังตลาดและเลือกทำเลทองของคุณ
+                </p>
               </div>
-            </Link>
+            </div>
           </div>
 
           <div className="col-md-6 col-lg-3">
-            <Link href="/bookings" className="text-decoration-none">
-              <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
-                <div className="card-body text-center p-4">
-                  <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
-                    <span className="fs-2 text-brand">📋</span>
-                  </div>
-                  <h5 className="card-title fw-bold text-dark">การจองของฉัน</h5>
-                  <p className="card-text text-muted small">
-                    ตรวจสอบสถานะและประวัติการจองย้อนหลัง
-                  </p>
+            <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
+              <div className="card-body text-center p-4">
+                <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
+                  <span className="fs-2 text-brand">📋</span>
                 </div>
+                <h5 className="card-title fw-bold text-dark">การจองของฉัน</h5>
+                <p className="card-text text-muted small">
+                  ตรวจสอบสถานะและประวัติการจองย้อนหลัง
+                </p>
               </div>
-            </Link>
+            </div>
           </div>
 
           <div className="col-md-6 col-lg-3">

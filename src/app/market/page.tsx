@@ -17,10 +17,28 @@ export default function MarketPage() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const router = useRouter();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const itemsPerPage = 20;
 
     const zones = ['A', 'B', 'C', 'D'];
 
     // Fetch current user on mount
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                const data = await res.json();
+                if (data.success && data.data?.user) {
+                    setCurrentUserId(data.data.user.id);
+                }
+            } catch (error) {
+                console.error('Failed to fetch user', error);
+            }
+        };
+        checkAuth();
+    }, []);
+
     useEffect(() => {
         fetchStalls();
     }, [filterZone, filterStatus]);
@@ -115,7 +133,7 @@ export default function MarketPage() {
     };
 
     // Pagination Logic
-    const filteredStalls = stalls.filter(stall => 
+    const filteredStalls = stalls.filter(stall =>
         (stall.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (stall.stallId || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -182,10 +200,10 @@ export default function MarketPage() {
                     {/* Search Bar */}
                     <div className="input-group" style={{ maxWidth: '300px', boxShadow: 'var(--shadow-sm)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                         <span className="input-group-text bg-white border-end-0 text-muted">🔍</span>
-                        <input 
-                            type="text" 
-                            className="form-control border-start-0 ps-0" 
-                            placeholder="ค้นหาชื่อล็อค..." 
+                        <input
+                            type="text"
+                            className="form-control border-start-0 ps-0"
+                            placeholder="ค้นหาชื่อล็อค..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{ boxShadow: 'none' }}
