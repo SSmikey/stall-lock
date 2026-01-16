@@ -1341,18 +1341,7 @@ export default function AdminDashboard() {
                                                         required
                                                         disabled={actionLoading}
                                                     />
-                                                    <select
-                                                        className="form-select"
-                                                        style={{ maxWidth: '120px' }}
-                                                        value={stallFormData.priceUnit}
-                                                        onChange={(e) =>
-                                                            setStallFormData({ ...stallFormData, priceUnit: e.target.value as 'DAY' | 'MONTH' })
-                                                        }
-                                                        disabled={actionLoading}
-                                                    >
-                                                        <option value="DAY">บาท/วัน</option>
-                                                        <option value="MONTH">บาท/เดือน</option>
-                                                    </select>
+                                                    <span className="input-group-text bg-light text-muted">บาท/วัน</span>
                                                 </div>
                                             </div>
 
