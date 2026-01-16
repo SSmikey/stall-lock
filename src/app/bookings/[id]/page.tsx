@@ -121,8 +121,15 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                             <div className="col-md-6">
                                 <div className="p-3 bg-light rounded-3">
                                     <div className="text-muted small">ยอดชำระทั้งสิ้น</div>
-                                    <div className="h4 fw-bold text-success mb-1">{stall?.price.toLocaleString() || 0}฿</div>
-                                    <div className="text-muted small">ขนาด {stall?.size || 0} ตร.ม.</div>
+                                    <div className="h4 fw-bold text-success mb-1">{(booking.totalPrice || stall?.price || 0).toLocaleString()}฿</div>
+                                    <div className="text-muted small">
+                                        {booking.bookingDays || 1} วัน
+                                        {booking.startDate && booking.endDate && (
+                                            <span className="ms-1">
+                                                ({new Date(booking.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })} - {new Date(booking.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })})
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -140,9 +147,13 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                                     <span className="text-muted">เลขที่บัญชี</span>
                                     <span className="fw-bold">123-4-56789-0</span>
                                 </div>
-                                <div className="d-flex justify-content-between">
+                                <div className="d-flex justify-content-between mb-2">
                                     <span className="text-muted">ชื่อบัญชี</span>
                                     <span className="fw-bold">บจก. ตลาดล็อคเซ็นเตอร์</span>
+                                </div>
+                                <div className="d-flex justify-content-between text-success">
+                                    <span className="">ยอดที่ต้องโอน</span>
+                                    <span className="fw-bold">{(booking.totalPrice || stall?.price || 0).toLocaleString()}฿</span>
                                 </div>
                             </div>
                         </div>
@@ -315,16 +326,22 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                                             <div className="h5 fw-bold text-dark mb-0">{stall?.size} Sq.m.</div>
                                         </div>
                                         <div className="col-6 col-sm-4">
-                                            <label className="text-muted small fw-bold text-uppercase d-block mb-1" style={{ letterSpacing: '1px' }}>Price/Day</label>
-                                            <div className="h5 fw-bold text-dark mb-0">{stall?.price?.toLocaleString()} ฿</div>
+                                            <label className="text-muted small fw-bold text-uppercase d-block mb-1" style={{ letterSpacing: '1px' }}>Total Price</label>
+                                            <div className="h5 fw-bold text-dark mb-0">{(booking.totalPrice || stall?.price || 0).toLocaleString()} ฿</div>
+                                            <div className="small text-muted">({booking.bookingDays || 1} Days)</div>
                                         </div>
                                         <div className="col-6 col-sm-4">
-                                            <label className="text-muted small fw-bold text-uppercase d-block mb-1" style={{ letterSpacing: '1px' }}>Issued Date</label>
-                                            <div className="h5 fw-bold text-dark mb-0">{new Date(booking.updatedAt || new Date()).toLocaleDateString('th-TH')}</div>
+                                            <label className="text-muted small fw-bold text-uppercase d-block mb-1" style={{ letterSpacing: '1px' }}>Valid Period</label>
+                                            <div className="h5 fw-bold text-dark mb-0">
+                                                {booking.startDate ? new Date(booking.startDate).toLocaleDateString('th-TH') : 'N/A'} -
+                                            </div>
+                                            <div className="small text-muted">
+                                                {booking.endDate ? new Date(booking.endDate).toLocaleDateString('th-TH') : 'N/A'}
+                                            </div>
                                         </div>
                                         <div className="col-6 col-sm-4">
                                             <label className="text-muted small fw-bold text-uppercase d-block mb-1" style={{ letterSpacing: '1px' }}>Status</label>
-                                            <div className="h5 fw-bold text-success mb-0">PERMANENT</div>
+                                            <div className="h5 fw-bold text-success mb-0">ACTIVE</div>
                                         </div>
                                     </div>
 
