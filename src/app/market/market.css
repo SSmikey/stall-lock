@@ -1,7 +1,7 @@
 :root {
   --primary: #FF6B35;
   --primary-dark: #FFB347;
-  --primary-light: #e0e7ff;
+  --primary-light: #fff0e6;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
@@ -106,4 +106,10 @@
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   box-shadow: var(--shadow-sm);
+}
+
+/* Dropdown Focus Override */
+.form-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.25) !important;
 }
