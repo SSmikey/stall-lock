@@ -20,6 +20,7 @@ export interface Stall {
     column: number;
     size: number;
     price: number;
+    priceUnit: 'DAY' | 'MONTH';
     status: 'AVAILABLE' | 'RESERVED' | 'CONFIRMED';
     description?: string;
     features: string[];
@@ -57,6 +58,24 @@ export interface Payment {
     verifiedAt?: Date;
     verifiedBy?: ObjectId;
     rejectedReason?: string;
+}
+
+export interface Zone {
+    _id?: ObjectId;
+    name: string;
+    description?: string;
+    color?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface StallSize {
+    _id?: ObjectId;
+    name: string;
+    label: string;
+    dimensions?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 // Database helper functions
