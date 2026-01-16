@@ -14,35 +14,50 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
     const [stall, setStall] = useState<Stall | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchBookingDetails();
-    }, [id]);
-
-    const fetchBookingDetails = async () => {
-        setLoading(true);
+    const fetchBookingDetails = async (isSilent = false) => {
+        if (!isSilent) setLoading(true);
+        console.log('[BookingDetails] Loading data for:', id, isSilent ? '(silent)' : '');
         try {
-            // In a real app, we'd have an API specifically for one booking
-            // For now, we fetch all and find the one (or we can use searchParams)
-            const res = await fetch(`/api/bookings`);
-            const data: ApiResponse<Booking[]> = await res.json();
+            // 1. Fetch user
+            const userRes = await fetch('/api/auth/me');
+            if (!userRes.ok) {
+                if (!isSilent) setLoading(false);
+                return;
+            }
+            const userData = await userRes.json();
+            const userId = userData.data?.user?.id;
 
+            if (!userId) {
+                if (!isSilent) setLoading(false);
+                return;
+            }
+
+            // 2. Fetch booking
+            const res = await fetch(`/api/bookings?userId=${userId}`);
+            const data: ApiResponse<Booking[]> = await res.json();
             if (data.success && data.data) {
-                const found = data.data.find(b => b.bookingId === id || b._id === (id as any));
+                const found = data.data.find(b => b.bookingId === id || b._id?.toString() === id);
                 if (found) {
                     setBooking(found);
-                    // Fetch stall details
+
+                    // 3. Fetch stall
                     const stallRes = await fetch(`/api/stalls`);
                     const stallData = await stallRes.json();
-                    const stallFound = stallData.data.stalls.find((s: any) => s._id === found.stallId);
+                    const stalls = stallData.data?.stalls || [];
+                    const stallFound = stalls.find((s: any) => s._id === found.stallId || s._id?.toString() === found.stallId?.toString());
                     setStall(stallFound);
                 }
             }
         } catch (error) {
-            console.error('Failed to fetch booking details:', error);
+            console.error('[BookingDetails] Error:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchBookingDetails();
+    }, [id]);
 
     if (loading) {
         return (
@@ -136,7 +151,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                             {booking.status === 'RESERVED' ? (
                                 <PaymentUpload
                                     bookingId={booking.bookingId}
-                                    onSuccess={() => fetchBookingDetails()}
+                                    onSuccess={() => fetchBookingDetails(true)}
                                 />
                             ) : (
                                 <div className="p-4 bg-success bg-opacity-10 border border-success rounded-4 text-center">
@@ -162,7 +177,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                                     <div className="d-flex justify-content-center">
                                         <CountdownTimer
                                             expiresAt={booking.expiresAt}
-                                            onExpire={() => fetchBookingDetails()}
+                                            onExpire={() => fetchBookingDetails(true)}
                                         />
                                     </div>
                                     <p className="text-muted small mt-3 px-3">
