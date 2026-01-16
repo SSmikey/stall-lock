@@ -65,6 +65,52 @@ export async function getDb() {
     return client.db('stalllock');
 }
 
+/**
+ * Clean up expired bookings and release stalls
+ */
+export async function cleanupExpiredBookings() {
+    const client = await clientPromise;
+    const db = client.db('stalllock');
+    const now = new Date();
+
+    // Find expired bookings that are still in RESERVED status
+    const expiredBookings = await db.collection('bookings').find({
+        status: 'RESERVED',
+        expiresAt: { $lt: now }
+    }).toArray();
+
+    if (expiredBookings.length === 0) return;
+
+    console.log(`[Cleanup] Found ${expiredBookings.length} expired bookings`);
+
+    for (const booking of expiredBookings) {
+        const session = client.startSession();
+        try {
+            await session.withTransaction(async () => {
+                // 1. Update booking status to EXPIRED
+                await db.collection('bookings').updateOne(
+                    { _id: booking._id },
+                    { $set: { status: 'EXPIRED', updatedAt: now } },
+                    { session }
+                );
+
+                // 2. Update stall status to AVAILABLE
+                await db.collection('stalls').updateOne(
+                    { _id: booking.stallId },
+                    { $set: { status: 'AVAILABLE', updatedAt: now } },
+                    { session }
+                );
+
+                console.log(`[Cleanup] Released stall ${booking.stallId} from expired booking ${booking.bookingId}`);
+            });
+        } catch (error) {
+            console.error(`[Cleanup] Failed to release booking ${booking.bookingId}:`, error);
+        } finally {
+            await session.endSession();
+        }
+    }
+}
+
 export async function createIndexes() {
     const db = await getDb();
 

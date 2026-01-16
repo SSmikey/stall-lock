@@ -13,7 +13,7 @@ interface CountdownTimerProps {
 export default function CountdownTimer({ expiresAt, onExpire, size = 120 }: CountdownTimerProps) {
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const [percentage, setPercentage] = useState<number>(100);
-    const totalTime = 3600; // 1 hour in seconds
+    const totalTime = 1800; // 30 minutes in seconds
 
     useEffect(() => {
         let hasCalledExpire = false;
