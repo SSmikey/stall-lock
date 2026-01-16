@@ -221,36 +221,6 @@ export default function AdminDashboard() {
                     >
                         🧹 เคลียร์รายการหมดอายุ
                     </button>
-                    <button
-                        className="btn btn-outline-info"
-                        onClick={async () => {
-                            try {
-                                const checkRes = await fetch('/api/admin/fix-bookings');
-                                const checkData = await checkRes.json();
-                                if (checkData.success) {
-                                    const { invalidBookings, totalBookings } = checkData.data;
-                                    if (invalidBookings === 0) {
-                                        alert('ไม่มีรายการที่ต้องแก้ไข');
-                                        return;
-                                    }
-                                    if (!confirm(`พบ ${invalidBookings}/${totalBookings} รายการที่มี userId ไม่ถูกต้อง\nต้องการแก้ไขหรือไม่?`)) return;
-
-                                    const fixRes = await fetch('/api/admin/fix-bookings', { method: 'POST' });
-                                    const fixData = await fixRes.json();
-                                    if (fixData.success) {
-                                        alert(`แก้ไขสำเร็จ ${fixData.data.fixed} รายการ\nกำหนดให้ผู้ใช้: ${fixData.data.assignedTo.username}`);
-                                        fetchBookings();
-                                    } else {
-                                        alert(fixData.error?.message || 'เกิดข้อผิดพลาด');
-                                    }
-                                }
-                            } catch (e) {
-                                alert('เกิดข้อผิดพลาด');
-                            }
-                        }}
-                    >
-                        🔧 แก้ไขข้อมูลผู้จอง
-                    </button>
                 </div>
             </div>
 
