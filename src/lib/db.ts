@@ -37,6 +37,14 @@ export interface Booking {
     status: 'RESERVED' | 'AWAITING_PAYMENT' | 'AWAITING_APPROVAL' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED';
     reservedAt: Date;
     expiresAt: Date;
+    startDate?: Date;      // วันที่เริ่มเข้าใช้
+    endDate?: Date;        // วันที่สิ้นสุดการเข้าใช้
+    bookingDays?: number;  // จำนวนวันที่จอง
+    totalPrice?: number;   // ราคาทั้งหมด
+    startDate?: Date;      // วันที่เริ่มเข้าใช้
+    endDate?: Date;        // วันที่สิ้นสุดการเข้าใช้
+    bookingDays?: number;  // จำนวนวันที่จอง
+    totalPrice?: number;   // ราคาทั้งหมด
     paymentSlipUrl?: string;
     paymentUploadedAt?: Date;
     approvedBy?: ObjectId;
@@ -83,6 +91,7 @@ export interface SystemSettings {
     key: 'market_config';
     autoReturnTime: string; // e.g., "22:00"
     isAutoReturnEnabled: boolean;
+    maxBookingDays?: number; // จำนวนวันจองสูงสุด
     updatedAt: Date;
 }
 
@@ -161,12 +170,19 @@ export async function autoReturnStalls(force: boolean = false) {
     }
 
     // 2. Find confirmed bookings that should be released
-    // For simplicity, we release ALL confirmed bookings when the market closes
+    // Logic: Return bookings where status is CONFIRMED and endDate is today or earlier
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999);
+
     const activeBookings = await db.collection('bookings').find({
-        status: 'CONFIRMED'
+        status: 'CONFIRMED',
+        $or: [
+            { endDate: { $lte: todayEnd } },
+            { endDate: { $exists: false } } // For legacy bookings without endDate
+        ]
     }).toArray();
 
-    if (activeBookings.length === 0) return;
+    if (activeBookings.length === 0) return 0;
 
     console.log(`[AutoReturn] Found ${activeBookings.length} confirmed bookings to return`);
 

@@ -50,7 +50,8 @@ export default function AdminDashboard() {
     const [editingSize, setEditingSize] = useState<StallSize | null>(null);
     const [marketSettings, setMarketSettings] = useState({
         autoReturnTime: '22:00',
-        isAutoReturnEnabled: false
+        isAutoReturnEnabled: false,
+        maxBookingDays: 7
     });
 
     useEffect(() => {
@@ -71,7 +72,8 @@ export default function AdminDashboard() {
             if (data.success && data.data) {
                 setMarketSettings({
                     autoReturnTime: data.data.autoReturnTime || '22:00',
-                    isAutoReturnEnabled: data.data.isAutoReturnEnabled || false
+                    isAutoReturnEnabled: data.data.isAutoReturnEnabled || false,
+                    maxBookingDays: data.data.maxBookingDays || 7
                 });
             }
         } catch (error) {
@@ -1146,6 +1148,23 @@ export default function AdminDashboard() {
                                                                     disabled={!marketSettings.isAutoReturnEnabled}
                                                                 />
                                                                 <div className="form-text small">แผงจะถูกคืนระบบเมื่อคนเข้าหน้าเว็บหลังจากเวลานี้</div>
+                                                            </div>
+                                                            <div className="col-12 border-top pt-3">
+                                                                <label className="form-label fw-bold small mb-2">ระยะเวลาที่จองได้สูงสุด (วัน)</label>
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="input-group" style={{ maxWidth: '200px' }}>
+                                                                        <input
+                                                                            type="number"
+                                                                            className="form-control"
+                                                                            value={marketSettings.maxBookingDays}
+                                                                            onChange={(e) => setMarketSettings({ ...marketSettings, maxBookingDays: parseInt(e.target.value) || 1 })}
+                                                                            min="1"
+                                                                            max="30"
+                                                                        />
+                                                                        <span className="input-group-text">วัน</span>
+                                                                    </div>
+                                                                    <div className="form-text small m-0">กำหนดให้ผู้ใช้สามารถจองล่วงหน้าได้สูงสุดกี่วัน</div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div className="mt-4 pt-3 border-top text-end">

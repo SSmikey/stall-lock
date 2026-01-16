@@ -18,10 +18,12 @@ export default function MarketPage() {
     const [filterZone, setFilterZone] = useState<string>('ALL');
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
+    const [bookingDays, setBookingDays] = useState(1);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [zones, setZones] = useState<Zone[]>([]);
+    const [maxBookingDays, setMaxBookingDays] = useState(7);
     const router = useRouter();
 
     // Fetch current user and zones on mount
@@ -56,8 +58,21 @@ export default function MarketPage() {
             }
         };
 
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    setMaxBookingDays(data.data.maxBookingDays || 7);
+                }
+            } catch (error) {
+                console.error('[MarketPage] Failed to fetch settings:', error);
+            }
+        };
+
         fetchCurrentUser();
         fetchZones();
+        fetchSettings();
     }, []);
 
     const fetchStalls = async (isSilent = false) => {
@@ -109,7 +124,8 @@ export default function MarketPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     stallId: selectedStall._id,
-                    userId: currentUserId
+                    userId: currentUserId,
+                    days: bookingDays
                 })
             });
 
@@ -238,6 +254,7 @@ export default function MarketPage() {
                                     className="card-custom h-100 d-flex flex-column"
                                     onClick={() => {
                                         setSelectedStall(stall);
+                                        setBookingDays(1);
                                         setMessage(null);
                                     }}
                                     style={{
@@ -427,6 +444,50 @@ export default function MarketPage() {
                                         </div>
                                     </div>
 
+                                    {/* Booking Days Selector */}
+                                    <div className="mb-4">
+                                        <label className="text-muted small fw-semibold d-block mb-2">📅 ระยะเวลาการจอง (1-7 วัน)</label>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="btn-group" role="group">
+                                                {[1, 2, 3, 5, 7].map(days => (
+                                                    <button
+                                                        key={days}
+                                                        type="button"
+                                                        className={`btn btn-outline-primary ${bookingDays === days ? 'active' : ''}`}
+                                                        onClick={() => setBookingDays(days)}
+                                                    >
+                                                        {days} วัน
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div className="text-muted small">
+                                                ถึง {new Date(new Date().setDate(new Date().getDate() + (bookingDays - 1))).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Booking Days Selector */}
+                                    <div className="mb-4">
+                                        <label className="text-muted small fw-semibold d-block mb-2">📅 ระยะเวลาการจอง (1-7 วัน)</label>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="btn-group" role="group">
+                                                {[1, 2, 3, 5, 7].map(days => (
+                                                    <button
+                                                        key={days}
+                                                        type="button"
+                                                        className={`btn btn-outline-primary ${bookingDays === days ? 'active' : ''}`}
+                                                        onClick={() => setBookingDays(days)}
+                                                    >
+                                                        {days} วัน
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div className="text-muted small">
+                                                ถึง {new Date(new Date().setDate(new Date().getDate() + (bookingDays - 1))).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Price & Action */}
                                     <div className="p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style={{
                                         background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)',
@@ -435,9 +496,16 @@ export default function MarketPage() {
                                     }}>
                                         <div className="text-center text-md-start">
                                             <div className="text-muted small mb-1">
-                                                💰 ราคาเช่าราย{selectedStall.priceUnit === 'MONTH' ? 'เดือน' : 'วัน'}
+                                                💰 ราคารวม ({bookingDays} วัน)
                                             </div>
-                                            <div className="h3 mb-0 fw-bold text-gradient">{selectedStall.price.toLocaleString()}฿</div>
+                                            <div className="h3 mb-0 fw-bold text-gradient">
+                                                {(selectedStall.price * bookingDays).toLocaleString()}฿
+                                            </div>
+                                            {bookingDays > 1 && (
+                                                <div className="text-muted tiny mt-1" style={{ fontSize: '0.75rem' }}>
+                                                    ({selectedStall.price.toLocaleString()}฿ / วัน)
+                                                </div>
+                                            )}
                                         </div>
                                         <button
                                             className="btn btn-primary-custom px-4 py-3 d-flex align-items-center gap-2"
