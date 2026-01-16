@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         requireAdmin(request);
         const db = await getDb();
         const body = await request.json();
-        const { autoReturnTime, isAutoReturnEnabled } = body;
+        const { autoReturnTime, isAutoReturnEnabled, maxBookingDays } = body;
 
         const result = await db.collection('settings').findOneAndUpdate(
             { key: 'market_config' },
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
                 $set: {
                     autoReturnTime,
                     isAutoReturnEnabled,
+                    maxBookingDays: maxBookingDays || 7,
                     updatedAt: new Date()
                 }
             },
