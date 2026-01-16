@@ -6,6 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
 
+interface Zone {
+    _id: string;
+    name: string;
+    description?: string;
+}
+
 export default function MarketPage() {
     const [stalls, setStalls] = useState<Stall[]>([]);
     const [loading, setLoading] = useState(true);
@@ -15,11 +21,10 @@ export default function MarketPage() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [zones, setZones] = useState<Zone[]>([]);
     const router = useRouter();
 
-    const zones = ['A', 'B', 'C', 'D'];
-
-    // Fetch current user on mount
+    // Fetch current user and zones on mount
     useEffect(() => {
         const fetchCurrentUser = async () => {
             console.log('[MarketPage] Fetching current user...');
@@ -38,7 +43,21 @@ export default function MarketPage() {
                 console.error('[MarketPage] Failed to fetch user:', error);
             }
         };
+
+        const fetchZones = async () => {
+            try {
+                const res = await fetch('/api/zones');
+                const data: ApiResponse<Zone[]> = await res.json();
+                if (data.success && data.data) {
+                    setZones(data.data);
+                }
+            } catch (error) {
+                console.error('[MarketPage] Failed to fetch zones:', error);
+            }
+        };
+
         fetchCurrentUser();
+        fetchZones();
     }, []);
 
     const fetchStalls = async (isSilent = false) => {
@@ -156,7 +175,11 @@ export default function MarketPage() {
                             }}
                         >
                             <option value="ALL">🏘️ ทุกโซน</option>
-                            {zones.map(z => <option key={z} value={z}>📍 โซน {z}</option>)}
+                            {zones.map(z => (
+                                <option key={z._id} value={z.name}>
+                                    📍 โซน {z.name} {z.description ? `(${z.description})` : ''}
+                                </option>
+                            ))}
                         </select>
                         <select
                             className="form-select form-select-lg"
@@ -257,14 +280,16 @@ export default function MarketPage() {
                                     <div className="mt-auto pt-3 border-top d-flex flex-column gap-2">
                                         <div className="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <div className="small text-muted mb-0">ราคา/วัน</div>
+                                                <div className="small text-muted mb-0">
+                                                    ราคา/{stall.priceUnit === 'MONTH' ? 'เดือน' : 'วัน'}
+                                                </div>
                                                 <div className="fw-bold text-success fs-6">
                                                     {stall.price.toLocaleString()}฿
                                                 </div>
                                             </div>
                                             <div className="text-end">
                                                 <div className="small text-muted mb-0">ขนาด</div>
-                                                <div className="fw-semibold">{stall.size} ตร.ม.</div>
+                                                <div className="fw-semibold">{stall.size}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -409,7 +434,9 @@ export default function MarketPage() {
                                         border: '2px solid rgba(99, 102, 241, 0.2)',
                                     }}>
                                         <div className="text-center text-md-start">
-                                            <div className="text-muted small mb-1">💰 ราคาเช่ารายวัน</div>
+                                            <div className="text-muted small mb-1">
+                                                💰 ราคาเช่าราย{selectedStall.priceUnit === 'MONTH' ? 'เดือน' : 'วัน'}
+                                            </div>
                                             <div className="h3 mb-0 fw-bold text-gradient">{selectedStall.price.toLocaleString()}฿</div>
                                         </div>
                                         <button
