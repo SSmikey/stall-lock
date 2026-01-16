@@ -163,26 +163,40 @@ export default function MarketPage() {
                     </div>
 
                     {/* Filter Controls - Stack on mobile */}
-                    <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                    <div className="d-flex flex-column flex-sm-row gap-2">
+                        {/* Search Bar */}
+                        <div className="input-group input-group-sm" style={{ maxWidth: '250px', boxShadow: 'none', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px solid var(--gray-200)' }}>
+                            <span className="input-group-text bg-white border-0 text-muted ps-3">🔍</span>
+                            <input
+                                type="text"
+                                className="form-control border-0 ps-0"
+                                placeholder="ค้นหาชื่อล็อค..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ boxShadow: 'none' }}
+                            />
+                        </div>
                         <select
-                            className="form-select form-select-lg"
+                            className="form-select form-select-sm"
                             value={filterZone}
                             onChange={(e) => setFilterZone(e.target.value)}
                             style={{
                                 borderRadius: 'var(--radius-md)',
                                 border: '2px solid var(--gray-200)',
+                                minWidth: '130px'
                             }}
                         >
                             <option value="ALL">🏘️ ทุกโซน</option>
                             {zones.map(z => <option key={z} value={z}>📍 โซน {z}</option>)}
                         </select>
                         <select
-                            className="form-select form-select-lg"
+                            className="form-select form-select-sm"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                             style={{
                                 borderRadius: 'var(--radius-md)',
                                 border: '2px solid var(--gray-200)',
+                                minWidth: '140px'
                             }}
                         >
                             <option value="ALL">🔍 ทุกสถานะ</option>
@@ -195,47 +209,7 @@ export default function MarketPage() {
             </motion.div>
 
             {/* Toolbar: Search & Pagination */}
-            {!loading && stalls.length > 0 && (
-                <div className="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                    {/* Search Bar */}
-                    <div className="input-group" style={{ maxWidth: '300px', boxShadow: 'var(--shadow-sm)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                        <span className="input-group-text bg-white border-end-0 text-muted">🔍</span>
-                        <input
-                            type="text"
-                            className="form-control border-start-0 ps-0"
-                            placeholder="ค้นหาชื่อล็อค..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ boxShadow: 'none' }}
-                        />
-                    </div>
 
-                    {/* Pagination Controls */}
-                    {totalPages > 0 && (
-                        <nav>
-                            <ul className="pagination mb-0">
-                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </button>
-                                </li>
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                        <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                                            {i + 1}
-                                        </button>
-                                    </li>
-                                ))}
-                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    )}
-                </div>
-            )}
 
             {loading ? (
                 <div className="text-center py-5">
@@ -342,6 +316,33 @@ export default function MarketPage() {
                             </div>
                         ))}
                     </div>
+
+                    {/* Pagination Controls - Moved to bottom right */}
+                    {totalPages > 0 && (
+                        <div className="d-flex justify-content-end mt-4">
+                            <nav>
+                                <ul className="pagination mb-0">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </button>
+                                    </li>
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                                {i + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    )}
                 </>
             )}
 
