@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ApiResponse } from '@/lib/api';
+import { showAlert, showConfirm } from '@/utils/sweetalert';
 
 interface Zone {
     _id: string;
@@ -93,32 +94,32 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('บันทึกการตั้งค่าเรียบร้อย');
+                showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อย', 'success');
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
     };
 
     const handleManualReturn = async () => {
-        if (!confirm('ยืนยันรคืนแผง "ทั้งหมด" ที่จองสำเร็จแล้ว? การดำเนินการนี้จะเปลี่ยนสถานะแผงเป็น "ว่าง" ทันที เพื่อเริ่มรอบการจองใหม่')) return;
+        if (!await showConfirm('ยืนยันการคืนแผง', 'ยืนยันคืนแผง "ทั้งหมด" ที่จองสำเร็จแล้ว? การดำเนินการนี้จะเปลี่ยนสถานะแผงเป็น "ว่าง" ทันที เพื่อเริ่มรอบการจองใหม่', 'ยืนยัน', 'warning')) return;
 
         setActionLoading(true);
         try {
             const res = await fetch('/api/admin/system/cleanup?forceReturn=true', { method: 'POST' });
             const data = await res.json();
             if (data.success) {
-                alert(`คืนแผงเรียบร้อย: ${data.data.returnedCount} รายการ`);
+                showAlert('สำเร็จ', `คืนแผงเรียบร้อย: ${data.data.returnedCount} รายการ`, 'success');
                 fetchBookings();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -161,34 +162,34 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert(editingZone ? 'อัปเดตโซนเรียบร้อย' : 'เพิ่มโซนเรียบร้อย');
+                showAlert('สำเร็จ', editingZone ? 'อัปเดตโซนเรียบร้อย' : 'เพิ่มโซนเรียบร้อย', 'success');
                 setZoneFormData({ name: '', description: '' });
                 setEditingZone(null);
                 fetchZones();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
     };
 
     const handleDeleteZone = async (zone: Zone) => {
-        if (!confirm(`ยืนยันการลบโซน "${zone.name}"?`)) return;
+        if (!await showConfirm('ยืนยันการลบ', `ยืนยันการลบโซน "${zone.name}"?`, 'ลบ', 'warning')) return;
         setActionLoading(true);
         try {
             const res = await fetch(`/api/admin/zones/${zone._id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
-                alert('ลบโซนเรียบร้อย');
+                showAlert('สำเร็จ', 'ลบโซนเรียบร้อย', 'success');
                 fetchZones();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -207,34 +208,34 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert(editingSize ? 'อัปเดตขนาดเรียบร้อย' : 'เพิ่มขนาดเรียบร้อย');
+                showAlert('สำเร็จ', editingSize ? 'อัปเดตขนาดเรียบร้อย' : 'เพิ่มขนาดเรียบร้อย', 'success');
                 setSizeFormData({ name: '', label: '', dimensions: '' });
                 setEditingSize(null);
                 fetchStallSizes();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
     };
 
     const handleDeleteSize = async (size: StallSize) => {
-        if (!confirm(`ยืนยันการลบขนาด "${size.label}"?`)) return;
+        if (!await showConfirm('ยืนยันการลบ', `ยืนยันการลบขนาด "${size.label}"?`, 'ลบ', 'warning')) return;
         setActionLoading(true);
         try {
             const res = await fetch(`/api/admin/stall-sizes/${size._id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
-                alert('ลบขนาดเรียบร้อย');
+                showAlert('สำเร็จ', 'ลบขนาดเรียบร้อย', 'success');
                 fetchStallSizes();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -265,13 +266,13 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('อนุมัติเรียบร้อยแล้ว');
+                showAlert('สำเร็จ', 'อนุมัติเรียบร้อยแล้ว', 'success');
                 fetchBookings();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -292,22 +293,22 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('ปฏิเสธการจองเรียบร้อยแล้ว');
+                showAlert('สำเร็จ', 'ปฏิเสธการจองเรียบร้อยแล้ว', 'success');
                 setRejectingBooking(null);
                 setRejectReason('');
                 fetchBookings();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
     };
 
     const handleDelete = async (bookingId: string) => {
-        if (!confirm('ยืนยันการลบรายการจองนี้? ข้อมูลทั้งหมดรวมถึงหลักฐานการชำระเงินจะถูกลบออก และสถานะล็อคจะกลับเป็น "ว่าง"')) return;
+        if (!await showConfirm('ยืนยันการลบ', 'ยืนยันการลบรายการจองนี้? ข้อมูลทั้งหมดรวมถึงหลักฐานการชำระเงินจะถูกลบออก และสถานะล็อคจะกลับเป็น "ว่าง"', 'ลบ', 'warning')) return;
 
         setActionLoading(true);
         try {
@@ -316,13 +317,13 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('ลบรายการเรียบร้อยแล้ว');
+                showAlert('สำเร็จ', 'ลบรายการเรียบร้อยแล้ว', 'success');
                 fetchBookings();
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
         } catch (error) {
-            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -355,7 +356,7 @@ export default function AdminDashboard() {
                 return;
             }
 
-            alert(`เพิ่มแผงตลาดสำเร็จ ${data.data.count} แผง!`);
+            showAlert('สำเร็จ', `เพิ่มแผงตลาดสำเร็จ ${data.data.count} แผง!`, 'success');
 
             setShowCreateStallModal(false);
             setStallFormData({
@@ -426,16 +427,16 @@ export default function AdminDashboard() {
                             <button
                                 className="btn btn-white bg-white text-danger fw-bold border-0 d-flex align-items-center gap-2 hover-scale"
                                 onClick={async () => {
-                                    if (!confirm('ยืนยันการเคลียร์รายการการจองที่หมดอายุ?')) return;
+                                    if (!await showConfirm('ยืนยันการเคลียร์', 'ยืนยันการเคลียร์รายการการจองที่หมดอายุ?', 'ยืนยัน', 'warning')) return;
                                     try {
                                         const res = await fetch('/api/admin/system/cleanup', { method: 'POST' });
                                         const data = await res.json();
                                         if (data.success) {
-                                            alert(`ทำความสะอาดเรียบร้อย: ${data.data.count} รายการ`);
+                                            showAlert('สำเร็จ', `ทำความสะอาดเรียบร้อย: ${data.data.count} รายการ`, 'success');
                                             fetchBookings();
                                         }
                                     } catch (e) {
-                                        alert('เกิดข้อผิดพลาดในการ Cleanup');
+                                        showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการ Cleanup', 'error');
                                     }
                                 }}
                                 style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
