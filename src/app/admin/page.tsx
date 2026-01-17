@@ -412,12 +412,7 @@ export default function AdminDashboard() {
                             <p className="lead mb-0 fw-normal">จัดการการจอง แผงตลาด และตรวจสอบการชำระเงิน</p>
                         </div>
                         <div className="d-flex gap-2 flex-wrap justify-content-center">
-                            <Link href="/admin/dashboard" className="btn btn-outline-light rounded-pill px-4 fw-bold">
-                                📊 Dashboard
-                            </Link>
-                            <Link href="/admin/users" className="btn btn-outline-light rounded-pill px-4 fw-bold">
-                                👥 ผู้ใช้งาน
-                            </Link>
+
                             <button
                                 className="btn btn-light rounded-pill px-4 fw-bold shadow-lg text-brand"
                                 onClick={() => setShowCreateStallModal(true)}
