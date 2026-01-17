@@ -396,7 +396,7 @@ export default function AdminUsersPage() {
                                                                 className="btn btn-sm btn-light rounded-pill px-3"
                                                                 onClick={() => handleViewUser(user._id)}
                                                             >
-                                                                👁️ ดู
+                                                                👁️ รายละเอียด
                                                             </button>
                                                             <button
                                                                 className="btn btn-sm btn-outline-primary rounded-pill px-3"
@@ -441,7 +441,7 @@ export default function AdminUsersPage() {
                                                             className="btn btn-sm btn-light flex-fill rounded-pill"
                                                             onClick={() => handleViewUser(user._id)}
                                                         >
-                                                            👁️ ดู
+                                                            👁️ รายละเอียด
                                                         </button>
                                                         <button
                                                             className="btn btn-sm btn-outline-primary flex-fill rounded-pill"

@@ -628,12 +628,10 @@ export default function AdminDashboard() {
                                                     <td className="text-center">
                                                         {b.paymentSlipUrl ? (
                                                             <button
-                                                                className="btn btn-sm btn-link p-0 text-decoration-none"
+                                                                className="btn btn-sm bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 fw-bold"
                                                                 onClick={() => setSelectedSlip(b.paymentSlipUrl)}
                                                             >
-                                                                <span className="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">
-                                                                    📱 ดูสลิป
-                                                                </span>
+                                                                📱 ดูสลิป
                                                             </button>
                                                         ) : <span className="text-muted small">-</span>}
                                                     </td>
@@ -642,18 +640,16 @@ export default function AdminDashboard() {
                                                             {b.status === 'AWAITING_APPROVAL' ? (
                                                                 <>
                                                                     <button
-                                                                        className="btn btn-sm btn-success px-3"
+                                                                        className="btn btn-sm btn-success px-3 rounded-pill fw-bold"
                                                                         onClick={() => setInspectingBooking(b)}
                                                                         disabled={actionLoading}
-                                                                        style={{ borderRadius: '4px' }}
                                                                     >
                                                                         อนุมัติ
                                                                     </button>
                                                                     <button
-                                                                        className="btn btn-sm btn-outline-danger px-3"
+                                                                        className="btn btn-sm btn-outline-danger px-3 rounded-pill fw-bold"
                                                                         onClick={() => setRejectingBooking(b)}
                                                                         disabled={actionLoading}
-                                                                        style={{ borderRadius: '4px' }}
                                                                     >
                                                                         ปฏิเสธ
                                                                     </button>
@@ -661,20 +657,18 @@ export default function AdminDashboard() {
                                                             ) : null}
 
                                                             <button
-                                                                className="btn btn-sm btn-white border px-3 text-secondary"
+                                                                className="btn btn-sm btn-light px-3 text-dark rounded-pill fw-bold"
                                                                 onClick={() => setViewingBooking(b)}
-                                                                style={{ borderRadius: '4px' }}
                                                             >
-                                                                รายละเอียด
+                                                                👁️ รายละเอียด
                                                             </button>
 
                                                             <button
-                                                                className="btn btn-sm btn-danger px-3"
+                                                                className="btn btn-sm btn-outline-danger px-3 rounded-pill fw-bold"
                                                                 onClick={() => handleDelete(b._id)}
                                                                 disabled={actionLoading}
-                                                                style={{ borderRadius: '4px' }}
                                                             >
-                                                                ลบ
+                                                                🗑️ ลบ
                                                             </button>
                                                         </div>
                                                     </td>
@@ -709,10 +703,10 @@ export default function AdminDashboard() {
                                                         <div className="d-flex gap-2">
                                                             {b.paymentSlipUrl && (
                                                                 <button
-                                                                    className="btn btn-sm btn-outline-info rounded-pill"
+                                                                    className="btn btn-sm bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 fw-bold"
                                                                     onClick={() => setSelectedSlip(b.paymentSlipUrl)}
                                                                 >
-                                                                    สลิป
+                                                                    📱 สลิป
                                                                 </button>
                                                             )}
                                                             {b.status === 'AWAITING_APPROVAL' ? (
