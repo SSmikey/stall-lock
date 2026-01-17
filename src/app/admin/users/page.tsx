@@ -243,17 +243,15 @@ export default function AdminUsersPage() {
                             <p className="lead mb-0 fw-normal">จัดการข้อมูลผู้ใช้งานและสิทธิ์การเข้าถึง</p>
                         </div>
                         <div className="d-flex gap-2">
-                            <Link href="/admin/dashboard" className="btn btn-outline-light btn-lg px-4 fw-bold rounded-pill">
-                                🏠 Dashboard
-                            </Link>
                             <button
-                                className="btn btn-light btn-lg px-4 fw-bold rounded-pill shadow-lg text-brand"
+                                className="btn btn-light px-4 fw-bold rounded-pill shadow-sm text-brand border-0 hover-scale"
                                 onClick={() => {
                                     resetForm();
                                     setShowCreateModal(true);
                                 }}
+                                style={{ padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                ➕ เพิ่มผู้ใช้
+                                <span className="fs-6 me-2">➕</span> เพิ่มผู้ใช้
                             </button>
                         </div>
                     </div>

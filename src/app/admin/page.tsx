@@ -411,21 +411,21 @@ export default function AdminDashboard() {
                         </div>
                         <div className="d-flex gap-2 flex-wrap">
                             <button
-                                className="btn btn-light shadow-sm fw-bold border-0 text-brand"
+                                className="btn btn-light shadow-sm fw-bold border-0 text-brand d-flex align-items-center gap-2 hover-scale"
                                 onClick={() => setShowCreateStallModal(true)}
-                                style={{ borderRadius: '50px', padding: '10px 24px' }}
+                                style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                ➕ เพิ่มแผงตลาด
+                                <span className="fs-6">➕</span> เพิ่มแผงตลาด
                             </button>
                             <button
-                                className="btn btn-outline-light fw-bold"
+                                className="btn btn-white bg-white text-dark bg-opacity-75 border-0 fw-bold d-flex align-items-center gap-2 hover-scale shadow-sm"
                                 onClick={() => setShowSettingsModal(true)}
-                                style={{ borderRadius: '50px', padding: '10px 24px' }}
+                                style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                ⚙️ ตั้งค่า
+                                <span className="fs-6">⚙️</span> ตั้งค่า
                             </button>
                             <button
-                                className="btn btn-white bg-white text-danger fw-bold border-0"
+                                className="btn btn-white bg-white text-danger fw-bold border-0 d-flex align-items-center gap-2 hover-scale"
                                 onClick={async () => {
                                     if (!confirm('ยืนยันการเคลียร์รายการการจองที่หมดอายุ?')) return;
                                     try {
@@ -439,9 +439,9 @@ export default function AdminDashboard() {
                                         alert('เกิดข้อผิดพลาดในการ Cleanup');
                                     }
                                 }}
-                                style={{ borderRadius: '50px', padding: '10px 24px', opacity: 0.9 }}
+                                style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                🧹 เคลียร์หมดอายุ
+                                <span className="fs-6">🧹</span> เคลียร์
                             </button>
                         </div>
                     </div>
