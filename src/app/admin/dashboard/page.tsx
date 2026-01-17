@@ -338,28 +338,7 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
 
-                {/* Bottom Section: Market Info */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                    className="card border border-2 shadow-sm p-4 mb-5 bg-white"
-                    style={{ borderRadius: 'var(--radius-lg)', borderColor: 'var(--brand-light)' }}
-                >
-                    <div className="row align-items-center">
-                        <div className="col-md-8">
-                            <h6 className="fw-bold mb-2 text-dark">ระบบบริหารจัดการแผงตลาด stalllock</h6>
-                            <p className="text-secondary small mb-0">
-                                ข้อมูลสถิติด้านบนถูกรวบรวมแบบเรียลไทม์จากฐานข้อมูลเพื่อความแม่นยำในการวิเคราะห์ผลตอบแทนและการจัดการแผง
-                            </p>
-                        </div>
-                        <div className="col-md-4 text-md-end mt-3 mt-md-0">
-                            <Link href="/market" className="btn btn-brand-inverse px-4 py-2">
-                                เข้าสู่หน้าตลาดจริง
-                            </Link>
-                        </div>
-                    </div>
-                </motion.div>
+
             </div>
         </div>
     );
