@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { showAlert, showConfirm } from '@/utils/sweetalert';
 
 interface User {
     _id: string;
@@ -72,16 +73,16 @@ export default function AdminUsersPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setFormError(data.error?.message || 'ไม่สามารถสร้างผู้ใช้ได้');
+                showAlert('ผิดพลาด', data.error?.message || 'ไม่สามารถสร้างผู้ใช้ได้', 'error');
                 return;
             }
 
-            alert('สร้างผู้ใช้สำเร็จ');
+            showAlert('สำเร็จ', 'สร้างผู้ใช้สำเร็จ', 'success');
             setShowCreateModal(false);
             resetForm();
             fetchUsers();
         } catch (error) {
-            setFormError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -117,23 +118,23 @@ export default function AdminUsersPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setFormError(data.error?.message || 'ไม่สามารถอัปเดตผู้ใช้ได้');
+                showAlert('ผิดพลาด', data.error?.message || 'ไม่สามารถอัปเดตผู้ใช้ได้', 'error');
                 return;
             }
 
-            alert('อัปเดตผู้ใช้สำเร็จ');
+            showAlert('สำเร็จ', 'อัปเดตผู้ใช้สำเร็จ', 'success');
             setEditingUser(null);
             resetForm();
             fetchUsers();
         } catch (error) {
-            setFormError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
         } finally {
             setActionLoading(false);
         }
     };
 
     const handleDeleteUser = async (userId: string) => {
-        if (!confirm('ยืนยันการลบผู้ใช้นี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้')) return;
+        if (!await showConfirm('ยืนยันการลบ', 'ยืนยันการลบผู้ใช้นี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้', 'ลบผู้ใช้', 'warning')) return;
 
         setActionLoading(true);
         try {
@@ -144,14 +145,14 @@ export default function AdminUsersPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.error?.message || 'ไม่สามารถลบผู้ใช้ได้');
+                showAlert('ผิดพลาด', data.error?.message || 'ไม่สามารถลบผู้ใช้ได้', 'error');
                 return;
             }
 
-            alert('ลบผู้ใช้สำเร็จ');
+            showAlert('สำเร็จ', 'ลบผู้ใช้สำเร็จ', 'success');
             fetchUsers();
         } catch (error) {
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -165,7 +166,7 @@ export default function AdminUsersPage() {
                 setViewingUser(data.data);
             }
         } catch (error) {
-            alert('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+            showAlert('ผิดพลาด', 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้', 'error');
         }
     };
 
@@ -478,9 +479,9 @@ export default function AdminUsersPage() {
                             className="modal-dialog modal-dialog-centered"
                         >
                             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 bg-brand-gradient-subtle p-4">
-                                    <h5 className="modal-title fw-bold text-gradient-brand">เพิ่มผู้ใช้ใหม่</h5>
-                                    <button type="button" className="btn-close" onClick={() => setShowCreateModal(false)}></button>
+                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                                    <h5 className="modal-title fw-bold">เพิ่มผู้ใช้ใหม่</h5>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setShowCreateModal(false)}></button>
                                 </div>
                                 <div className="modal-body p-4">
                                     {formError && (
@@ -556,7 +557,7 @@ export default function AdminUsersPage() {
                                             </div>
                                         </div>
                                         <div className="d-grid mt-4">
-                                            <button type="submit" className="btn btn-brand text-white py-2 shadow-sm" disabled={actionLoading}>
+                                            <button type="submit" className="btn btn-brand text-white py-2 shadow-sm fw-bold" disabled={actionLoading}>
                                                 {actionLoading ? 'กำลังสร้าง...' : 'สร้างผู้ใช้'}
                                             </button>
                                         </div>
@@ -579,9 +580,9 @@ export default function AdminUsersPage() {
                             className="modal-dialog modal-dialog-centered"
                         >
                             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 bg-light p-4">
+                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <h5 className="modal-title fw-bold">แก้ไขผู้ใช้</h5>
-                                    <button type="button" className="btn-close" onClick={() => setEditingUser(null)}></button>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setEditingUser(null)}></button>
                                 </div>
                                 <div className="modal-body p-4">
                                     {formError && (
@@ -638,7 +639,7 @@ export default function AdminUsersPage() {
                                             </div>
                                         </div>
                                         <div className="d-grid mt-4">
-                                            <button type="submit" className="btn btn-primary py-2 rounded-pill shadow-sm" disabled={actionLoading}>
+                                            <button type="submit" className="btn btn-primary py-2 rounded-pill shadow-sm fw-bold" style={{ backgroundColor: '#FF6B35', borderColor: '#FF6B35' }} disabled={actionLoading}>
                                                 {actionLoading ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
                                             </button>
                                         </div>
@@ -661,7 +662,7 @@ export default function AdminUsersPage() {
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
                             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 bg-primary text-white p-4">
+                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <h5 className="modal-title fw-bold">รายละเอียดผู้ใช้</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setViewingUser(null)}></button>
                                 </div>
@@ -733,7 +734,10 @@ export default function AdminUsersPage() {
                                 </div>
                                 <div className="modal-footer border-0 p-4 pt-0 bg-light">
                                     <button
-                                        className="btn btn-outline-primary rounded-pill px-4"
+                                        className="btn btn-outline-danger rounded-pill px-4"
+                                        style={{ borderColor: '#FF6B35', color: '#FF6B35' }}
+                                        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#FF6B35', e.currentTarget.style.color = '#fff')}
+                                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent', e.currentTarget.style.color = '#FF6B35')}
                                         onClick={() => {
                                             openEditModal(viewingUser);
                                             setViewingUser(null);
