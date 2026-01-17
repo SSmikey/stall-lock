@@ -637,44 +637,44 @@ export default function AdminDashboard() {
                                                         ) : <span className="text-muted small">-</span>}
                                                     </td>
                                                     <td className="px-4 text-end">
-                                                        <div className="d-flex gap-1 justify-content-end">
+                                                        <div className="d-flex gap-2 justify-content-end">
                                                             {b.status === 'AWAITING_APPROVAL' ? (
                                                                 <>
                                                                     <button
-                                                                        className="btn btn-sm btn-success rounded-pill px-3 me-1"
+                                                                        className="btn btn-sm btn-success px-3"
                                                                         onClick={() => setInspectingBooking(b)}
                                                                         disabled={actionLoading}
+                                                                        style={{ borderRadius: '4px' }}
                                                                     >
                                                                         อนุมัติ
                                                                     </button>
                                                                     <button
-                                                                        className="btn btn-sm btn-outline-danger rounded-circle p-1 d-flex align-items-center justify-content-center"
-                                                                        style={{ width: 32, height: 32 }}
+                                                                        className="btn btn-sm btn-outline-danger px-3"
                                                                         onClick={() => setRejectingBooking(b)}
                                                                         disabled={actionLoading}
-                                                                        title="ปฏิเสธ"
+                                                                        style={{ borderRadius: '4px' }}
                                                                     >
-                                                                        ✕
+                                                                        ปฏิเสธ
                                                                     </button>
                                                                 </>
-                                                            ) : (
-                                                                <button
-                                                                    className="btn btn-sm btn-light border rounded-pill px-3"
-                                                                    onClick={() => setViewingBooking(b)}
-                                                                >
-                                                                    ดูข้อมูล
-                                                                </button>
-                                                            )}
-                                                            {b.status !== 'AWAITING_APPROVAL' && (
-                                                                <button
-                                                                    className="btn btn-sm btn-link text-muted p-1 ms-1"
-                                                                    onClick={() => handleDelete(b._id)}
-                                                                    disabled={actionLoading}
-                                                                    title="ลบรายการ"
-                                                                >
-                                                                    🗑️
-                                                                </button>
-                                                            )}
+                                                            ) : null}
+
+                                                            <button
+                                                                className="btn btn-sm btn-white border px-3 text-secondary"
+                                                                onClick={() => setViewingBooking(b)}
+                                                                style={{ borderRadius: '4px' }}
+                                                            >
+                                                                รายละเอียด
+                                                            </button>
+
+                                                            <button
+                                                                className="btn btn-sm btn-danger px-3"
+                                                                onClick={() => handleDelete(b._id)}
+                                                                disabled={actionLoading}
+                                                                style={{ borderRadius: '4px' }}
+                                                            >
+                                                                ลบ
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -965,93 +965,120 @@ export default function AdminDashboard() {
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
                             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 bg-light p-4">
+                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <div>
-                                        <h5 className="modal-title fw-bold text-dark">รายละเอียดการจอง</h5>
-                                        <p className="mb-0 text-muted small">ID: {viewingBooking.bookingId}</p>
+                                        <h5 className="modal-title fw-bold">รายละเอียดการจอง</h5>
+                                        <p className="mb-0 opacity-75 small">ID: {viewingBooking.bookingId}</p>
                                     </div>
-                                    <button type="button" className="btn-close" onClick={() => setViewingBooking(null)}></button>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setViewingBooking(null)}></button>
                                 </div>
                                 <div className="modal-body p-0">
                                     <div className="row g-0">
-                                        <div className="col-md-7 p-4">
+                                        <div className="col-md-7 p-4 bg-white">
+                                            {/* User Info */}
                                             <div className="mb-4">
-                                                <h6 className="text-secondary text-uppercase small fw-bold mb-3 tracking-wide">ข้อมูลผู้เช่า</h6>
+                                                <div className="d-flex align-items-center gap-2 mb-3">
+                                                    <span className="text-primary">👤</span>
+                                                    <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลผู้เช่า</h6>
+                                                </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
                                                     <div className="mb-2 d-flex justify-content-between">
-                                                        <span className="text-muted">ชื่อ:</span>
-                                                        <span className="fw-medium">{viewingBooking.user?.username || 'N/A'}</span>
+                                                        <span className="text-muted">ชื่อ-นามสกุล:</span>
+                                                        <span className="fw-bold text-dark">{viewingBooking.user?.username || 'N/A'}</span>
                                                     </div>
-                                                    <div className="d-flex justify-content-between">
+                                                    <div className="mb-2 d-flex justify-content-between">
                                                         <span className="text-muted">เบอร์โทรศัพท์:</span>
                                                         <span className="fw-medium">{viewingBooking.user?.phone || 'N/A'}</span>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* Stall Info */}
                                             <div className="mb-4">
-                                                <h6 className="text-secondary text-uppercase small fw-bold mb-3 tracking-wide">ข้อมูลแผงค้า</h6>
+                                                <div className="d-flex align-items-center gap-2 mb-3">
+                                                    <span className="text-primary">🏪</span>
+                                                    <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลล็อค</h6>
+                                                </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
                                                     <div className="mb-2 d-flex justify-content-between">
                                                         <span className="text-muted">รหัสล็อค:</span>
-                                                        <span className="text-primary fw-bold">{viewingBooking.stall?.stallId}</span>
+                                                        <span className="text-primary fw-bold" style={{ fontSize: '1.1rem' }}>{viewingBooking.stall?.stallId}</span>
                                                     </div>
                                                     <div className="mb-2 d-flex justify-content-between">
                                                         <span className="text-muted">โซน:</span>
-                                                        <span>{viewingBooking.stall?.zone}</span>
+                                                        <span className="badge bg-white text-dark border">{viewingBooking.stall?.zone}</span>
                                                     </div>
                                                     <div className="d-flex justify-content-between">
                                                         <span className="text-muted">ขนาด:</span>
                                                         <span>{viewingBooking.stall?.size} ตร.ม.</span>
                                                     </div>
+                                                    <div className="mt-2 text-muted small">
+                                                        ชื่อแผง: {viewingBooking.stall?.description || '-'}
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            {/* Status & Time */}
                                             <div>
-                                                <h6 className="text-secondary text-uppercase small fw-bold mb-3 tracking-wide">สถานะการจอง</h6>
+                                                <div className="d-flex align-items-center gap-2 mb-3">
+                                                    <span className="text-primary">🕒</span>
+                                                    <h6 className="text-secondary text-uppercase small fw-bold mb-0">สถานะและเวลา</h6>
+                                                </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
                                                     <div className="mb-2 d-flex justify-content-between align-items-center">
                                                         <span className="text-muted">สถานะปัจจุบัน:</span>
                                                         {getStatusBadge(viewingBooking.status)}
                                                     </div>
-                                                    <div className="mb-2 d-flex justify-content-between">
-                                                        <span className="text-muted">วันที่ทำรายการ:</span>
-                                                        <span>{new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}</span>
+                                                    <div className="mb-1 text-muted small">
+                                                        วันที่จอง: {new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}
                                                     </div>
-                                                    <div className="mb-2">
-                                                        <span className="text-muted d-block mb-1">ช่วงเวลาที่เช่า:</span>
-                                                        <span className="d-block bg-white p-2 rounded border border-light text-center small">
-                                                            {viewingBooking.startDate ? new Date(viewingBooking.startDate).toLocaleDateString('th-TH') : '-'}
-                                                            <span className="mx-2">ถึง</span>
-                                                            {viewingBooking.endDate ? new Date(viewingBooking.endDate).toLocaleDateString('th-TH') : '-'}
-                                                            <span className="text-muted ms-2">({viewingBooking.bookingDays || 1} วัน)</span>
-                                                        </span>
+                                                    <div className="text-muted small">
+                                                        วันที่โอนเงิน: {viewingBooking.uploadedAt ? new Date(viewingBooking.uploadedAt).toLocaleString('th-TH') : '-'}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="col-md-5 bg-light p-4 border-start">
-                                            <h6 className="text-secondary text-uppercase small fw-bold mb-3 tracking-wide">หลักฐานการชำระเงิน</h6>
-                                            {viewingBooking.paymentSlipUrl ? (
-                                                <div className="text-center">
+
+                                        <div className="col-md-5 bg-light p-4 border-start d-flex flex-column">
+                                            <div className="d-flex align-items-center gap-2 mb-3">
+                                                <span className="text-primary">💰</span>
+                                                <h6 className="text-secondary text-uppercase small fw-bold mb-0">หลักฐานการชำระเงิน</h6>
+                                            </div>
+
+                                            <div className="flex-grow-1 bg-white rounded-3 shadow-sm border p-2 mb-3 d-flex align-items-center justify-content-center position-relative overflow-hidden">
+                                                {viewingBooking.paymentSlipUrl ? (
                                                     <img
                                                         src={viewingBooking.paymentSlipUrl}
-                                                        className="img-fluid rounded-3 shadow-sm mb-3 border"
-                                                        style={{ maxHeight: '300px', cursor: 'pointer', objectFit: 'cover' }}
+                                                        className="img-fluid rounded"
+                                                        style={{ maxHeight: '250px', objectFit: 'contain', cursor: 'pointer' }}
                                                         alt="Slip"
                                                         onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
                                                     />
-                                                    <button
-                                                        className="btn btn-outline-primary btn-sm rounded-pill w-100"
-                                                        onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
-                                                    >
-                                                        🔍 ดูภาพขยาย
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-5 text-muted border rounded-3 bg-white border-dashed">
-                                                    <div className="mb-2" style={{ fontSize: '2rem' }}>📄</div>
-                                                    <small>ยังไม่มีหลักฐานการชำระเงิน</small>
-                                                </div>
+                                                ) : (
+                                                    <div className="text-center text-muted">
+                                                        <span className="d-block display-4 opacity-25">🖼️</span>
+                                                        <small>ไม่มีสลิป</small>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {viewingBooking.paymentSlipUrl && (
+                                                <button
+                                                    className="btn btn-outline-secondary btn-sm w-100 mb-4 rounded-pill bg-white"
+                                                    onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
+                                                >
+                                                    🔍 ขยายรูปสลิป
+                                                </button>
                                             )}
+
+                                            <div className="mt-auto">
+                                                <div className="d-flex justify-content-between align-items-end mb-3">
+                                                    <span className="text-muted fw-bold">ยอดรวม:</span>
+                                                    <span className="h3 text-success fw-bold mb-0">
+                                                        {(viewingBooking.totalPrice || viewingBooking.stall?.price || 0).toLocaleString()}฿
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
