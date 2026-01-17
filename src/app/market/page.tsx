@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
+import './market.css';
 
 interface Zone {
     _id: string;
@@ -17,35 +18,31 @@ export default function MarketPage() {
     const [loading, setLoading] = useState(true);
     const [filterZone, setFilterZone] = useState<string>('ALL');
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
     const [bookingDays, setBookingDays] = useState(1);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [zones, setZones] = useState<Zone[]>([]);
     const [maxBookingDays, setMaxBookingDays] = useState(7);
     const router = useRouter();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const itemsPerPage = 20;
 
     // Fetch current user and zones on mount
     useEffect(() => {
-        const fetchCurrentUser = async () => {
-            console.log('[MarketPage] Fetching current user...');
+        const checkAuth = async () => {
             try {
                 const res = await fetch('/api/auth/me');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.data?.user?.id) {
-                        console.log('[MarketPage] User found:', data.data.user.id);
-                        setCurrentUserId(data.data.user.id);
-                    } else {
-                        console.log('[MarketPage] No authenticated user');
-                    }
+                const data = await res.json();
+                if (data.success && data.data?.user) {
+                    setCurrentUserId(data.data.user.id);
                 }
             } catch (error) {
-                console.error('[MarketPage] Failed to fetch user:', error);
+                console.error('Failed to fetch user', error);
             }
         };
-
         const fetchZones = async () => {
             try {
                 const res = await fetch('/api/zones');
@@ -70,10 +67,14 @@ export default function MarketPage() {
             }
         };
 
-        fetchCurrentUser();
+        checkAuth();
         fetchZones();
         fetchSettings();
     }, []);
+
+    useEffect(() => {
+        fetchStalls();
+    }, [filterZone, filterStatus]);
 
     const fetchStalls = async (isSilent = false) => {
         if (!isSilent) setLoading(true);
@@ -165,6 +166,22 @@ export default function MarketPage() {
         }
     };
 
+    // Pagination Logic
+    const filteredStalls = stalls.filter(stall =>
+        (stall.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (stall.stallId || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const indexOfLastStall = currentPage * itemsPerPage;
+    const indexOfFirstStall = indexOfLastStall - itemsPerPage;
+    const currentStalls = filteredStalls.slice(indexOfFirstStall, indexOfLastStall);
+    const totalPages = Math.ceil(filteredStalls.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="container py-3 py-md-5">
             {/* Header Section - Mobile Optimized */}
@@ -176,18 +193,31 @@ export default function MarketPage() {
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                     <div>
                         <h1 className="h3 h2-md fw-bold mb-1 text-gradient">เลือกจองล็อคตลาด</h1>
-                        <p className="text-muted small mb-0">เลือกล็อคที่คุณต้องการได้เลย 🏪</p>
+                        <p className="text-muted small mb-0">เลือกล็อคที่คุณต้องการได้เลย </p>
                     </div>
 
                     {/* Filter Controls - Stack on mobile */}
-                    <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                    <div className="d-flex flex-column flex-sm-row gap-2">
+                        {/* Search Bar */}
+                        <div className="input-group input-group-sm" style={{ maxWidth: '250px', boxShadow: 'none', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px solid var(--gray-200)' }}>
+                            <span className="input-group-text bg-white border-0 text-muted ps-3">🔍</span>
+                            <input
+                                type="text"
+                                className="form-control border-0 ps-0"
+                                placeholder="ค้นหาชื่อล็อค..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ boxShadow: 'none' }}
+                            />
+                        </div>
                         <select
-                            className="form-select form-select-lg"
+                            className="form-select form-select-sm"
                             value={filterZone}
                             onChange={(e) => setFilterZone(e.target.value)}
                             style={{
                                 borderRadius: 'var(--radius-md)',
                                 border: '2px solid var(--gray-200)',
+                                minWidth: '130px'
                             }}
                         >
                             <option value="ALL">🏘️ ทุกโซน</option>
@@ -198,12 +228,13 @@ export default function MarketPage() {
                             ))}
                         </select>
                         <select
-                            className="form-select form-select-lg"
+                            className="form-select form-select-sm"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                             style={{
                                 borderRadius: 'var(--radius-md)',
                                 border: '2px solid var(--gray-200)',
+                                minWidth: '140px'
                             }}
                         >
                             <option value="ALL">🔍 ทุกสถานะ</option>
@@ -214,6 +245,9 @@ export default function MarketPage() {
                     </div>
                 </div>
             </motion.div>
+
+            {/* Toolbar: Search & Pagination */}
+
 
             {loading ? (
                 <div className="text-center py-5">
@@ -237,13 +271,22 @@ export default function MarketPage() {
                     {/* Results Count */}
                     <div className="mb-3">
                         <p className="text-muted small mb-0">
-                            พบ <span className="fw-bold text-primary">{stalls.length}</span> ล็อค
+                            พบ <span className="fw-bold text-gradient">{filteredStalls.length}</span> ล็อค
                         </p>
                     </div>
 
+                    {/* Search Not Found State */}
+                    {filteredStalls.length === 0 && (
+                        <div className="text-center py-5">
+                            <div style={{ fontSize: '3rem' }}>🤔</div>
+                            <h5 className="text-muted mt-3">ไม่พบข้อมูลที่ค้นหา</h5>
+                            <button className="btn btn-link text-decoration-none" onClick={() => setSearchQuery('')}>ล้างคำค้นหา</button>
+                        </div>
+                    )}
+
                     {/* Responsive Grid - Mobile First */}
                     <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 justify-content-center">
-                        {stalls.map((stall, index) => (
+                        {currentStalls.map((stall, index) => (
                             <div key={stall.stallId} className="col">
                                 <motion.div
                                     layout
@@ -314,6 +357,33 @@ export default function MarketPage() {
                             </div>
                         ))}
                     </div>
+
+                    {/* Pagination Controls - Moved to bottom right */}
+                    {totalPages > 0 && (
+                        <div className="d-flex justify-content-end mt-4">
+                            <nav>
+                                <ul className="pagination mb-0">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </button>
+                                    </li>
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                                {i + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    )}
                 </>
             )}
 

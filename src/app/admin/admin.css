@@ -1,0 +1,148 @@
+:root {
+  --primary: #FF6B35;
+  --primary-dark: #FFB347;
+  --primary-light: #fff0e6;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.admin-sidebar {
+  width: 280px;
+  background: #1e293b; /* Slate-800 */
+  color: #94a3b8; /* Slate-400 */
+  transition: width 0.3s ease;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.05);
+  z-index: 100;
+}
+
+.admin-content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar-header a {
+  color: white;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  padding: 1.5rem 0;
+}
+
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  margin: 4px 16px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.sidebar-nav-link:hover {
+  background-color: rgba(255,255,255,0.05);
+  color: #f8fafc;
+  transform: translateX(4px);
+}
+
+.sidebar-nav-link.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+}
+
+/* Custom Card */
+.card-custom {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-custom:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+/* Text Gradient */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom Button */
+.btn-primary-custom {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  color: white;
+}
+
+/* Form Focus Override */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.25) !important;
+}
+
+/* Label Focus Override */
+.row > div:focus-within .form-label,
+.col-md-6:focus-within .form-label,
+.col-12:focus-within .form-label {
+  color: var(--primary) !important;
+}
+
+/* Table Styles */
+.table-hover tbody tr:hover {
+  background-color: var(--primary-light);
+}
+
+/* Modal Header Gradient */
+.modal-header-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+}

@@ -28,7 +28,7 @@ export default function ConditionalLayout({
             </main>
             <footer className="py-4 bg-white border-top mt-5 d-none d-lg-block" style={{ boxShadow: 'var(--shadow-sm)' }}>
                 <div className="container text-center">
-                    <p className="mb-2 fw-semibold text-gradient">ระบบจองล็อคตลาด</p>
+                    <p className="mb-2 fw-semibold text-gradient-brand">ระบบจองล็อคตลาด</p>
                     <p className="mb-0 text-muted small">© 2026 สงวนลิขสิทธิ์ทุกประการ</p>
                     <div className="mt-3 d-flex justify-content-center gap-4">
                         <a href="tel:021234567" className="text-decoration-none text-muted small">

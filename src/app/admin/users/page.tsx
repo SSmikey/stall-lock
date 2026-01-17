@@ -195,9 +195,9 @@ export default function AdminUsersPage() {
 
     const getRoleBadge = (role: string) => {
         if (role === 'ADMIN') {
-            return <span className="badge bg-danger">Admin</span>;
+            return <span className="badge bg-danger shadow-sm">Admin</span>;
         }
-        return <span className="badge bg-secondary">User</span>;
+        return <span className="badge bg-secondary shadow-sm">User</span>;
     };
 
     // Filter users
@@ -220,220 +220,281 @@ export default function AdminUsersPage() {
         users: users.filter(u => u.role === 'USER').length
     };
 
+    // Loading State
+    if (loading && !users.length) {
+        return (
+            <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="container py-5">
-            {/* Header */}
-            <div className="d-flex justify-content-between align-items-center mb-5">
-                <div>
-                    <h1 className="fw-bold mb-1">จัดการผู้ใช้</h1>
-                    <p className="text-muted mb-0">จัดการข้อมูลผู้ใช้ในระบบ</p>
-                </div>
-                <div className="d-flex gap-2">
-                    <Link href="/admin/dashboard" className="btn btn-outline-secondary">
-                        Dashboard
-                    </Link>
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => {
-                            resetForm();
-                            setShowCreateModal(true);
-                        }}
-                    >
-                        + เพิ่มผู้ใช้
-                    </button>
-                </div>
-            </div>
-
-            {/* Stats */}
-            <div className="row g-3 mb-4">
-                <div className="col-md-4">
-                    <div className="card-custom p-3 text-center">
-                        <div className="h4 fw-bold mb-0">{stats.total}</div>
-                        <div className="text-muted small">ผู้ใช้ทั้งหมด</div>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="card-custom p-3 text-center border-start border-4 border-danger">
-                        <div className="h4 fw-bold text-danger mb-0">{stats.admins}</div>
-                        <div className="text-muted small">Admin</div>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="card-custom p-3 text-center border-start border-4 border-secondary">
-                        <div className="h4 fw-bold text-secondary mb-0">{stats.users}</div>
-                        <div className="text-muted small">User ทั่วไป</div>
+        <div className="container-fluid p-0 bg-light min-vh-100">
+            {/* Hero Section */}
+            <div className="home-hero pt-5 pb-5 mb-5" style={{ borderRadius: '0 0 50px 50px' }}>
+                <div className="hero-circle" style={{ width: '400px', height: '400px', top: '-100px', right: '-100px', opacity: 0.2 }}></div>
+                <div className="container position-relative z-1">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <div className="text-white">
+                            <h1 className="fw-bold mb-1">จัดการผู้ใช้</h1>
+                            <p className="lead mb-0 fw-normal">จัดการข้อมูลผู้ใช้งานและสิทธิ์การเข้าถึง</p>
+                        </div>
+                        <div className="d-flex gap-2">
+                            <Link href="/admin/dashboard" className="btn btn-outline-light btn-lg px-4 fw-bold rounded-pill">
+                                🏠 Dashboard
+                            </Link>
+                            <button
+                                className="btn btn-light btn-lg px-4 fw-bold rounded-pill shadow-lg text-brand"
+                                onClick={() => {
+                                    resetForm();
+                                    setShowCreateModal(true);
+                                }}
+                            >
+                                ➕ เพิ่มผู้ใช้
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Search and Filter */}
-            <div className="card-custom p-3 mb-4">
-                <div className="row g-3">
-                    <div className="col-md-8">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="ค้นหาด้วยชื่อ, username หรืออีเมล..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+            <div className="container" style={{ marginTop: '-4rem' }}>
+                {/* Stats Cards */}
+                <div className="row g-4 mb-5">
+                    <div className="col-md-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="card border-0 shadow-sm h-100 overflow-hidden"
+                            style={{ borderRadius: 'var(--radius-lg)' }}
+                        >
+                            <div className="card-body p-4 text-center">
+                                <div className="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-flex mb-3">
+                                    <span className="fs-2">👥</span>
+                                </div>
+                                <h3 className="fw-bold text-dark mb-1">{stats.total}</h3>
+                                <div className="text-muted small">ผู้ใช้ทั้งหมด</div>
+                            </div>
+                        </motion.div>
                     </div>
                     <div className="col-md-4">
-                        <select
-                            className="form-select"
-                            value={filterRole}
-                            onChange={(e) => setFilterRole(e.target.value as 'ALL' | 'USER' | 'ADMIN')}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="card border-0 shadow-sm h-100 overflow-hidden"
+                            style={{ borderRadius: 'var(--radius-lg)' }}
                         >
-                            <option value="ALL">ทุก Role</option>
-                            <option value="ADMIN">Admin</option>
-                            <option value="USER">User</option>
-                        </select>
+                            <div className="card-body p-4 text-center">
+                                <div className="rounded-circle bg-danger bg-opacity-10 p-3 d-inline-flex mb-3">
+                                    <span className="fs-2">🛡️</span>
+                                </div>
+                                <h3 className="fw-bold text-danger mb-1">{stats.admins}</h3>
+                                <div className="text-muted small">ผู้ดูแลระบบ (Admin)</div>
+                            </div>
+                        </motion.div>
+                    </div>
+                    <div className="col-md-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="card border-0 shadow-sm h-100 overflow-hidden"
+                            style={{ borderRadius: 'var(--radius-lg)' }}
+                        >
+                            <div className="card-body p-4 text-center">
+                                <div className="rounded-circle bg-secondary bg-opacity-10 p-3 d-inline-flex mb-3">
+                                    <span className="fs-2">👤</span>
+                                </div>
+                                <h3 className="fw-bold text-secondary mb-1">{stats.users}</h3>
+                                <div className="text-muted small">ผู้ใช้งานทั่วไป (User)</div>
+                            </div>
+                        </motion.div>
                     </div>
                 </div>
-            </div>
 
-            {/* Users List */}
-            {loading ? (
-                <div className="text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">กำลังโหลด...</span>
-                    </div>
-                </div>
-            ) : filteredUsers.length === 0 ? (
-                <div className="card-custom text-center py-5 text-muted">
-                    ไม่พบข้อมูลผู้ใช้
-                </div>
-            ) : (
-                <>
-                    {/* Desktop Table */}
-                    <div className="card-custom p-0 overflow-hidden d-none d-lg-block">
-                        <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
-                                <thead className="bg-light">
-                                    <tr>
-                                        <th className="px-4 py-3">วันที่สมัคร</th>
-                                        <th className="py-3">Username</th>
-                                        <th className="py-3">เบอร์โทร</th>
-                                        <th className="py-3">Role</th>
-                                        <th className="py-3 text-center">การจอง</th>
-                                        <th className="px-4 py-3 text-end">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredUsers.map((user) => (
-                                        <tr key={user._id}>
-                                            <td className="px-4">
-                                                {new Date(user.createdAt).toLocaleDateString('th-TH')}
-                                            </td>
-                                            <td>{user.username}</td>
-                                            <td>{user.phone || '-'}</td>
-                                            <td>{getRoleBadge(user.role)}</td>
-                                            <td className="text-center">
-                                                <span className="badge bg-light text-dark">
-                                                    {user.bookingCount} รายการ
-                                                </span>
-                                            </td>
-                                            <td className="px-4 text-end">
-                                                <div className="d-flex gap-2 justify-content-end">
-                                                    <button
-                                                        className="btn btn-sm btn-outline-info"
-                                                        onClick={() => handleViewUser(user._id)}
-                                                    >
-                                                        ดู
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline-primary"
-                                                        onClick={() => openEditModal(user)}
-                                                    >
-                                                        แก้ไข
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-danger"
-                                                        onClick={() => handleDeleteUser(user._id)}
-                                                        disabled={actionLoading}
-                                                    >
-                                                        ลบ
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                {/* Main Content Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="card border-0 shadow-sm mb-5 overflow-hidden"
+                    style={{ borderRadius: 'var(--radius-lg)' }}
+                >
+                    <div className="card-body p-4">
+                        {/* Filters */}
+                        <div className="row g-3 mb-4">
+                            <div className="col-md-8">
+                                <div className="input-group">
+                                    <span className="input-group-text bg-light border-end-0 rounded-start-pill ps-3">🔍</span>
+                                    <input
+                                        type="text"
+                                        className="form-control border-start-0 rounded-end-pill py-2 bg-light"
+                                        placeholder="ค้นหาด้วยชื่อ, username หรืออีเมล..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        style={{ boxShadow: 'none' }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-md-4">
+                                <select
+                                    className="form-select rounded-pill py-2 bg-light"
+                                    value={filterRole}
+                                    onChange={(e) => setFilterRole(e.target.value as 'ALL' | 'USER' | 'ADMIN')}
+                                >
+                                    <option value="ALL">แสดงทุก Role</option>
+                                    <option value="ADMIN">เฉพาะ Admin</option>
+                                    <option value="USER">เฉพาะ User</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Mobile Cards */}
-                    <div className="d-lg-none">
-                        <div className="row g-3">
-                            {filteredUsers.map((user) => (
-                                <div key={user._id} className="col-12">
-                                    <div className="card-custom p-3">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <div className="fw-bold">@{user.username}</div>
-                                            {getRoleBadge(user.role)}
-                                        </div>
-                                        <div className="small text-muted mb-2">
-                                            วันที่สมัคร: {new Date(user.createdAt).toLocaleDateString('th-TH')}
-                                        </div>
-                                        <div className="small text-muted mb-3">
-                                            โทร: {user.phone || '-'} | {user.bookingCount} รายการจอง
-                                        </div>
-                                        <div className="d-flex gap-2">
-                                            <button
-                                                className="btn btn-sm btn-outline-info flex-fill"
-                                                onClick={() => handleViewUser(user._id)}
-                                            >
-                                                ดู
-                                            </button>
-                                            <button
-                                                className="btn btn-sm btn-outline-primary flex-fill"
-                                                onClick={() => openEditModal(user)}
-                                            >
-                                                แก้ไข
-                                            </button>
-                                            <button
-                                                className="btn btn-sm btn-danger"
-                                                onClick={() => handleDeleteUser(user._id)}
-                                                disabled={actionLoading}
-                                            >
-                                                ลบ
-                                            </button>
-                                        </div>
+                        {/* List */}
+                        {filteredUsers.length === 0 ? (
+                            <div className="text-center py-5">
+                                <div className="display-1 mb-3">🤷‍♂️</div>
+                                <h5 className="text-muted">ไม่พบข้อมูลผู้ใช้</h5>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Desktop Table */}
+                                <div className="table-responsive d-none d-lg-block">
+                                    <table className="table table-hover align-middle mb-0">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="px-4 py-3 border-bottom-0 text-secondary small text-uppercase">วันที่สมัคร</th>
+                                                <th className="py-3 border-bottom-0 text-secondary small text-uppercase">Username</th>
+                                                <th className="py-3 border-bottom-0 text-secondary small text-uppercase">เบอร์โทร</th>
+                                                <th className="py-3 border-bottom-0 text-secondary small text-uppercase">Role</th>
+                                                <th className="py-3 text-center border-bottom-0 text-secondary small text-uppercase">การจอง</th>
+                                                <th className="px-4 py-3 text-end border-bottom-0 text-secondary small text-uppercase">จัดการ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredUsers.map((user) => (
+                                                <tr key={user._id}>
+                                                    <td className="px-4 text-muted">
+                                                        {new Date(user.createdAt).toLocaleDateString('th-TH')}
+                                                    </td>
+                                                    <td>
+                                                        <div className="fw-bold text-dark">{user.username}</div>
+                                                        <div className="small text-muted">{user.email}</div>
+                                                    </td>
+                                                    <td>{user.phone || '-'}</td>
+                                                    <td>{getRoleBadge(user.role)}</td>
+                                                    <td className="text-center">
+                                                        <span className="badge bg-light text-dark border">
+                                                            {user.bookingCount}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 text-end">
+                                                        <div className="d-flex gap-2 justify-content-end">
+                                                            <button
+                                                                className="btn btn-sm btn-light rounded-pill px-3"
+                                                                onClick={() => handleViewUser(user._id)}
+                                                            >
+                                                                👁️ ดู
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                                                onClick={() => openEditModal(user)}
+                                                            >
+                                                                ✏️ แก้ไข
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                                onClick={() => handleDeleteUser(user._id)}
+                                                                disabled={actionLoading}
+                                                            >
+                                                                🗑️ ลบ
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile Cards */}
+                                <div className="d-lg-none">
+                                    <div className="row g-3">
+                                        {filteredUsers.map((user) => (
+                                            <div key={user._id} className="col-12">
+                                                <div className="card border-0 shadow-sm p-3 rounded-4 bg-light">
+                                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                                        <div className="fw-bold text-primary">@{user.username}</div>
+                                                        {getRoleBadge(user.role)}
+                                                    </div>
+                                                    <div className="small text-muted mb-2">
+                                                        {user.fullName} | {user.email}
+                                                    </div>
+                                                    <div className="small text-muted mb-3 d-flex justify-content-between">
+                                                        <span>📞 {user.phone || '-'}</span>
+                                                        <span>📅 {new Date(user.createdAt).toLocaleDateString('th-TH')}</span>
+                                                    </div>
+                                                    <div className="d-grid gap-2 d-flex">
+                                                        <button
+                                                            className="btn btn-sm btn-light flex-fill rounded-pill"
+                                                            onClick={() => handleViewUser(user._id)}
+                                                        >
+                                                            👁️ ดู
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-outline-primary flex-fill rounded-pill"
+                                                            onClick={() => openEditModal(user)}
+                                                        >
+                                                            ✏️ แก้ไข
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-outline-danger flex-fill rounded-pill"
+                                                            onClick={() => handleDeleteUser(user._id)}
+                                                            disabled={actionLoading}
+                                                        >
+                                                            🗑️ ลบ
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </>
+                        )}
                     </div>
-                </>
-            )}
+                </motion.div>
+            </div>
 
             {/* Create User Modal */}
             <AnimatePresence>
                 {showCreateModal && (
-                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="modal-dialog modal-dialog-centered"
                         >
-                            <div className="modal-content border-0 shadow">
-                                <div className="modal-header border-0">
-                                    <h5 className="modal-title fw-bold">เพิ่มผู้ใช้ใหม่</h5>
+                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div className="modal-header border-0 bg-brand-gradient-subtle p-4">
+                                    <h5 className="modal-title fw-bold text-gradient-brand">เพิ่มผู้ใช้ใหม่</h5>
                                     <button type="button" className="btn-close" onClick={() => setShowCreateModal(false)}></button>
                                 </div>
                                 <div className="modal-body p-4">
                                     {formError && (
-                                        <div className="alert alert-danger mb-3">{formError}</div>
+                                        <div className="alert alert-danger mb-3 rounded-3">{formError}</div>
                                     )}
                                     <form onSubmit={handleCreateUser}>
                                         <div className="row g-3">
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">ชื่อ-นามสกุล *</label>
+                                                <label className="form-label small fw-bold text-secondary">ชื่อ-นามสกุล *</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.fullName}
                                                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                                                     required
@@ -441,10 +502,10 @@ export default function AdminUsersPage() {
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">Username *</label>
+                                                <label className="form-label small fw-bold text-secondary">Username *</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.username}
                                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                                     required
@@ -452,10 +513,10 @@ export default function AdminUsersPage() {
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">อีเมล *</label>
+                                                <label className="form-label small fw-bold text-secondary">อีเมล *</label>
                                                 <input
                                                     type="email"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                     required
@@ -463,10 +524,10 @@ export default function AdminUsersPage() {
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">รหัสผ่าน *</label>
+                                                <label className="form-label small fw-bold text-secondary">รหัสผ่าน *</label>
                                                 <input
                                                     type="password"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.password}
                                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                                     required
@@ -474,19 +535,19 @@ export default function AdminUsersPage() {
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">เบอร์โทรศัพท์</label>
+                                                <label className="form-label small fw-bold text-secondary">เบอร์โทรศัพท์</label>
                                                 <input
                                                     type="tel"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                                     disabled={actionLoading}
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">Role *</label>
+                                                <label className="form-label small fw-bold text-secondary">Role *</label>
                                                 <select
-                                                    className="form-select"
+                                                    className="form-select rounded-pill bg-light border-0"
                                                     value={formData.role}
                                                     onChange={(e) => setFormData({ ...formData, role: e.target.value as 'USER' | 'ADMIN' })}
                                                     disabled={actionLoading}
@@ -497,7 +558,7 @@ export default function AdminUsersPage() {
                                             </div>
                                         </div>
                                         <div className="d-grid mt-4">
-                                            <button type="submit" className="btn btn-primary py-2" disabled={actionLoading}>
+                                            <button type="submit" className="btn btn-brand text-white py-2 shadow-sm" disabled={actionLoading}>
                                                 {actionLoading ? 'กำลังสร้าง...' : 'สร้างผู้ใช้'}
                                             </button>
                                         </div>
@@ -512,29 +573,29 @@ export default function AdminUsersPage() {
             {/* Edit User Modal */}
             <AnimatePresence>
                 {editingUser && (
-                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="modal-dialog modal-dialog-centered"
                         >
-                            <div className="modal-content border-0 shadow">
-                                <div className="modal-header border-0">
+                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div className="modal-header border-0 bg-light p-4">
                                     <h5 className="modal-title fw-bold">แก้ไขผู้ใช้</h5>
                                     <button type="button" className="btn-close" onClick={() => setEditingUser(null)}></button>
                                 </div>
                                 <div className="modal-body p-4">
                                     {formError && (
-                                        <div className="alert alert-danger mb-3">{formError}</div>
+                                        <div className="alert alert-danger mb-3 rounded-3">{formError}</div>
                                     )}
                                     <form onSubmit={handleUpdateUser}>
                                         <div className="row g-3">
                                             <div className="col-md-12">
-                                                <label className="form-label small fw-semibold">Username *</label>
+                                                <label className="form-label small fw-bold text-secondary">Username *</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.username}
                                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                                     required
@@ -542,19 +603,19 @@ export default function AdminUsersPage() {
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">เบอร์โทรศัพท์</label>
+                                                <label className="form-label small fw-bold text-secondary">เบอร์โทรศัพท์</label>
                                                 <input
                                                     type="tel"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill bg-light border-0"
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                                     disabled={actionLoading}
                                                 />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="form-label small fw-semibold">Role *</label>
+                                                <label className="form-label small fw-bold text-secondary">Role *</label>
                                                 <select
-                                                    className="form-select"
+                                                    className="form-select rounded-pill bg-light border-0"
                                                     value={formData.role}
                                                     onChange={(e) => setFormData({ ...formData, role: e.target.value as 'USER' | 'ADMIN' })}
                                                     disabled={actionLoading}
@@ -563,9 +624,23 @@ export default function AdminUsersPage() {
                                                     <option value="ADMIN">Admin</option>
                                                 </select>
                                             </div>
+                                            <div className="col-12">
+                                                <div className="alert alert-light border small text-muted">
+                                                    <i className="me-2">ℹ️</i>
+                                                    รหัสผ่าน: เว้นว่างไว้หากไม่ต้องการเปลี่ยน
+                                                </div>
+                                                <input
+                                                    type="password"
+                                                    className="form-control rounded-pill bg-light border-0"
+                                                    placeholder="ตั้งรหัสผ่านใหม่ (ถ้ามี)"
+                                                    value={formData.password}
+                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                    disabled={actionLoading}
+                                                />
+                                            </div>
                                         </div>
                                         <div className="d-grid mt-4">
-                                            <button type="submit" className="btn btn-primary py-2" disabled={actionLoading}>
+                                            <button type="submit" className="btn btn-primary py-2 rounded-pill shadow-sm" disabled={actionLoading}>
                                                 {actionLoading ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
                                             </button>
                                         </div>
@@ -580,69 +655,95 @@ export default function AdminUsersPage() {
             {/* View User Modal */}
             <AnimatePresence>
                 {viewingUser && (
-                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
-                            <div className="modal-content border-0 shadow">
-                                <div className="modal-header border-0 bg-primary text-white">
+                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div className="modal-header border-0 bg-primary text-white p-4">
                                     <h5 className="modal-title fw-bold">รายละเอียดผู้ใช้</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setViewingUser(null)}></button>
                                 </div>
-                                <div className="modal-body p-4">
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <h6 className="text-muted small fw-bold mb-3">ข้อมูลส่วนตัว</h6>
-                                            <div className="bg-light rounded-3 p-3">
-                                                <div className="mb-2"><strong>ชื่อ-นามสกุล:</strong> {viewingUser.fullName}</div>
-                                                <div className="mb-2"><strong>Username:</strong> {viewingUser.username}</div>
-                                                <div className="mb-2"><strong>อีเมล:</strong> {viewingUser.email}</div>
-                                                <div className="mb-2"><strong>เบอร์โทร:</strong> {viewingUser.phone || '-'}</div>
-                                                <div className="mb-2"><strong>Role:</strong> {getRoleBadge(viewingUser.role)}</div>
-                                                <div><strong>วันที่สมัคร:</strong> {new Date(viewingUser.createdAt).toLocaleString('th-TH')}</div>
+                                <div className="modal-body p-4 bg-light">
+                                    <div className="row g-4">
+                                        <div className="col-md-5">
+                                            <div className="card border-0 shadow-sm p-3 h-100 rounded-4">
+                                                <div className="text-center mb-3">
+                                                    <div className="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
+                                                        <span className="display-6">👤</span>
+                                                    </div>
+                                                    <h5 className="fw-bold">{viewingUser.fullName}</h5>
+                                                    <p className="text-muted small">@{viewingUser.username}</p>
+                                                    {getRoleBadge(viewingUser.role)}
+                                                </div>
+                                                <hr className="text-muted opacity-25" />
+                                                <div className="small">
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">อีเมล:</span>
+                                                        <span className="fw-medium text-end text-break ms-2">{viewingUser.email}</span>
+                                                    </div>
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">โทร:</span>
+                                                        <span className="fw-medium">{viewingUser.phone || '-'}</span>
+                                                    </div>
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">วันที่สมัคร:</span>
+                                                        <span className="fw-medium">{new Date(viewingUser.createdAt).toLocaleDateString('th-TH')}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="col-md-6">
-                                            <h6 className="text-muted small fw-bold mb-3">ประวัติการจอง ({viewingUser.bookings?.length || 0} รายการ)</h6>
-                                            <div className="bg-light rounded-3 p-3" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                                                {viewingUser.bookings?.length > 0 ? (
-                                                    viewingUser.bookings.map((booking: any) => (
-                                                        <div key={booking._id} className="border-bottom pb-2 mb-2">
-                                                            <div className="d-flex justify-content-between">
-                                                                <strong>{booking.bookingId}</strong>
-                                                                <span className={`badge ${booking.status === 'CONFIRMED' ? 'bg-success' :
-                                                                    booking.status === 'AWAITING_APPROVAL' ? 'bg-info' :
-                                                                        booking.status === 'RESERVED' ? 'bg-warning' : 'bg-secondary'
-                                                                    }`}>
-                                                                    {booking.status}
-                                                                </span>
-                                                            </div>
-                                                            <div className="small text-muted">
-                                                                ล็อค: {booking.stall?.stallId || 'N/A'} | {new Date(booking.createdAt).toLocaleDateString('th-TH')}
-                                                            </div>
+                                        <div className="col-md-7">
+                                            <div className="card border-0 shadow-sm p-4 h-100 rounded-4">
+                                                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
+                                                    <span>📋</span> ประวัติการจอง ({viewingUser.bookings?.length || 0})
+                                                </h6>
+                                                <div className="overflow-auto pe-2" style={{ maxHeight: '300px' }}>
+                                                    {viewingUser.bookings?.length > 0 ? (
+                                                        <div className="d-flex flex-column gap-2">
+                                                            {viewingUser.bookings.map((booking: any) => (
+                                                                <div key={booking._id} className="p-3 bg-light rounded-3 border border-light">
+                                                                    <div className="d-flex justify-content-between align-items-center mb-1">
+                                                                        <span className="fw-bold text-primary small">#{booking.bookingId}</span>
+                                                                        <span className={`badge rounded-pill ${booking.status === 'CONFIRMED' ? 'bg-success' :
+                                                                            booking.status === 'AWAITING_APPROVAL' ? 'bg-info' :
+                                                                                booking.status === 'RESERVED' ? 'bg-warning' : 'bg-secondary'
+                                                                            }`}>
+                                                                            {booking.status}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="small text-muted d-flex justify-content-between">
+                                                                        <span>ล็อค {booking.stall?.stallId || '?'}</span>
+                                                                        <span>{new Date(booking.createdAt).toLocaleDateString('th-TH')}</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
                                                         </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="text-muted text-center py-3">ยังไม่มีการจอง</div>
-                                                )}
+                                                    ) : (
+                                                        <div className="text-center py-5 text-muted bg-light rounded-3 h-100 d-flex flex-column justify-content-center">
+                                                            <div className="fs-3 mb-2">📭</div>
+                                                            ยังไม่มีประวัติการจอง
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="modal-footer border-0">
+                                <div className="modal-footer border-0 p-4 pt-0 bg-light">
                                     <button
-                                        className="btn btn-outline-primary"
+                                        className="btn btn-outline-primary rounded-pill px-4"
                                         onClick={() => {
                                             openEditModal(viewingUser);
                                             setViewingUser(null);
                                         }}
                                     >
-                                        แก้ไขข้อมูล
+                                        ✏️ แก้ไขข้อมูล
                                     </button>
-                                    <button className="btn btn-secondary" onClick={() => setViewingUser(null)}>
+                                    <button className="btn btn-secondary rounded-pill px-4" onClick={() => setViewingUser(null)}>
                                         ปิด
                                     </button>
                                 </div>
