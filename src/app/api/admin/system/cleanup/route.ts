@@ -42,10 +42,19 @@ export async function POST(request: NextRequest) {
             }
         );
 
+        // 4. Also check for Auto Return (Manual return all)
+        const forceReturn = request.nextUrl.searchParams.get('forceReturn') === 'true';
+        let returnCount = 0;
+        if (forceReturn) {
+            const { autoReturnStalls } = await import('@/lib/db');
+            returnCount = await autoReturnStalls(true) || 0;
+        }
+
         return Response.json(createApiResponse({
             message: 'Cleanup successful',
             count: expiredBookings.length,
-            expiredBookingIds: bookingIds
+            expiredBookingIds: bookingIds,
+            returnedCount: returnCount
         }));
     } catch (error) {
         return handleApiError(error);

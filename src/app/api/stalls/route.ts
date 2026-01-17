@@ -1,10 +1,11 @@
-import { getDb, cleanupExpiredBookings } from '@/lib/db';
+import { getDb, cleanupExpiredBookings, autoReturnStalls } from '@/lib/db';
 import { createApiResponse, handleApiError } from '@/lib/api';
 import { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
     try {
         await cleanupExpiredBookings();
+        await autoReturnStalls();
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const zone = searchParams.get('zone');
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
         const stalls = await db
             .collection('stalls')
             .find(filter)
-            .sort({ zone: 1, row: 1, column: 1 })
+            .sort({ stallId: 1 })
             .toArray();
 
         return Response.json(

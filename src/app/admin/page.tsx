@@ -5,6 +5,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ApiResponse } from '@/lib/api';
 import './admin.css';
 
+interface Zone {
+    _id: string;
+    name: string;
+    description?: string;
+    color?: string;
+}
+
+interface StallSize {
+    _id: string;
+    name: string;
+    label: string;
+    dimensions?: string;
+}
+
 export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -18,6 +32,7 @@ export default function AdminDashboard() {
         zone: '',
         size: '',
         price: '',
+        priceUnit: 'DAY' as 'DAY' | 'MONTH',
         description: '',
         quantity: '1',
         startNumber: '1',
@@ -25,13 +40,205 @@ export default function AdminDashboard() {
     const [stallFormError, setStallFormError] = useState('');
     const [viewingBooking, setViewingBooking] = useState<any | null>(null);
 
+    // Zone & Size management state (combined)
+    const [zones, setZones] = useState<Zone[]>([]);
+    const [stallSizes, setStallSizes] = useState<StallSize[]>([]);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [settingsTab, setSettingsTab] = useState<'zones' | 'sizes' | 'market'>('zones');
+    const [zoneFormData, setZoneFormData] = useState({ name: '', description: '' });
+    const [editingZone, setEditingZone] = useState<Zone | null>(null);
+    const [sizeFormData, setSizeFormData] = useState({ name: '', label: '', dimensions: '' });
+    const [editingSize, setEditingSize] = useState<StallSize | null>(null);
+    const [marketSettings, setMarketSettings] = useState({
+        autoReturnTime: '22:00',
+        isAutoReturnEnabled: false,
+        maxBookingDays: 7
+    });
+
     useEffect(() => {
         fetchBookings();
+        fetchZones();
+        fetchStallSizes();
+        fetchSettings();
         const interval = setInterval(() => {
             fetchBookings(false); // Background refresh every 10 seconds
         }, 10000);
         return () => clearInterval(interval);
     }, []);
+
+    const fetchSettings = async () => {
+        try {
+            const res = await fetch('/api/admin/settings');
+            const data = await res.json();
+            if (data.success && data.data) {
+                setMarketSettings({
+                    autoReturnTime: data.data.autoReturnTime || '22:00',
+                    isAutoReturnEnabled: data.data.isAutoReturnEnabled || false,
+                    maxBookingDays: data.data.maxBookingDays || 7
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch settings:', error);
+        }
+    };
+
+    const handleSaveSettings = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(marketSettings)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('บันทึกการตั้งค่าเรียบร้อย');
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleManualReturn = async () => {
+        if (!confirm('ยืนยันรคืนแผง "ทั้งหมด" ที่จองสำเร็จแล้ว? การดำเนินการนี้จะเปลี่ยนสถานะแผงเป็น "ว่าง" ทันที เพื่อเริ่มรอบการจองใหม่')) return;
+
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/system/cleanup?forceReturn=true', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                alert(`คืนแผงเรียบร้อย: ${data.data.returnedCount} รายการ`);
+                fetchBookings();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const fetchZones = async () => {
+        try {
+            const res = await fetch('/api/admin/zones');
+            const data: ApiResponse<Zone[]> = await res.json();
+            if (data.success && data.data) {
+                setZones(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch zones:', error);
+        }
+    };
+
+    const fetchStallSizes = async () => {
+        try {
+            const res = await fetch('/api/admin/stall-sizes');
+            const data: ApiResponse<StallSize[]> = await res.json();
+            if (data.success && data.data) {
+                setStallSizes(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stall sizes:', error);
+        }
+    };
+
+    const handleCreateZone = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setActionLoading(true);
+        try {
+            const url = editingZone ? `/api/admin/zones/${editingZone._id}` : '/api/admin/zones';
+            const method = editingZone ? 'PUT' : 'POST';
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(zoneFormData)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(editingZone ? 'อัปเดตโซนเรียบร้อย' : 'เพิ่มโซนเรียบร้อย');
+                setZoneFormData({ name: '', description: '' });
+                setEditingZone(null);
+                fetchZones();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleDeleteZone = async (zone: Zone) => {
+        if (!confirm(`ยืนยันการลบโซน "${zone.name}"?`)) return;
+        setActionLoading(true);
+        try {
+            const res = await fetch(`/api/admin/zones/${zone._id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert('ลบโซนเรียบร้อย');
+                fetchZones();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleCreateSize = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setActionLoading(true);
+        try {
+            const url = editingSize ? `/api/admin/stall-sizes/${editingSize._id}` : '/api/admin/stall-sizes';
+            const method = editingSize ? 'PUT' : 'POST';
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sizeFormData)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(editingSize ? 'อัปเดตขนาดเรียบร้อย' : 'เพิ่มขนาดเรียบร้อย');
+                setSizeFormData({ name: '', label: '', dimensions: '' });
+                setEditingSize(null);
+                fetchStallSizes();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleDeleteSize = async (size: StallSize) => {
+        if (!confirm(`ยืนยันการลบขนาด "${size.label}"?`)) return;
+        setActionLoading(true);
+        try {
+            const res = await fetch(`/api/admin/stall-sizes/${size._id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert('ลบขนาดเรียบร้อย');
+                fetchStallSizes();
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     const fetchBookings = async (showLoading = true) => {
         if (showLoading) setLoading(true);
@@ -136,6 +343,7 @@ export default function AdminDashboard() {
                     zone: stallFormData.zone,
                     size: stallFormData.size,
                     price: parseFloat(stallFormData.price),
+                    priceUnit: stallFormData.priceUnit,
                     description: stallFormData.description || undefined,
                     quantity: parseInt(stallFormData.quantity),
                     startNumber: parseInt(stallFormData.startNumber),
@@ -156,6 +364,7 @@ export default function AdminDashboard() {
                 zone: '',
                 size: '',
                 price: '',
+                priceUnit: 'DAY',
                 description: '',
                 quantity: '1',
                 startNumber: '1',
@@ -203,6 +412,12 @@ export default function AdminDashboard() {
                         onClick={() => setShowCreateStallModal(true)}
                     >
                         ➕ เพิ่มแผงตลาด
+                    </button>
+                    <button
+                        className="btn btn-outline-secondary"
+                        onClick={() => setShowSettingsModal(true)}
+                    >
+                        ⚙️ ตั้งค่าแผงตลาด
                     </button>
                     <button
                         className="btn btn-outline-warning"
@@ -309,6 +524,7 @@ export default function AdminDashboard() {
                                         <th className="py-3">ผู้จอง</th>
                                         <th className="py-3">ล็อค / โซน</th>
                                         <th className="py-3">ยอดชำระ</th>
+                                        <th className="py-3">วันที่จอง</th>
                                         <th className="py-3">สถานะ</th>
                                         <th className="py-3 text-center">สลิป</th>
                                         <th className="px-4 py-3 text-end">ดำเนินการ</th>
@@ -327,7 +543,12 @@ export default function AdminDashboard() {
                                                 <div className="small text-muted">โซน {b.stall?.zone}</div>
                                             </td>
                                             <td className="fw-bold text-success">
-                                                {b.stall?.price.toLocaleString() || 0}฿
+                                                {(b.totalPrice || b.stall?.price || 0).toLocaleString()}฿
+                                                {b.bookingDays > 1 && <span className="text-muted small ms-1">({b.bookingDays} วัน)</span>}
+                                            </td>
+                                            <td>
+                                                <div className="small">{b.startDate ? new Date(b.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) : '-'}</div>
+                                                <div className="small text-muted">ถึง {b.endDate ? new Date(b.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : '-'}</div>
                                             </td>
                                             <td>{getStatusBadge(b.status)}</td>
                                             <td className="text-center">
@@ -545,7 +766,12 @@ export default function AdminDashboard() {
                                                 <h6 className="text-muted small fw-bold mb-3">🕒 สถานะและเวลา</h6>
                                                 <div className="p-3 bg-light rounded-3">
                                                     <div className="mb-2"><strong>สถานะปัจจุบัน:</strong> {getStatusBadge(viewingBooking.status)}</div>
-                                                    <div className="mb-2"><strong>วันที่จอง:</strong> {new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}</div>
+                                                    <div className="mb-2"><strong>วันที่ทำรายการ:</strong> {new Date(viewingBooking.reservedAt).toLocaleString('th-TH')}</div>
+                                                    <div className="mb-2">
+                                                        <strong>ช่วงเวลาที่จอง:</strong> <br />
+                                                        {viewingBooking.startDate ? new Date(viewingBooking.startDate).toLocaleDateString('th-TH') : '-'} ถึง {viewingBooking.endDate ? new Date(viewingBooking.endDate).toLocaleDateString('th-TH') : '-'}
+                                                        <span className="text-muted ms-2">({viewingBooking.bookingDays || 1} วัน)</span>
+                                                    </div>
                                                     {viewingBooking.paymentUploadedAt && (
                                                         <div className="mb-2"><strong>วันที่โอนเงิน:</strong> {new Date(viewingBooking.paymentUploadedAt).toLocaleString('th-TH')}</div>
                                                     )}
@@ -586,8 +812,8 @@ export default function AdminDashboard() {
 
                                             <div className="mt-4 pt-4 border-top">
                                                 <div className="d-flex justify-content-between h5 fw-bold text-success mb-3">
-                                                    <span>ยอดรวม:</span>
-                                                    <span>{viewingBooking.stall?.price?.toLocaleString()}฿</span>
+                                                    <span>ยอดรวม ({viewingBooking.bookingDays || 1} วัน):</span>
+                                                    <span>{(viewingBooking.totalPrice || viewingBooking.stall?.price || 0).toLocaleString()}฿</span>
                                                 </div>
 
                                                 {viewingBooking.status === 'AWAITING_APPROVAL' ? (
@@ -626,6 +852,358 @@ export default function AdminDashboard() {
                                                 )}
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Settings Modal (Zones & Sizes combined) */}
+            <AnimatePresence>
+                {showSettingsModal && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="modal-dialog modal-dialog-centered modal-lg"
+                        >
+                            <div className="modal-content border-0 shadow">
+                                <div className="modal-header border-0">
+                                    <h5 className="modal-title fw-bold">⚙️ ตั้งค่าแผงตลาด</h5>
+                                    <button type="button" className="btn-close" onClick={() => {
+                                        setShowSettingsModal(false);
+                                        setEditingZone(null);
+                                        setEditingSize(null);
+                                        setZoneFormData({ name: '', description: '' });
+                                        setSizeFormData({ name: '', label: '', dimensions: '' });
+                                    }}></button>
+                                </div>
+                                <div className="modal-body p-0">
+                                    {/* Tabs */}
+                                    <ul className="nav nav-tabs px-4 pt-2">
+                                        <li className="nav-item">
+                                            <button
+                                                className={`nav-link ${settingsTab === 'zones' ? 'active' : ''}`}
+                                                onClick={() => setSettingsTab('zones')}
+                                            >
+                                                🗂️ โซน ({zones.length})
+                                            </button>
+                                        </li>
+                                        <li className="nav-item">
+                                            <button
+                                                className={`nav-link ${settingsTab === 'sizes' ? 'active' : ''}`}
+                                                onClick={() => setSettingsTab('sizes')}
+                                            >
+                                                📐 ขนาด ({stallSizes.length})
+                                            </button>
+                                        </li>
+                                        <li className="nav-item">
+                                            <button
+                                                className={`nav-link ${settingsTab === 'market' ? 'active' : ''}`}
+                                                onClick={() => setSettingsTab('market')}
+                                            >
+                                                🏪 ตั้งค่าการคืนล็อค
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <div className="p-4">
+                                        {/* Zones Tab */}
+                                        {settingsTab === 'zones' && (
+                                            <>
+                                                <form onSubmit={handleCreateZone} className="mb-4">
+                                                    <div className="row g-3">
+                                                        <div className="col-md-4">
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder="ชื่อโซน (เช่น A, B, อาหาร)"
+                                                                value={zoneFormData.name}
+                                                                onChange={(e) => setZoneFormData({ ...zoneFormData, name: e.target.value })}
+                                                                required
+                                                                disabled={actionLoading}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-5">
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder="คำอธิบาย (ไม่บังคับ)"
+                                                                value={zoneFormData.description}
+                                                                onChange={(e) => setZoneFormData({ ...zoneFormData, description: e.target.value })}
+                                                                disabled={actionLoading}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-3">
+                                                            <button type="submit" className="btn btn-primary w-100" disabled={actionLoading}>
+                                                                {editingZone ? 'อัปเดต' : 'เพิ่มโซน'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    {editingZone && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-link btn-sm text-muted mt-2"
+                                                            onClick={() => {
+                                                                setEditingZone(null);
+                                                                setZoneFormData({ name: '', description: '' });
+                                                            }}
+                                                        >
+                                                            ยกเลิกการแก้ไข
+                                                        </button>
+                                                    )}
+                                                </form>
+
+                                                <div className="table-responsive" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                                    <table className="table table-hover mb-0">
+                                                        <thead className="bg-light sticky-top">
+                                                            <tr>
+                                                                <th>ชื่อโซน</th>
+                                                                <th>คำอธิบาย</th>
+                                                                <th className="text-end">จัดการ</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {zones.length === 0 ? (
+                                                                <tr>
+                                                                    <td colSpan={3} className="text-center text-muted py-4">
+                                                                        ยังไม่มีโซน กรุณาเพิ่มโซนใหม่
+                                                                    </td>
+                                                                </tr>
+                                                            ) : (
+                                                                zones.map(zone => (
+                                                                    <tr key={zone._id}>
+                                                                        <td className="fw-bold">โซน {zone.name}</td>
+                                                                        <td className="text-muted">{zone.description || '-'}</td>
+                                                                        <td className="text-end">
+                                                                            <button
+                                                                                className="btn btn-sm btn-outline-primary me-2"
+                                                                                onClick={() => {
+                                                                                    setEditingZone(zone);
+                                                                                    setZoneFormData({ name: zone.name, description: zone.description || '' });
+                                                                                }}
+                                                                                disabled={actionLoading}
+                                                                            >
+                                                                                แก้ไข
+                                                                            </button>
+                                                                            <button
+                                                                                className="btn btn-sm btn-outline-danger"
+                                                                                onClick={() => handleDeleteZone(zone)}
+                                                                                disabled={actionLoading}
+                                                                            >
+                                                                                ลบ
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Sizes Tab */}
+                                        {settingsTab === 'sizes' && (
+                                            <>
+                                                <form onSubmit={handleCreateSize} className="mb-4">
+                                                    <div className="row g-3">
+                                                        <div className="col-md-3">
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder="รหัส (SMALL, M)"
+                                                                value={sizeFormData.name}
+                                                                onChange={(e) => setSizeFormData({ ...sizeFormData, name: e.target.value })}
+                                                                required
+                                                                disabled={actionLoading}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-4">
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder="ชื่อแสดง (เล็ก 2x2)"
+                                                                value={sizeFormData.label}
+                                                                onChange={(e) => setSizeFormData({ ...sizeFormData, label: e.target.value })}
+                                                                required
+                                                                disabled={actionLoading}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-3">
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder="ขนาด (2x2 เมตร)"
+                                                                value={sizeFormData.dimensions}
+                                                                onChange={(e) => setSizeFormData({ ...sizeFormData, dimensions: e.target.value })}
+                                                                disabled={actionLoading}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-2">
+                                                            <button type="submit" className="btn btn-primary w-100" disabled={actionLoading}>
+                                                                {editingSize ? 'อัปเดต' : 'เพิ่ม'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    {editingSize && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-link btn-sm text-muted mt-2"
+                                                            onClick={() => {
+                                                                setEditingSize(null);
+                                                                setSizeFormData({ name: '', label: '', dimensions: '' });
+                                                            }}
+                                                        >
+                                                            ยกเลิกการแก้ไข
+                                                        </button>
+                                                    )}
+                                                </form>
+
+                                                <div className="table-responsive" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                                    <table className="table table-hover mb-0">
+                                                        <thead className="bg-light sticky-top">
+                                                            <tr>
+                                                                <th>รหัส</th>
+                                                                <th>ชื่อที่แสดง</th>
+                                                                <th>ขนาด</th>
+                                                                <th className="text-end">จัดการ</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {stallSizes.length === 0 ? (
+                                                                <tr>
+                                                                    <td colSpan={4} className="text-center text-muted py-4">
+                                                                        ยังไม่มีขนาด กรุณาเพิ่มขนาดใหม่
+                                                                    </td>
+                                                                </tr>
+                                                            ) : (
+                                                                stallSizes.map(size => (
+                                                                    <tr key={size._id}>
+                                                                        <td className="fw-bold">{size.name}</td>
+                                                                        <td>{size.label}</td>
+                                                                        <td className="text-muted">{size.dimensions || '-'}</td>
+                                                                        <td className="text-end">
+                                                                            <button
+                                                                                className="btn btn-sm btn-outline-primary me-2"
+                                                                                onClick={() => {
+                                                                                    setEditingSize(size);
+                                                                                    setSizeFormData({
+                                                                                        name: size.name,
+                                                                                        label: size.label,
+                                                                                        dimensions: size.dimensions || ''
+                                                                                    });
+                                                                                }}
+                                                                                disabled={actionLoading}
+                                                                            >
+                                                                                แก้ไข
+                                                                            </button>
+                                                                            <button
+                                                                                className="btn btn-sm btn-outline-danger"
+                                                                                onClick={() => handleDeleteSize(size)}
+                                                                                disabled={actionLoading}
+                                                                            >
+                                                                                ลบ
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Market Settings Tab */}
+                                        {settingsTab === 'market' && (
+                                            <div className="py-2">
+                                                <div className="alert alert-info mb-4">
+                                                    <div className="d-flex gap-2">
+                                                        <span className="fs-4">ℹ️</span>
+                                                        <div>
+                                                            <div className="fw-bold">ระบบคืนล็อคอัตโนมัติ</div>
+                                                            <div className="small">เมื่อถึงเวลาที่กำหนด ระบบจะทำการเปลี่ยนสถานะแผงที่จองสำเร็จแล้วทั้งหมดให้กลับเป็น "ว่าง" อัตโนมัติ เพื่อรองรับการจองในรอบถัดไป</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <form onSubmit={handleSaveSettings}>
+                                                    <div className="card border-0 bg-light p-4 rounded-4 mb-4">
+                                                        <div className="row g-4">
+                                                            <div className="col-md-6">
+                                                                <label className="form-label fw-bold small mb-2">สถานะการทำงาน</label>
+                                                                <div className="form-check form-switch pt-1">
+                                                                    <input
+                                                                        className="form-check-input"
+                                                                        type="checkbox"
+                                                                        role="switch"
+                                                                        id="autoReturnSwitch"
+                                                                        checked={marketSettings.isAutoReturnEnabled}
+                                                                        onChange={(e) => setMarketSettings({ ...marketSettings, isAutoReturnEnabled: e.target.checked })}
+                                                                    />
+                                                                    <label className="form-check-label ms-2" htmlFor="autoReturnSwitch">
+                                                                        {marketSettings.isAutoReturnEnabled ? 'เปิดใช้งานการคืนอัตโนมัติ' : 'ปิดการใช้งาน'}
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <label className="form-label fw-bold small mb-2">เวลาคืนล็อคอัตโนมัติ</label>
+                                                                <input
+                                                                    type="time"
+                                                                    className="form-control"
+                                                                    value={marketSettings.autoReturnTime}
+                                                                    onChange={(e) => setMarketSettings({ ...marketSettings, autoReturnTime: e.target.value })}
+                                                                    disabled={!marketSettings.isAutoReturnEnabled}
+                                                                />
+                                                                <div className="form-text small">แผงจะถูกคืนระบบเมื่อคนเข้าหน้าเว็บหลังจากเวลานี้</div>
+                                                            </div>
+                                                            <div className="col-12 border-top pt-3">
+                                                                <label className="form-label fw-bold small mb-2">ระยะเวลาที่จองได้สูงสุด (วัน)</label>
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="input-group" style={{ maxWidth: '200px' }}>
+                                                                        <input
+                                                                            type="number"
+                                                                            className="form-control"
+                                                                            value={marketSettings.maxBookingDays}
+                                                                            onChange={(e) => setMarketSettings({ ...marketSettings, maxBookingDays: parseInt(e.target.value) || 1 })}
+                                                                            min="1"
+                                                                            max="30"
+                                                                        />
+                                                                        <span className="input-group-text">วัน</span>
+                                                                    </div>
+                                                                    <div className="form-text small m-0">กำหนดให้ผู้ใช้สามารถจองล่วงหน้าได้สูงสุดกี่วัน</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-4 pt-3 border-top text-end">
+                                                            <button type="submit" className="btn btn-primary px-4" disabled={actionLoading}>
+                                                                บันทึกการตั้งค่า
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+
+                                                <div className="card border-danger bg-danger bg-opacity-10 p-4 rounded-4">
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <div className="fw-bold text-danger">คืนแผงทั้มหมด (Manual Reset)</div>
+                                                            <div className="small text-danger opacity-75">สั่งคืนล็อคทั้งหมดที่จองสำเร็จแล้วให้กลับเป็น "ว่าง" ทันที โดยไม่ต้องรอเวลา</div>
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-danger px-4"
+                                                            onClick={handleManualReturn}
+                                                            disabled={actionLoading}
+                                                        >
+                                                            🔥 คืนแผงทันที
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -715,11 +1293,17 @@ export default function AdminDashboard() {
                                                     disabled={actionLoading}
                                                 >
                                                     <option value="">เลือกโซน</option>
-                                                    <option value="A">โซน A</option>
-                                                    <option value="B">โซน B</option>
-                                                    <option value="C">โซน C</option>
-                                                    <option value="D">โซน D</option>
+                                                    {zones.map(zone => (
+                                                        <option key={zone._id} value={zone.name}>
+                                                            โซน {zone.name} {zone.description ? `(${zone.description})` : ''}
+                                                        </option>
+                                                    ))}
                                                 </select>
+                                                {zones.length === 0 && (
+                                                    <div className="form-text text-warning">
+                                                        ยังไม่มีโซน กรุณาเพิ่มโซนก่อน
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="col-md-6">
@@ -737,30 +1321,40 @@ export default function AdminDashboard() {
                                                     disabled={actionLoading}
                                                 >
                                                     <option value="">เลือกขนาด</option>
-                                                    <option value="SMALL">เล็ก (2x2 เมตร)</option>
-                                                    <option value="MEDIUM">กลาง (3x3 เมตร)</option>
-                                                    <option value="LARGE">ใหญ่ (4x4 เมตร)</option>
+                                                    {stallSizes.map(size => (
+                                                        <option key={size._id} value={size.name}>
+                                                            {size.label}
+                                                        </option>
+                                                    ))}
                                                 </select>
+                                                {stallSizes.length === 0 && (
+                                                    <div className="form-text text-warning">
+                                                        ยังไม่มีขนาด กรุณาเพิ่มขนาดก่อน
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="col-md-6">
                                                 <label htmlFor="price" className="form-label fw-semibold small">
-                                                    ราคา (บาท/วัน) <span className="text-danger">*</span>
+                                                    ราคา <span className="text-danger">*</span>
                                                 </label>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    id="price"
-                                                    placeholder="เช่น 500"
-                                                    min="0"
-                                                    step="1"
-                                                    value={stallFormData.price}
-                                                    onChange={(e) =>
-                                                        setStallFormData({ ...stallFormData, price: e.target.value })
-                                                    }
-                                                    required
-                                                    disabled={actionLoading}
-                                                />
+                                                <div className="input-group">
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        id="price"
+                                                        placeholder="เช่น 500"
+                                                        min="0"
+                                                        step="1"
+                                                        value={stallFormData.price}
+                                                        onChange={(e) =>
+                                                            setStallFormData({ ...stallFormData, price: e.target.value })
+                                                        }
+                                                        required
+                                                        disabled={actionLoading}
+                                                    />
+                                                    <span className="input-group-text bg-light text-muted">บาท/วัน</span>
+                                                </div>
                                             </div>
 
                                             <div className="col-12">

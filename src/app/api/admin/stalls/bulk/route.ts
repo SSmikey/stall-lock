@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { zone, size, price, description, quantity, startNumber } = body;
+        const { zone, size, price, priceUnit, description, quantity, startNumber } = body;
 
         // Validate required fields
         if (!zone || !size || !price || !quantity || !startNumber) {
@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
                 zone,
                 size,
                 price,
+                priceUnit: priceUnit || 'DAY',
                 description: description || null,
                 status: 'AVAILABLE',
                 createdAt: now,
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
                     zone: s.zone,
                     size: s.size,
                     price: s.price,
+                    priceUnit: s.priceUnit,
                 })),
             }),
             { status: 201 }

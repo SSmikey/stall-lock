@@ -7,6 +7,12 @@ import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
 import './market.css';
 
+interface Zone {
+    _id: string;
+    name: string;
+    description?: string;
+}
+
 export default function MarketPage() {
     const [stalls, setStalls] = useState<Stall[]>([]);
     const [loading, setLoading] = useState(true);
@@ -14,16 +20,17 @@ export default function MarketPage() {
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStall, setSelectedStall] = useState<Stall | null>(null);
+    const [bookingDays, setBookingDays] = useState(1);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [zones, setZones] = useState<Zone[]>([]);
+    const [maxBookingDays, setMaxBookingDays] = useState(7);
     const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const itemsPerPage = 20;
 
-    const zones = ['A', 'B', 'C', 'D'];
-
-    // Fetch current user on mount
+    // Fetch current user and zones on mount
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -36,7 +43,33 @@ export default function MarketPage() {
                 console.error('Failed to fetch user', error);
             }
         };
+        const fetchZones = async () => {
+            try {
+                const res = await fetch('/api/zones');
+                const data: ApiResponse<Zone[]> = await res.json();
+                if (data.success && data.data) {
+                    setZones(data.data);
+                }
+            } catch (error) {
+                console.error('[MarketPage] Failed to fetch zones:', error);
+            }
+        };
+
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    setMaxBookingDays(data.data.maxBookingDays || 7);
+                }
+            } catch (error) {
+                console.error('[MarketPage] Failed to fetch settings:', error);
+            }
+        };
+
         checkAuth();
+        fetchZones();
+        fetchSettings();
     }, []);
 
     useEffect(() => {
@@ -92,7 +125,8 @@ export default function MarketPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     stallId: selectedStall._id,
-                    userId: currentUserId
+                    userId: currentUserId,
+                    days: bookingDays
                 })
             });
 
@@ -187,7 +221,11 @@ export default function MarketPage() {
                             }}
                         >
                             <option value="ALL">🏘️ ทุกโซน</option>
-                            {zones.map(z => <option key={z} value={z}>📍 โซน {z}</option>)}
+                            {zones.map(z => (
+                                <option key={z._id} value={z.name}>
+                                    📍 โซน {z.name} {z.description ? `(${z.description})` : ''}
+                                </option>
+                            ))}
                         </select>
                         <select
                             className="form-select form-select-sm"
@@ -259,6 +297,7 @@ export default function MarketPage() {
                                     className="card-custom h-100 d-flex flex-column"
                                     onClick={() => {
                                         setSelectedStall(stall);
+                                        setBookingDays(1);
                                         setMessage(null);
                                     }}
                                     style={{
@@ -301,14 +340,16 @@ export default function MarketPage() {
                                     <div className="mt-auto pt-3 border-top d-flex flex-column gap-2">
                                         <div className="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <div className="small text-muted mb-0">ราคา/วัน</div>
+                                                <div className="small text-muted mb-0">
+                                                    ราคา/{stall.priceUnit === 'MONTH' ? 'เดือน' : 'วัน'}
+                                                </div>
                                                 <div className="fw-bold text-success fs-6">
                                                     {stall.price.toLocaleString()}฿
                                                 </div>
                                             </div>
                                             <div className="text-end">
                                                 <div className="small text-muted mb-0">ขนาด</div>
-                                                <div className="fw-semibold">{stall.size} ตร.ม.</div>
+                                                <div className="fw-semibold">{stall.size}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -473,6 +514,79 @@ export default function MarketPage() {
                                         </div>
                                     </div>
 
+                                    {/* Booking Days Selector */}
+                                    <div className="mb-4">
+                                        <label className="text-muted small fw-semibold d-block mb-2">📅 ระยะเวลาการจอง (1-{maxBookingDays} วัน)</label>
+                                        <div className="d-flex flex-column gap-2">
+                                            <div className="btn-group w-100" role="group">
+                                                {/* Show buttons 1-7 always (if within max) */}
+                                                {Array.from({ length: Math.min(maxBookingDays, 7) }, (_, i) => i + 1).map(days => (
+                                                    <button
+                                                        key={days}
+                                                        type="button"
+                                                        className={`btn btn-outline-primary btn-sm px-1 ${bookingDays === days ? 'active' : ''}`}
+                                                        style={{ flex: 1, minWidth: '0' }}
+                                                        onClick={() => setBookingDays(days)}
+                                                    >
+                                                        {days} วัน
+                                                    </button>
+                                                ))}
+
+                                                {/* Show dropdown as the 8th element if max > 7, or maybe move to next line if needed. 
+                                                    User said "If more than that then make it a dropdown".
+                                                    If we add a dropdown horizontally, it will squeeze 1-7.
+                                                    Let's put dropdown in the group if it fits, or maybe just a "+" button that opens a menu?
+                                                    Or simple select.
+                                                    Given the request to keep 7 on row, adding an 8th element might break it.
+                                                    Let's try to fit 1-6 and Dropdown(7+) if max > 7?
+                                                    User: "Take number 7 up to the same row".
+                                                    This implies for the 7-day case (standard), 7 should be on row.
+                                                    So for > 7, maybe we can't fit 8 items.
+                                                    But let's stick to "Fitting 1-7" first.
+                                                    If max > 7, I'll append the dropdown. With flex:1 it might squeeze. 
+                                                    Let's just use the component shown below.
+                                                */}
+                                            </div>
+
+                                            {/* Dropdown for > 7 days, separate from the group to ensure 1-7 stays clean? 
+                                                OR append to group. 
+                                                If I append to group, content gets smaller. 8 items.
+                                                Let's try 1-6 + Dropdown (labeled "7+")?
+                                                User wants 7 on the row.
+                                                So 1-7 MUST be there.
+                                                If max > 7: 1-7 + Dropdown(8+). 8 items.
+                                                It will be very small.
+                                                I will separate the dropdown for >7 days to a second row or just rely on shrinking.
+                                                Actually, if max > 7, maybe I should use `flex-wrap` but for max <= 7 (common case) NO wrap.
+                                                But the user said "If more than that (7), THEN number 7 go to row 1, and others dropdown".
+                                                Wait. "take number 7 up to same row. If more than that, then make it a dropdown".
+                                                This could mean "If we have > 7 days, use a dropdown for the extras".
+                                                I will implement the dropdown as an additional element in the group.
+                                            */}
+                                            {maxBookingDays > 7 && (
+                                                <div className="d-flex align-items-center gap-2 mt-2">
+                                                    <span className="small text-muted text-nowrap">เลือกจำนวนวันอื่น:</span>
+                                                    <select
+                                                        className="form-select form-select-sm"
+                                                        value={bookingDays > 7 ? bookingDays : ''}
+                                                        onChange={(e) => setBookingDays(parseInt(e.target.value))}
+                                                    >
+                                                        <option value="" disabled>เลือกวันเพิ่มเติม...</option>
+                                                        {Array.from({ length: maxBookingDays - 7 }, (_, i) => i + 8).map(days => (
+                                                            <option key={days} value={days}>
+                                                                {days} วัน
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div className="text-muted small text-end">
+                                                ถึง {new Date(new Date().setDate(new Date().getDate() + (bookingDays - 1))).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Price & Action */}
                                     <div className="p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style={{
                                         background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)',
@@ -480,8 +594,17 @@ export default function MarketPage() {
                                         border: '2px solid rgba(99, 102, 241, 0.2)',
                                     }}>
                                         <div className="text-center text-md-start">
-                                            <div className="text-muted small mb-1">💰 ราคาเช่ารายวัน</div>
-                                            <div className="h3 mb-0 fw-bold text-gradient">{selectedStall.price.toLocaleString()}฿</div>
+                                            <div className="text-muted small mb-1">
+                                                💰 ราคารวม ({bookingDays} วัน)
+                                            </div>
+                                            <div className="h3 mb-0 fw-bold text-gradient">
+                                                {(selectedStall.price * bookingDays).toLocaleString()}฿
+                                            </div>
+                                            {bookingDays > 1 && (
+                                                <div className="text-muted tiny mt-1" style={{ fontSize: '0.75rem' }}>
+                                                    ({selectedStall.price.toLocaleString()}฿ / วัน)
+                                                </div>
+                                            )}
                                         </div>
                                         <button
                                             className="btn btn-primary-custom px-4 py-3 d-flex align-items-center gap-2"

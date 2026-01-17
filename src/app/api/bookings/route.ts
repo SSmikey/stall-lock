@@ -1,4 +1,4 @@
-import { getDb, cleanupExpiredBookings } from '@/lib/db';
+import { getDb, cleanupExpiredBookings, autoReturnStalls } from '@/lib/db';
 import { createApiResponse, createApiError, handleApiError, ErrorCodes } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
@@ -7,8 +7,9 @@ import clientPromise from '@/lib/mongodb';
 export async function POST(request: NextRequest) {
     try {
         await cleanupExpiredBookings();
+        await autoReturnStalls();
         const body = await request.json();
-        const { stallId, userId } = body;
+        const { stallId, userId, days = 1 } = body;
 
         if (!stallId || !userId) {
             return Response.json(
@@ -56,6 +57,19 @@ export async function POST(request: NextRequest) {
                 const now = new Date();
                 const expiresAt = new Date(now.getTime() + 1800000); // 30 minutes (30 * 60 * 1000)
 
+                // Calculate multi-day booking details
+                const bookingDays = Math.max(1, parseInt(days.toString()));
+                const startDate = new Date(now);
+                const endDate = new Date(now);
+                if (bookingDays > 1) {
+                    endDate.setDate(endDate.getDate() + (bookingDays - 1));
+                }
+                // Set End Date to end of the day (23:59:59)
+                endDate.setHours(23, 59, 59, 999);
+
+                const pricePerDay = stall.price || 0;
+                const totalPrice = pricePerDay * bookingDays;
+
                 // 3. Create booking
                 const booking = await db.collection('bookings').insertOne(
                     {
@@ -65,6 +79,10 @@ export async function POST(request: NextRequest) {
                         status: 'RESERVED',
                         reservedAt: now,
                         expiresAt,
+                        startDate,
+                        endDate,
+                        bookingDays,
+                        totalPrice,
                         createdAt: now,
                         updatedAt: now,
                     },
@@ -79,6 +97,10 @@ export async function POST(request: NextRequest) {
                     status: 'RESERVED',
                     reservedAt: now,
                     expiresAt,
+                    startDate,
+                    endDate,
+                    bookingDays,
+                    totalPrice,
                     timeRemaining: 1800,
                 };
             });
@@ -95,6 +117,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
     try {
         await cleanupExpiredBookings();
+        await autoReturnStalls();
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
 
