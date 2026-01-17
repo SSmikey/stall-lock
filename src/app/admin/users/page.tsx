@@ -267,15 +267,19 @@ export default function AdminUsersPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="card border-0 shadow-sm h-100 overflow-hidden"
-                            style={{ borderRadius: 'var(--radius-lg)' }}
+                            className="card border border-2 shadow-sm h-100 overflow-hidden"
+                            style={{ borderRadius: 'var(--radius-lg)', borderColor: 'var(--brand-light)' }}
                         >
-                            <div className="card-body p-4 text-center">
-                                <div className="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-flex mb-3">
-                                    <span className="fs-2">👥</span>
+                            <div className="card-body p-4">
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#E3F2FD', width: '60px', height: '60px' }}>
+                                        <span style={{ fontSize: '1.5rem' }}>👥</span>
+                                    </div>
+                                    <div>
+                                        <div className="h3 fw-bold mb-0 text-dark">{stats.total}</div>
+                                        <div className="text-dark small fw-medium">ผู้ใช้ทั้งหมด</div>
+                                    </div>
                                 </div>
-                                <h3 className="fw-bold text-dark mb-1">{stats.total}</h3>
-                                <div className="text-muted small">ผู้ใช้ทั้งหมด</div>
                             </div>
                         </motion.div>
                     </div>
@@ -284,15 +288,19 @@ export default function AdminUsersPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="card border-0 shadow-sm h-100 overflow-hidden"
-                            style={{ borderRadius: 'var(--radius-lg)' }}
+                            className="card border border-2 shadow-sm h-100 overflow-hidden"
+                            style={{ borderRadius: 'var(--radius-lg)', borderColor: 'var(--brand-light)' }}
                         >
-                            <div className="card-body p-4 text-center">
-                                <div className="rounded-circle bg-danger bg-opacity-10 p-3 d-inline-flex mb-3">
-                                    <span className="fs-2">🛡️</span>
+                            <div className="card-body p-4">
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#FFEBEE', width: '60px', height: '60px' }}>
+                                        <span style={{ fontSize: '1.5rem' }}>🛡️</span>
+                                    </div>
+                                    <div>
+                                        <div className="h3 fw-bold mb-0 text-danger">{stats.admins}</div>
+                                        <div className="text-dark small fw-medium">ผู้ดูแล (Admin)</div>
+                                    </div>
                                 </div>
-                                <h3 className="fw-bold text-danger mb-1">{stats.admins}</h3>
-                                <div className="text-muted small">ผู้ดูแลระบบ (Admin)</div>
                             </div>
                         </motion.div>
                     </div>
@@ -301,15 +309,19 @@ export default function AdminUsersPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="card border-0 shadow-sm h-100 overflow-hidden"
-                            style={{ borderRadius: 'var(--radius-lg)' }}
+                            className="card border border-2 shadow-sm h-100 overflow-hidden"
+                            style={{ borderRadius: 'var(--radius-lg)', borderColor: 'var(--brand-light)' }}
                         >
-                            <div className="card-body p-4 text-center">
-                                <div className="rounded-circle bg-secondary bg-opacity-10 p-3 d-inline-flex mb-3">
-                                    <span className="fs-2">👤</span>
+                            <div className="card-body p-4">
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F5F5F5', width: '60px', height: '60px' }}>
+                                        <span style={{ fontSize: '1.5rem' }}>👤</span>
+                                    </div>
+                                    <div>
+                                        <div className="h3 fw-bold mb-0 text-secondary">{stats.users}</div>
+                                        <div className="text-dark small fw-medium">ผู้ใช้ทั่วไป (User)</div>
+                                    </div>
                                 </div>
-                                <h3 className="fw-bold text-secondary mb-1">{stats.users}</h3>
-                                <div className="text-muted small">ผู้ใช้งานทั่วไป (User)</div>
                             </div>
                         </motion.div>
                     </div>

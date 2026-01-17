@@ -531,7 +531,7 @@ export default function AdminDashboard() {
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-secondary">{stats.expired}</div>
-                                        <div className="text-dark small fw-medium">หมดอายุ/ยกเลิก</div>
+                                        <div className="text-dark small fw-medium">รายการที่เสียสิทธิ์</div>
                                     </div>
                                 </div>
                             </div>
@@ -566,7 +566,7 @@ export default function AdminDashboard() {
                                 className={`btn btn-sm px-3 rounded-pill fw-medium ${filterStatus === 'EXPIRED' ? 'btn-secondary text-white' : 'btn-light text-secondary'}`}
                                 onClick={() => setFilterStatus('EXPIRED')}
                             >
-                                ประวัติเก่า
+                                หมดอายุ/ยกเลิก
                             </button>
                         </div>
                     </div>
