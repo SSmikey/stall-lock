@@ -38,6 +38,7 @@ export default function AdminDashboard() {
     });
     const [stallFormError, setStallFormError] = useState('');
     const [viewingBooking, setViewingBooking] = useState<any | null>(null);
+    const [inspectingBooking, setInspectingBooking] = useState<any | null>(null);
 
     // Zone & Size management state (combined)
     const [zones, setZones] = useState<Zone[]>([]);
@@ -255,8 +256,6 @@ export default function AdminDashboard() {
     };
 
     const handleApprove = async (bookingId: string) => {
-        if (!confirm('ยืนยันการอนุมัติการจองนี้?')) return;
-
         setActionLoading(true);
         try {
             const res = await fetch('/api/admin/approve', {
@@ -643,7 +642,7 @@ export default function AdminDashboard() {
                                                                 <>
                                                                     <button
                                                                         className="btn btn-sm btn-success rounded-pill px-3 me-1"
-                                                                        onClick={() => handleApprove(b._id)}
+                                                                        onClick={() => setInspectingBooking(b)}
                                                                         disabled={actionLoading}
                                                                     >
                                                                         อนุมัติ
@@ -718,7 +717,7 @@ export default function AdminDashboard() {
                                                             {b.status === 'AWAITING_APPROVAL' ? (
                                                                 <button
                                                                     className="btn btn-sm btn-success rounded-pill px-3"
-                                                                    onClick={() => handleApprove(b._id)}
+                                                                    onClick={() => setInspectingBooking(b)}
                                                                 >
                                                                     อนุมัติ
                                                                 </button>
@@ -792,6 +791,161 @@ export default function AdminDashboard() {
                                         >
                                             {actionLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการปฏิเสธ'}
                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Inspect Booking Modal (For Approval) */}
+            <AnimatePresence>
+                {inspectingBooking && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1060 }}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="modal-dialog modal-dialog-centered modal-lg"
+                        >
+                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                                    <h5 className="modal-title fw-bold">รายละเอียดการจอง {inspectingBooking.bookingId}</h5>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setInspectingBooking(null)}></button>
+                                </div>
+                                <div className="modal-body p-0">
+                                    <div className="row g-0">
+                                        <div className="col-md-7 p-4 bg-white">
+                                            {/* User Info */}
+                                            <div className="mb-4">
+                                                <div className="d-flex align-items-center gap-2 mb-3">
+                                                    <span className="text-primary">👤</span>
+                                                    <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลผู้เช่า</h6>
+                                                </div>
+                                                <div className="p-3 bg-light rounded-3 border border-light">
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">ชื่อ-นามสกุล:</span>
+                                                        <span className="fw-bold text-dark">{inspectingBooking.user?.username || 'N/A'}</span>
+                                                    </div>
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">เบอร์โทรศัพท์:</span>
+                                                        <span className="fw-medium">{inspectingBooking.user?.phone || 'N/A'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Stall Info */}
+                                            <div className="mb-4">
+                                                <div className="d-flex align-items-center gap-2 mb-3">
+                                                    <span className="text-primary">🏪</span>
+                                                    <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลล็อค</h6>
+                                                </div>
+                                                <div className="p-3 bg-light rounded-3 border border-light">
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">รหัสล็อค:</span>
+                                                        <span className="text-primary fw-bold" style={{ fontSize: '1.1rem' }}>{inspectingBooking.stall?.stallId}</span>
+                                                    </div>
+                                                    <div className="mb-2 d-flex justify-content-between">
+                                                        <span className="text-muted">โซน:</span>
+                                                        <span className="badge bg-white text-dark border">{inspectingBooking.stall?.zone}</span>
+                                                    </div>
+                                                    <div className="d-flex justify-content-between">
+                                                        <span className="text-muted">ขนาด:</span>
+                                                        <span>{inspectingBooking.stall?.size} ตร.ม.</span>
+                                                    </div>
+                                                    <div className="mt-2 text-muted small">
+                                                        ชื่อแผง: {inspectingBooking.stall?.description || '-'}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Status & Time */}
+                                            <div>
+                                                <div className="d-flex align-items-center gap-2 mb-3">
+                                                    <span className="text-primary">🕒</span>
+                                                    <h6 className="text-secondary text-uppercase small fw-bold mb-0">สถานะและเวลา</h6>
+                                                </div>
+                                                <div className="p-3 bg-light rounded-3 border border-light">
+                                                    <div className="mb-2 d-flex justify-content-between align-items-center">
+                                                        <span className="text-muted">สถานะปัจจุบัน:</span>
+                                                        {getStatusBadge(inspectingBooking.status)}
+                                                    </div>
+                                                    <div className="mb-1 text-muted small">
+                                                        วันที่จอง: {new Date(inspectingBooking.reservedAt).toLocaleString('th-TH')}
+                                                    </div>
+                                                    <div className="text-muted small">
+                                                        วันที่โอนเงิน: {inspectingBooking.uploadedAt ? new Date(inspectingBooking.uploadedAt).toLocaleString('th-TH') : '-'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-5 bg-light p-4 border-start d-flex flex-column">
+                                            <div className="d-flex align-items-center gap-2 mb-3">
+                                                <span className="text-primary">💰</span>
+                                                <h6 className="text-secondary text-uppercase small fw-bold mb-0">หลักฐานการชำระเงิน</h6>
+                                            </div>
+
+                                            <div className="flex-grow-1 bg-white rounded-3 shadow-sm border p-2 mb-3 d-flex align-items-center justify-content-center position-relative overflow-hidden">
+                                                {inspectingBooking.paymentSlipUrl ? (
+                                                    <img
+                                                        src={inspectingBooking.paymentSlipUrl}
+                                                        className="img-fluid rounded"
+                                                        style={{ maxHeight: '250px', objectFit: 'contain', cursor: 'pointer' }}
+                                                        alt="Slip"
+                                                        onClick={() => setSelectedSlip(inspectingBooking.paymentSlipUrl)}
+                                                    />
+                                                ) : (
+                                                    <div className="text-center text-muted">
+                                                        <span className="d-block display-4 opacity-25">🖼️</span>
+                                                        <small>ไม่มีสลิป</small>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {inspectingBooking.paymentSlipUrl && (
+                                                <button
+                                                    className="btn btn-outline-secondary btn-sm w-100 mb-4 rounded-pill bg-white"
+                                                    onClick={() => setSelectedSlip(inspectingBooking.paymentSlipUrl)}
+                                                >
+                                                    🔍 ขยายรูปสลิป
+                                                </button>
+                                            )}
+
+                                            <div className="mt-auto">
+                                                <div className="d-flex justify-content-between align-items-end mb-3">
+                                                    <span className="text-muted fw-bold">ยอดรวม:</span>
+                                                    <span className="h3 text-success fw-bold mb-0">
+                                                        {(inspectingBooking.totalPrice || inspectingBooking.stall?.price || 0).toLocaleString()}฿
+                                                    </span>
+                                                </div>
+
+                                                <div className="d-grid gap-2">
+                                                    <button
+                                                        className="btn btn-success py-2 rounded-1 fw-bold shadow-sm"
+                                                        onClick={() => {
+                                                            handleApprove(inspectingBooking._id);
+                                                            setInspectingBooking(null);
+                                                        }}
+                                                        disabled={actionLoading}
+                                                        style={{ background: '#198754' }}
+                                                    >
+                                                        อนุมัติทันที
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-outline-danger py-2 rounded-1 fw-bold bg-white"
+                                                        onClick={() => {
+                                                            setRejectingBooking(inspectingBooking);
+                                                            setInspectingBooking(null);
+                                                        }}
+                                                        disabled={actionLoading}
+                                                    >
+                                                        ปฏิเสธ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
