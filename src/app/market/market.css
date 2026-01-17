@@ -56,12 +56,13 @@
 }
 
 .badge-booked {
-  background-color: #fee2e2;
-  color: #991b1b;
-  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.35rem 0.85rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
 }
 
 /* ปุ่มกดจอง */

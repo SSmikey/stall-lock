@@ -92,7 +92,6 @@ export default function MarketPage() {
             const res = await fetch(url);
             const data: ApiResponse<{ stalls: Stall[] }> = await res.json();
             if (data.success && data.data) {
-                console.log('[MarketPage] Stalls received:', data.data.stalls.length);
                 setStalls(data.data.stalls);
             }
         } catch (error) {
@@ -183,466 +182,296 @@ export default function MarketPage() {
     };
 
     return (
-        <div className="container py-3 py-md-5">
-            {/* Header Section - Mobile Optimized */}
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4"
-            >
-                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-                    <div>
-                        <h1 className="h3 h2-md fw-bold mb-1 text-gradient">เลือกจองล็อคตลาด</h1>
-                        <p className="text-muted small mb-0">เลือกล็อคที่คุณต้องการได้เลย </p>
-                    </div>
-
-                    {/* Filter Controls - Stack on mobile */}
-                    <div className="d-flex flex-column flex-sm-row gap-2">
-                        {/* Search Bar */}
-                        <div className="input-group input-group-sm" style={{ maxWidth: '250px', boxShadow: 'none', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px solid var(--gray-200)' }}>
-                            <span className="input-group-text bg-white border-0 text-muted ps-3">🔍</span>
-                            <input
-                                type="text"
-                                className="form-control border-0 ps-0"
-                                placeholder="ค้นหาชื่อล็อค..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{ boxShadow: 'none' }}
-                            />
-                        </div>
-                        <select
-                            className="form-select form-select-sm"
-                            value={filterZone}
-                            onChange={(e) => setFilterZone(e.target.value)}
-                            style={{
-                                borderRadius: 'var(--radius-md)',
-                                border: '2px solid var(--gray-200)',
-                                minWidth: '130px'
-                            }}
-                        >
-                            <option value="ALL">🏘️ ทุกโซน</option>
-                            {zones.map(z => (
-                                <option key={z._id} value={z.name}>
-                                    📍 โซน {z.name} {z.description ? `(${z.description})` : ''}
-                                </option>
-                            ))}
-                        </select>
-                        <select
-                            className="form-select form-select-sm"
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            style={{
-                                borderRadius: 'var(--radius-md)',
-                                border: '2px solid var(--gray-200)',
-                                minWidth: '140px'
-                            }}
-                        >
-                            <option value="ALL">🔍 ทุกสถานะ</option>
-                            <option value="AVAILABLE">✅ ว่าง</option>
-                            <option value="RESERVED">⏳ รอชำระเงิน</option>
-                            <option value="CONFIRMED">🔒 จองแล้ว</option>
-                        </select>
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* Toolbar: Search & Pagination */}
-
-
-            {loading ? (
-                <div className="text-center py-5">
-                    <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
-                    <p className="text-muted mt-3">กำลังโหลดข้อมูล...</p>
-                </div>
-            ) : stalls.length === 0 ? (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-5"
-                >
-                    <div style={{ fontSize: '4rem' }}>🔍</div>
-                    <h5 className="text-muted mt-3">ไม่พบข้อมูลล็อค</h5>
-                    <p className="text-muted small">ลองเปลี่ยนตัวกรองดูนะครับ</p>
-                </motion.div>
-            ) : (
-                <>
-                    {/* Results Count */}
-                    <div className="mb-3">
-                        <p className="text-muted small mb-0">
-                            พบ <span className="fw-bold text-gradient">{filteredStalls.length}</span> ล็อค
+        <div className="container-fluid p-0 bg-light min-vh-100 font-kanit">
+            {/* Hero Section */}
+            <div className="home-hero pt-5 pb-5 mb-5" style={{ borderRadius: '0 0 50px 50px' }}>
+                <div className="container position-relative z-1">
+                    <div className="text-center text-white mb-4">
+                        <h1 className="fw-bold mb-2 display-5">เลือกจองแผงตลาด</h1>
+                        <p className="lead opacity-90 mx-auto" style={{ maxWidth: '600px' }}>
+                            ค้นหาและจับจองทำเลทองสำหรับการค้าขายของคุณได้ง่ายๆ ตลอด 24 ชั่วโมง
                         </p>
                     </div>
+                </div>
 
-                    {/* Search Not Found State */}
-                    {filteredStalls.length === 0 && (
-                        <div className="text-center py-5">
-                            <div style={{ fontSize: '3rem' }}>🤔</div>
-                            <h5 className="text-muted mt-3">ไม่พบข้อมูลที่ค้นหา</h5>
-                            <button className="btn btn-link text-decoration-none" onClick={() => setSearchQuery('')}>ล้างคำค้นหา</button>
+            </div>
+
+            <div className="container position-relative z-2" style={{ marginTop: '-6rem' }}>
+                {/* Search & Filter Bar */}
+                <div className="card border-0 shadow-lg rounded-4 p-3 mb-5 bg-white bg-opacity-90 backdrop-blur">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        {/* Left: Search Bar */}
+                        <div style={{ minWidth: '300px', flex: 1 }}>
+                            <div className="input-group border rounded-pill overflow-hidden bg-light">
+                                <span className="input-group-text bg-transparent border-0 ps-3 text-muted">🔍</span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 shadow-none ps-0"
+                                    placeholder="ค้นหาชื่อล็อค หรือรหัสแผง..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    style={{ fontSize: '0.95rem' }}
+                                />
+                            </div>
                         </div>
-                    )}
 
-                    {/* Responsive Grid - Mobile First */}
-                    <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 justify-content-center">
-                        {currentStalls.map((stall, index) => (
-                            <div key={stall.stallId} className="col">
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: index * 0.02 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="card-custom h-100 d-flex flex-column"
-                                    onClick={() => {
-                                        setSelectedStall(stall);
-                                        setBookingDays(1);
-                                        setMessage(null);
-                                    }}
-                                    style={{
-                                        cursor: 'pointer',
-                                        userSelect: 'none',
-                                        WebkitTapHighlightColor: 'transparent',
-                                    }}
-                                >
-                                    {/* Card Header */}
-                                    <div className="mb-3">
-                                        <div className="d-flex justify-content-between align-items-start mb-2">
-                                            <span className="fw-bold text-primary fs-6">{stall.stallId}</span>
-                                            <span className={getStatusBadgeClass(stall.status)}>
-                                                {getStatusText(stall.status)}
-                                            </span>
-                                        </div>
-                                        <h6 className="mb-1 fw-semibold text-truncate">{stall.name || `แผงล็อค ${stall.stallId}`}</h6>
-                                        {stall.description && (
-                                            <div className="bg-light p-2 rounded-2 mb-2 border-start border-2 border-primary-light" style={{ minHeight: '44px' }}>
-                                                <p className="small text-muted mb-0" style={{
-                                                    fontSize: '0.7rem',
-                                                    lineHeight: '1.4',
-                                                    display: '-webkit-box',
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: 'vertical',
-                                                    overflow: 'hidden'
-                                                }}>
-                                                    <span className="fw-bold text-primary pe-1">📝</span>
-                                                    {stall.description}
-                                                </p>
-                                            </div>
-                                        )}
-                                        <p className="small text-muted mb-0">
-                                            <span className="d-inline-block me-2">📍 โซน {stall.zone}</span>
-                                            {stall.row && <span className="d-inline-block">แถว {stall.row}</span>}
-                                        </p>
-                                    </div>
+                        {/* Right: Filters */}
+                        <div className="d-flex gap-2">
+                            <select
+                                className="form-select rounded-pill border-0 bg-light text-muted"
+                                value={filterZone}
+                                onChange={(e) => setFilterZone(e.target.value)}
+                                style={{ fontSize: '0.9rem', minWidth: '140px' }}
+                            >
+                                <option value="ALL">🏘️ ทุกโซนพื้นที่</option>
+                                {zones.map(z => (
+                                    <option key={z._id} value={z.name}>
+                                        📍 โซน {z.name} {z.description ? `(${z.description})` : ''}
+                                    </option>
+                                ))}
+                            </select>
 
-                                    {/* Card Footer */}
-                                    <div className="mt-auto pt-3 border-top d-flex flex-column gap-2">
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div className="small text-muted mb-0">
-                                                    ราคา/{stall.priceUnit === 'MONTH' ? 'เดือน' : 'วัน'}
-                                                </div>
-                                                <div className="fw-bold text-success fs-6">
-                                                    {stall.price.toLocaleString()}฿
-                                                </div>
-                                            </div>
-                                            <div className="text-end">
-                                                <div className="small text-muted mb-0">ขนาด</div>
-                                                <div className="fw-semibold">{stall.size}</div>
-                                            </div>
+                            <select
+                                className="form-select rounded-pill border-0 bg-light text-muted"
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                style={{ fontSize: '0.9rem', minWidth: '140px' }}
+                            >
+                                <option value="ALL">📊 ทุกสถานะ</option>
+                                <option value="AVAILABLE">✅ ว่าง</option>
+                                <option value="RESERVED">⏳ รอชำระเงิน</option>
+                                <option value="CONFIRMED">🔒 จองแล้ว</option>
+                            </select>
+
+                            <button className="btn btn-brand rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style={{ width: '38px', height: '38px' }} onClick={() => fetchStalls()}>
+                                🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="row g-4 pb-5">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className="col-6 col-md-4 col-lg-3">
+                                <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                                    <div className="card-body p-3">
+                                        <div className="placeholder-glow">
+                                            <span className="placeholder col-8 mb-2 rounded"></span>
+                                            <span className="placeholder col-4 mb-3 rounded"></span>
+                                            <div style={{ height: '60px' }} className="placeholder w-100 rounded mb-3"></div>
+                                            <span className="placeholder col-12 rounded btn-lg"></span>
                                         </div>
                                     </div>
-                                </motion.div>
+                                </div>
                             </div>
                         ))}
                     </div>
+                ) : stalls.length === 0 ? (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-center py-5"
+                    >
+                        <div className="mb-3 opacity-50" style={{ fontSize: '5rem' }}>🛖</div>
+                        <h4 className="fw-bold text-muted">ไม่พบข้อมูลแผงตลาด</h4>
+                        <p className="text-muted">ลองปรับตัวกรองหรือค้นหาด้วยคำอื่นดูนะครับ</p>
+                    </motion.div>
+                ) : (
+                    <>
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <h5 className="fw-bold mb-0 text-dark">
+                                ผลลัพธ์การค้นหา <span className="text-brand fs-4 ms-2">{filteredStalls.length}</span> <small className="text-muted fw-normal ms-1">รายการ</small>
+                            </h5>
+                            {filteredStalls.length === 0 && (
+                                <button className="btn btn-sm btn-outline-danger rounded-pill px-3" onClick={() => setSearchQuery('')}>
+                                    ล้างคำค้นหา
+                                </button>
+                            )}
+                        </div>
 
-                    {/* Pagination Controls - Moved to bottom right */}
-                    {totalPages > 0 && (
-                        <div className="d-flex justify-content-end mt-4">
-                            <nav>
-                                <ul className="pagination mb-0">
-                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </button>
-                                    </li>
-                                    {[...Array(totalPages)].map((_, i) => (
-                                        <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                            <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                                                {i + 1}
+                        {/* Stalls Grid */}
+                        <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 pb-5">
+                            {currentStalls.map((stall, index) => (
+                                <div key={stall.stallId} className="col">
+                                    <motion.div
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.02 }}
+                                        whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden cursor-pointer bg-white"
+                                        onClick={() => {
+                                            setSelectedStall(stall);
+                                            setBookingDays(1);
+                                            setMessage(null);
+                                        }}
+                                        style={{ transition: 'all 0.2s ease' }}
+                                    >
+                                        <div className="card-body p-3 d-flex flex-column h-100">
+                                            <div className="d-flex justify-content-between align-items-start mb-2">
+                                                <div className="badge bg-light text-dark border fw-normal px-2 py-1">Code: {stall.stallId}</div>
+                                                <span className={`small fw-bold ${getStatusBadgeClass(stall.status)}`}>
+                                                    {getStatusText(stall.status)}
+                                                </span>
+                                            </div>
+
+                                            <h6 className="fw-bold mb-1 text-dark text-truncate" title={stall.name}>{stall.name}</h6>
+                                            <div className="small text-muted mb-3">โซน {stall.zone} • {stall.size} ตร.ม.</div>
+
+                                            {stall.description && (
+                                                <div className="p-2 bg-light rounded-3 mb-3 small text-muted flex-grow-1" style={{ fontSize: '0.8rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                    {stall.description}
+                                                </div>
+                                            )}
+
+                                            <div className="mt-auto border-top pt-3 d-flex justify-content-between align-items-end">
+                                                <div>
+                                                    <span className="d-block tiny text-muted" style={{ fontSize: '0.7rem' }}>ราคาต่อวัน</span>
+                                                    <span className="fw-bold text-success fs-5">{stall.price.toLocaleString()}฿</span>
+                                                </div>
+                                                <button className="btn btn-sm btn-primary-custom px-3 rounded-pill" style={{ height: '32px', fontSize: '0.8rem' }}>
+                                                    ดูรายละเอียด
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 0 && (
+                            <div className="d-flex justify-content-center pb-5">
+                                <nav>
+                                    <ul className="pagination pagination-lg">
+                                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                            <button className="page-link rounded-start-pill border-0 shadow-sm" onClick={() => handlePageChange(currentPage - 1)}>
+                                                &laquo;
                                             </button>
                                         </li>
-                                    ))}
-                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    )}
-                </>
-            )}
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                            <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                                <button
+                                                    className={`page-link border-0 shadow-sm mx-1 rounded ${currentPage === page ? 'bg-brand text-white' : ''}`}
+                                                    onClick={() => handlePageChange(page)}
+                                                >
+                                                    {page}
+                                                </button>
+                                            </li>
+                                        ))}
+                                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                            <button className="page-link rounded-end-pill border-0 shadow-sm" onClick={() => handlePageChange(currentPage + 1)}>
+                                                &raquo;
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
 
-            {/* Stall Detail Modal - Mobile Optimized */}
+            {/* Premium Booking Modal */}
             <AnimatePresence>
                 {selectedStall && (
-                    <div
-                        className="modal show d-block"
-                        style={{
-                            backgroundColor: 'rgba(0,0,0,0.6)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 1050,
-                        }}
-                        onClick={() => setSelectedStall(null)}
-                    >
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', zIndex: 1050 }} onClick={() => setSelectedStall(null)}>
                         <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 50 }}
-                            transition={{ type: 'spring', damping: 25 }}
-                            className="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="modal-dialog modal-dialog-centered"
                             onClick={(e) => e.stopPropagation()}
-                            style={{ maxWidth: '500px', margin: 'auto' }}
                         >
-                            <div className="modal-content border-0" style={{
-                                borderRadius: 'var(--radius-xl)',
-                                boxShadow: 'var(--shadow-2xl)',
-                            }}>
-                                {/* Modal Header */}
-                                <div className="modal-header border-0 pb-2" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)' }}>
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span style={{ fontSize: '1.5rem' }}>🏪</span>
-                                        <h5 className="modal-title fw-bold text-white mb-0">ข้อมูลล็อค</h5>
+                            <div className="modal-content border-0 shadow-lg rounded-5 overflow-hidden">
+                                <div className="modal-header bg-brand text-white border-0 p-4">
+                                    <div>
+                                        <h5 className="modal-title fw-bold mb-1">🏪 จองแผงตลาด</h5>
+                                        <p className="mb-0 opacity-75 small">ยืนยันข้อมูลและระยะเวลาที่ต้องการ</p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="btn-close btn-close-white tap-target"
-                                        onClick={() => setSelectedStall(null)}
-                                        aria-label="Close"
-                                    ></button>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setSelectedStall(null)}></button>
                                 </div>
+                                <div className="modal-body p-4 bg-light">
+                                    {message && (
+                                        <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} rounded-3 border-0 shadow-sm mb-4`}>
+                                            {message.type === 'success' ? '✅' : '❌'} {message.text}
+                                        </div>
+                                    )}
 
-                                {/* Modal Body */}
-                                <div className="modal-body p-3 p-md-4">
-                                    {/* Alert Message */}
-                                    <AnimatePresence>
-                                        {message && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, scale: 0.95 }}
-                                                className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} mb-3 d-flex align-items-center gap-2`}
-                                                role="alert"
-                                                style={{ borderRadius: 'var(--radius-md)' }}
+                                    <div className="card border-0 shadow-sm rounded-4 mb-4">
+                                        <div className="card-body p-3">
+                                            <div className="d-flex align-items-center gap-3 mb-3">
+                                                <div className="bg-brand-light text-brand rounded-3 p-3 display-6 fw-bold">
+                                                    {selectedStall.stallId}
+                                                </div>
+                                                <div>
+                                                    <h5 className="fw-bold mb-1">{selectedStall.name}</h5>
+                                                    <span className="badge bg-light text-dark border">โซน {selectedStall.zone}</span>
+                                                    <span className="badge bg-light text-dark border ms-2">ขนาด {selectedStall.size} ตร.ม.</span>
+                                                </div>
+                                            </div>
+                                            {selectedStall.description && (
+                                                <div className="p-3 bg-light rounded-3 small text-muted">
+                                                    <i className="me-2">📝</i>{selectedStall.description}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="form-label fw-bold text-muted small text-uppercase">ระยะเวลาการจอง (วัน)</label>
+                                        <div className="d-flex gap-2 mb-2 overflow-auto pb-2">
+                                            {Array.from({ length: Math.min(maxBookingDays, 7) }, (_, i) => i + 1).map(days => (
+                                                <button
+                                                    key={days}
+                                                    className={`btn btn-lg flex-grow-1 fw-bold ${bookingDays === days ? 'btn-brand text-white shadow' : 'btn-white border'}`}
+                                                    onClick={() => setBookingDays(days)}
+                                                    style={{ minWidth: '50px' }}
+                                                >
+                                                    {days}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {maxBookingDays > 7 && (
+                                            <select
+                                                className="form-select"
+                                                value={bookingDays > 7 ? bookingDays : ''}
+                                                onChange={(e) => setBookingDays(Number(e.target.value))}
                                             >
-                                                <span>{message.type === 'success' ? '✅' : '❌'}</span>
-                                                {message.text}
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-
-                                    {/* Stall ID & Name */}
-                                    <div className="mb-4 text-center py-3" style={{
-                                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%)',
-                                        borderRadius: 'var(--radius-lg)',
-                                    }}>
-                                        <div className="display-6 fw-bold text-gradient mb-1">{selectedStall.stallId}</div>
-                                        <div className="text-muted fw-medium mb-2">{selectedStall.name}</div>
-                                        {selectedStall.description && (
-                                            <div className="px-3">
-                                                <div className="p-3 bg-white bg-opacity-50 rounded-3 border-start border-3 border-primary shadow-sm">
-                                                    <div className="small fw-bold text-primary mb-1">📝 รายละเอียดเพิ่มเติม</div>
-                                                    <p className="small text-muted mb-0" style={{ whiteSpace: 'pre-wrap' }}>
-                                                        {selectedStall.description}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Info Grid */}
-                                    <div className="row g-2 mb-4">
-                                        <div className="col-6">
-                                            <div className="p-3 text-center" style={{
-                                                background: 'var(--gray-50)',
-                                                borderRadius: 'var(--radius-md)',
-                                                border: '2px solid var(--gray-100)',
-                                            }}>
-                                                <div className="text-muted small mb-1">📍 โซน</div>
-                                                <div className="fw-bold h5 mb-0 text-primary">{selectedStall.zone}</div>
-                                            </div>
-                                        </div>
-                                        <div className="col-6">
-                                            <div className="p-3 text-center" style={{
-                                                background: 'var(--gray-50)',
-                                                borderRadius: 'var(--radius-md)',
-                                                border: '2px solid var(--gray-100)',
-                                            }}>
-                                                <div className="text-muted small mb-1">📏 ขนาด</div>
-                                                <div className="fw-bold h5 mb-0 text-primary">{selectedStall.size} ตร.ม.</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Features */}
-                                    <div className="mb-4">
-                                        <label className="text-muted small fw-semibold d-block mb-2">🎯 สิ่งอำนวยความสะดวก</label>
-                                        <div className="d-flex gap-2 flex-wrap">
-                                            {selectedStall.features && selectedStall.features.length > 0 ? (
-                                                selectedStall.features.map(f => (
-                                                    <span
-                                                        key={f}
-                                                        className="badge text-dark p-2 px-3 fw-medium"
-                                                        style={{
-                                                            background: 'white',
-                                                            border: '2px solid var(--gray-200)',
-                                                            borderRadius: 'var(--radius-md)',
-                                                        }}
-                                                    >
-                                                        {f === 'ไฟฟ้า' && '⚡ '}
-                                                        {f === 'น้ำประปา' && '💧 '}
-                                                        {f}
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-muted small">ไม่มีข้อมูล</span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Booking Days Selector */}
-                                    <div className="mb-4">
-                                        <label className="text-muted small fw-semibold d-block mb-2">📅 ระยะเวลาการจอง (1-{maxBookingDays} วัน)</label>
-                                        <div className="d-flex flex-column gap-2">
-                                            <div className="btn-group w-100" role="group">
-                                                {/* Show buttons 1-7 always (if within max) */}
-                                                {Array.from({ length: Math.min(maxBookingDays, 7) }, (_, i) => i + 1).map(days => (
-                                                    <button
-                                                        key={days}
-                                                        type="button"
-                                                        className={`btn btn-outline-primary btn-sm px-1 ${bookingDays === days ? 'active' : ''}`}
-                                                        style={{ flex: 1, minWidth: '0' }}
-                                                        onClick={() => setBookingDays(days)}
-                                                    >
-                                                        {days} วัน
-                                                    </button>
+                                                <option value="" disabled>เลือกจำนวนวันเพิ่มเติม...</option>
+                                                {Array.from({ length: maxBookingDays - 7 }, (_, i) => i + 8).map(d => (
+                                                    <option key={d} value={d}>{d} วัน</option>
                                                 ))}
-
-                                                {/* Show dropdown as the 8th element if max > 7, or maybe move to next line if needed. 
-                                                    User said "If more than that then make it a dropdown".
-                                                    If we add a dropdown horizontally, it will squeeze 1-7.
-                                                    Let's put dropdown in the group if it fits, or maybe just a "+" button that opens a menu?
-                                                    Or simple select.
-                                                    Given the request to keep 7 on row, adding an 8th element might break it.
-                                                    Let's try to fit 1-6 and Dropdown(7+) if max > 7?
-                                                    User: "Take number 7 up to the same row".
-                                                    This implies for the 7-day case (standard), 7 should be on row.
-                                                    So for > 7, maybe we can't fit 8 items.
-                                                    But let's stick to "Fitting 1-7" first.
-                                                    If max > 7, I'll append the dropdown. With flex:1 it might squeeze. 
-                                                    Let's just use the component shown below.
-                                                */}
-                                            </div>
-
-                                            {/* Dropdown for > 7 days, separate from the group to ensure 1-7 stays clean? 
-                                                OR append to group. 
-                                                If I append to group, content gets smaller. 8 items.
-                                                Let's try 1-6 + Dropdown (labeled "7+")?
-                                                User wants 7 on the row.
-                                                So 1-7 MUST be there.
-                                                If max > 7: 1-7 + Dropdown(8+). 8 items.
-                                                It will be very small.
-                                                I will separate the dropdown for >7 days to a second row or just rely on shrinking.
-                                                Actually, if max > 7, maybe I should use `flex-wrap` but for max <= 7 (common case) NO wrap.
-                                                But the user said "If more than that (7), THEN number 7 go to row 1, and others dropdown".
-                                                Wait. "take number 7 up to same row. If more than that, then make it a dropdown".
-                                                This could mean "If we have > 7 days, use a dropdown for the extras".
-                                                I will implement the dropdown as an additional element in the group.
-                                            */}
-                                            {maxBookingDays > 7 && (
-                                                <div className="d-flex align-items-center gap-2 mt-2">
-                                                    <span className="small text-muted text-nowrap">เลือกจำนวนวันอื่น:</span>
-                                                    <select
-                                                        className="form-select form-select-sm"
-                                                        value={bookingDays > 7 ? bookingDays : ''}
-                                                        onChange={(e) => setBookingDays(parseInt(e.target.value))}
-                                                    >
-                                                        <option value="" disabled>เลือกวันเพิ่มเติม...</option>
-                                                        {Array.from({ length: maxBookingDays - 7 }, (_, i) => i + 8).map(days => (
-                                                            <option key={days} value={days}>
-                                                                {days} วัน
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            )}
-
-                                            <div className="text-muted small text-end">
-                                                ถึง {new Date(new Date().setDate(new Date().getDate() + (bookingDays - 1))).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                                            </div>
+                                            </select>
+                                        )}
+                                        <div className="text-end small text-muted mt-1">
+                                            ถึงวันที่: {new Date(Date.now() + (bookingDays * 24 * 60 * 60 * 1000)).toLocaleDateString('th-TH')}
                                         </div>
                                     </div>
 
-                                    {/* Price & Action */}
-                                    <div className="p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style={{
-                                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)',
-                                        borderRadius: 'var(--radius-lg)',
-                                        border: '2px solid rgba(99, 102, 241, 0.2)',
-                                    }}>
-                                        <div className="text-center text-md-start">
-                                            <div className="text-muted small mb-1">
-                                                💰 ราคารวม ({bookingDays} วัน)
+                                    <div className="d-grid gap-2">
+                                        <div className="card border-0 bg-white shadow-sm rounded-4 p-3 d-flex flex-row justify-content-between align-items-center">
+                                            <div>
+                                                <div className="small text-muted">ยอดชำระรวม</div>
+                                                <div className="h3 fw-bold text-brand mb-0">{(selectedStall.price * bookingDays).toLocaleString()}฿</div>
                                             </div>
-                                            <div className="h3 mb-0 fw-bold text-gradient">
-                                                {(selectedStall.price * bookingDays).toLocaleString()}฿
-                                            </div>
-                                            {bookingDays > 1 && (
-                                                <div className="text-muted tiny mt-1" style={{ fontSize: '0.75rem' }}>
-                                                    ({selectedStall.price.toLocaleString()}฿ / วัน)
-                                                </div>
-                                            )}
+                                            <button
+                                                className="btn btn-brand btn-lg rounded-pill px-5 shadow fw-bold"
+                                                onClick={handleBookStall}
+                                                disabled={bookingLoading || selectedStall.status !== 'AVAILABLE'}
+                                            >
+                                                {bookingLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการจอง 🔒'}
+                                            </button>
                                         </div>
                                         <button
-                                            className="btn btn-primary-custom px-4 py-3 d-flex align-items-center gap-2"
-                                            disabled={selectedStall.status !== 'AVAILABLE' || bookingLoading}
-                                            onClick={handleBookStall}
-                                            style={{
-                                                minWidth: '160px',
-                                                justifyContent: 'center',
-                                            }}
+                                            className="btn btn-light text-muted rounded-pill py-2"
+                                            onClick={() => setSelectedStall(null)}
                                         >
-                                            {bookingLoading ? (
-                                                <>
-                                                    <span className="spinner-border spinner-border-sm"></span>
-                                                    <span>กำลังจอง...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span>🔒</span>
-                                                    <span>จองล็อคนี้</span>
-                                                </>
-                                            )}
+                                            ย้อนกลับ
                                         </button>
                                     </div>
-
-                                    {/* Status Warning */}
-                                    {selectedStall.status !== 'AVAILABLE' && !message && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="alert alert-warning d-flex align-items-center gap-2 mt-3 mb-0"
-                                            style={{ borderRadius: 'var(--radius-md)' }}
-                                        >
-                                            <span>⚠️</span>
-                                            <span className="small">
-                                                {selectedStall.status === 'RESERVED' ? 'ล็อคนี้อยู่ระหว่างการจอง' : 'ล็อคนี้ถูกจองไปแล้ว'}
-                                            </span>
-                                        </motion.div>
-                                    )}
                                 </div>
                             </div>
                         </motion.div>
