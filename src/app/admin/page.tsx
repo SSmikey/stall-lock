@@ -1093,12 +1093,12 @@ export default function AdminDashboard() {
                         className="modal-dialog modal-dialog-centered modal-lg"
                     >
                         <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                            <div className="modal-header border-0 bg-white p-4 pb-0">
+                            <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                 <div>
                                     <h5 className="modal-title fw-bold">⚙️ ตั้งค่าระบบ</h5>
-                                    <p className="text-muted small mb-0">จัดการโซน, ขนาดแผง, และการตั้งค่าตลาด</p>
+                                    <p className="text-white text-opacity-75 small mb-0">จัดการโซน, ขนาดแผง, และการตั้งค่าตลาด</p>
                                 </div>
-                                <button className="btn-close" onClick={() => setShowSettingsModal(false)}></button>
+                                <button className="btn-close btn-close-white" onClick={() => setShowSettingsModal(false)}></button>
                             </div>
                             <div className="modal-body p-4">
                                 <ul className="nav nav-pills mb-4 nav-fill bg-light p-1 rounded-pill">
@@ -1279,9 +1279,9 @@ export default function AdminDashboard() {
                         className="modal-dialog modal-dialog-centered"
                     >
                         <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                            <div className="modal-header border-0 bg-white p-4 pb-0">
+                            <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                 <h5 className="modal-title fw-bold">➕ เพิ่มแผงตลาด</h5>
-                                <button className="btn-close" onClick={() => setShowCreateStallModal(false)}></button>
+                                <button type="button" className="btn-close btn-close-white" onClick={() => setShowCreateStallModal(false)}></button>
                             </div>
                             <div className="modal-body p-4">
                                 {stallFormError && <div className="alert alert-danger rounded-3">{stallFormError}</div>}
