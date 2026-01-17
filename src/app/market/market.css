@@ -88,6 +88,24 @@
   transform: none;
 }
 
+.btn-outline-custom {
+  background: transparent;
+  border: 2px solid #3b82f6;
+  /* Blue border */
+  color: #3b82f6;
+  border-radius: 9999px;
+  /* Pill shape */
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-custom:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
 /* Pagination (ปุ่มเปลี่ยนหน้า) */
 .page-link {
   color: var(--primary);

@@ -243,9 +243,7 @@ export default function MarketPage() {
                                 <option value="CONFIRMED">🔒 จองแล้ว</option>
                             </select>
 
-                            <button className="btn btn-brand rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style={{ width: '38px', height: '38px' }} onClick={() => fetchStalls()}>
-                                🔄
-                            </button>
+
                         </div>
                     </div>
                 </div>
@@ -331,8 +329,8 @@ export default function MarketPage() {
                                                     <span className="d-block tiny text-muted" style={{ fontSize: '0.7rem' }}>ราคาต่อวัน</span>
                                                     <span className="fw-bold text-success fs-5">{stall.price.toLocaleString()}฿</span>
                                                 </div>
-                                                <button className="btn btn-sm btn-primary-custom px-3 rounded-pill" style={{ height: '32px', fontSize: '0.8rem' }}>
-                                                    ดูรายละเอียด
+                                                <button className="btn btn-sm btn-outline-custom px-3 d-flex align-items-center gap-1 justify-content-center" style={{ height: '32px', fontSize: '0.8rem' }}>
+                                                    <span style={{ fontSize: '0.9rem' }}>📄</span> ดูรายละเอียด
                                                 </button>
                                             </div>
                                         </div>
@@ -462,7 +460,7 @@ export default function MarketPage() {
                                                 onClick={handleBookStall}
                                                 disabled={bookingLoading || selectedStall.status !== 'AVAILABLE'}
                                             >
-                                                {bookingLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการจอง 🔒'}
+                                                {bookingLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการจอง'}
                                             </button>
                                         </div>
                                         <button
