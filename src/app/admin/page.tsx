@@ -418,14 +418,14 @@ export default function AdminDashboard() {
                                 <span className="fs-6">➕</span> เพิ่มแผงตลาด
                             </button>
                             <button
-                                className="btn btn-white bg-white text-dark bg-opacity-75 border-0 fw-bold d-flex align-items-center gap-2 hover-scale shadow-sm"
+                                className="btn btn-white bg-white text-dark border-0 fw-bold d-flex align-items-center gap-2 hover-scale"
                                 onClick={() => setShowSettingsModal(true)}
                                 style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
                                 <span className="fs-6">⚙️</span> ตั้งค่า
                             </button>
                             <button
-                                className="btn btn-white bg-white text-danger fw-bold border-0 d-flex align-items-center gap-2 hover-scale"
+                                className="btn btn-white bg-white text-danger bg-opacity-75 border-0 fw-bold d-flex align-items-center gap-2 hover-scale shadow-sm"
                                 onClick={async () => {
                                     if (!await showConfirm('ยืนยันการเคลียร์', 'ยืนยันการเคลียร์รายการการจองที่หมดอายุ?', 'ยืนยัน', 'warning')) return;
                                     try {
@@ -441,7 +441,7 @@ export default function AdminDashboard() {
                                 }}
                                 style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                <span className="fs-6">🧹</span> เคลียร์
+                                <span className="fs-6">🧹</span> เคลียร์รายการหมดอายุ
                             </button>
                         </div>
                     </div>
