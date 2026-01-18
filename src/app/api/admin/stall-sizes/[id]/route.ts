@@ -22,7 +22,7 @@ export async function PUT(
 
         if (!ObjectId.isValid(id)) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'ID ไม่ถูกต้อง'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'ID ไม่ถูกต้อง'),
                 { status: 400 }
             );
         }
@@ -32,14 +32,14 @@ export async function PUT(
 
         if (!name || typeof name !== 'string' || name.trim() === '') {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'กรุณาระบุรหัสขนาด'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'กรุณาระบุรหัสขนาด'),
                 { status: 400 }
             );
         }
 
         if (!label || typeof label !== 'string' || label.trim() === '') {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'กรุณาระบุชื่อที่แสดง'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'กรุณาระบุชื่อที่แสดง'),
                 { status: 400 }
             );
         }
@@ -55,7 +55,7 @@ export async function PUT(
 
         if (existing) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, `ขนาด "${name}" มีอยู่ในระบบแล้ว`),
+                createApiError(ErrorCodes.INVALID_INPUT, `ขนาด "${name}" มีอยู่ในระบบแล้ว`),
                 { status: 400 }
             );
         }
@@ -74,7 +74,7 @@ export async function PUT(
 
         if (result.matchedCount === 0) {
             return Response.json(
-                createApiError(ErrorCodes.NOT_FOUND, 'ไม่พบขนาดนี้'),
+                createApiError(ErrorCodes.STALL_NOT_FOUND, 'ไม่พบขนาดนี้'),
                 { status: 404 }
             );
         }
@@ -103,7 +103,7 @@ export async function DELETE(
 
         if (!ObjectId.isValid(id)) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'ID ไม่ถูกต้อง'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'ID ไม่ถูกต้อง'),
                 { status: 400 }
             );
         }
@@ -116,7 +116,7 @@ export async function DELETE(
             const stallsUsingSize = await db.collection('stalls').countDocuments({ size: stallSize.name });
             if (stallsUsingSize > 0) {
                 return Response.json(
-                    createApiError(ErrorCodes.VALIDATION_ERROR, `ไม่สามารถลบได้ มีแผงตลาด ${stallsUsingSize} แผงที่ใช้ขนาดนี้อยู่`),
+                    createApiError(ErrorCodes.INVALID_INPUT, `ไม่สามารถลบได้ มีแผงตลาด ${stallsUsingSize} แผงที่ใช้ขนาดนี้อยู่`),
                     { status: 400 }
                 );
             }
@@ -126,7 +126,7 @@ export async function DELETE(
 
         if (result.deletedCount === 0) {
             return Response.json(
-                createApiError(ErrorCodes.NOT_FOUND, 'ไม่พบขนาดนี้'),
+                createApiError(ErrorCodes.STALL_NOT_FOUND, 'ไม่พบขนาดนี้'),
                 { status: 404 }
             );
         }

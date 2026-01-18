@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
 import './market.css';
+import CustomDropdown, { DropdownOption } from '@/components/ui/CustomDropdown';
+import { Home, MapPin, BarChart3, CheckSquare, Hourglass, Lock, Calendar } from 'lucide-react';
 
 interface Zone {
     _id: string;
@@ -217,31 +219,36 @@ export default function MarketPage() {
 
                         {/* Right: Filters */}
                         <div className="d-flex gap-2">
-                            <select
-                                className="form-select rounded-pill border-0 bg-light text-muted"
-                                value={filterZone}
-                                onChange={(e) => setFilterZone(e.target.value)}
-                                style={{ fontSize: '0.9rem', minWidth: '140px' }}
-                            >
-                                <option value="ALL">🏘️ ทุกโซนพื้นที่</option>
-                                {zones.map(z => (
-                                    <option key={z._id} value={z.name}>
-                                        📍 โซน {z.name} {z.description ? `(${z.description})` : ''}
-                                    </option>
-                                ))}
-                            </select>
+                            <div style={{ minWidth: '200px' }}>
+                                <CustomDropdown
+                                    value={filterZone}
+                                    onChange={setFilterZone}
+                                    options={[
+                                        { value: 'ALL', label: 'ทุกโซนพื้นที่', icon: <Home size={18} /> },
+                                        ...zones.map(z => ({
+                                            value: z.name,
+                                            label: `โซน ${z.name}`,
+                                            description: z.description,
+                                            icon: <MapPin size={18} className="text-danger" />
+                                        }))
+                                    ]}
+                                    placeholder="เลือกโซน..."
+                                />
+                            </div>
 
-                            <select
-                                className="form-select rounded-pill border-0 bg-light text-muted"
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                style={{ fontSize: '0.9rem', minWidth: '140px' }}
-                            >
-                                <option value="ALL">📊 ทุกสถานะ</option>
-                                <option value="AVAILABLE">✅ ว่าง</option>
-                                <option value="RESERVED">⏳ รอชำระเงิน</option>
-                                <option value="CONFIRMED">🔒 จองแล้ว</option>
-                            </select>
+                            <div style={{ minWidth: '180px' }}>
+                                <CustomDropdown
+                                    value={filterStatus}
+                                    onChange={setFilterStatus}
+                                    options={[
+                                        { value: 'ALL', label: 'ทุกสถานะ', icon: <BarChart3 size={18} className="text-primary" /> },
+                                        { value: 'AVAILABLE', label: 'ว่าง', icon: <CheckSquare size={18} className="text-success" /> },
+                                        { value: 'RESERVED', label: 'รอชำระเงิน', icon: <Hourglass size={18} className="text-warning" /> },
+                                        { value: 'CONFIRMED', label: 'จองแล้ว', icon: <Lock size={18} className="text-secondary" /> }
+                                    ]}
+                                    placeholder="สถานะ..."
+                                />
+                            </div>
 
 
                         </div>
@@ -433,16 +440,18 @@ export default function MarketPage() {
                                             ))}
                                         </div>
                                         {maxBookingDays > 7 && (
-                                            <select
-                                                className="form-select"
-                                                value={bookingDays > 7 ? bookingDays : ''}
-                                                onChange={(e) => setBookingDays(Number(e.target.value))}
-                                            >
-                                                <option value="" disabled>เลือกจำนวนวันเพิ่มเติม...</option>
-                                                {Array.from({ length: maxBookingDays - 7 }, (_, i) => i + 8).map(d => (
-                                                    <option key={d} value={d}>{d} วัน</option>
-                                                ))}
-                                            </select>
+                                            <div className="mt-3">
+                                                <CustomDropdown
+                                                    value={bookingDays > 7 ? bookingDays.toString() : ''}
+                                                    onChange={(val) => setBookingDays(Number(val))}
+                                                    options={Array.from({ length: maxBookingDays - 7 }, (_, i) => i + 8).map(d => ({
+                                                        value: d.toString(),
+                                                        label: `${d} วัน`
+                                                    }))}
+                                                    placeholder="เลือกจำนวนวันเพิ่มเติม..."
+                                                    className="w-100"
+                                                />
+                                            </div>
                                         )}
                                         <div className="text-end small text-muted mt-1">
                                             ถึงวันที่: {new Date(Date.now() + (bookingDays * 24 * 60 * 60 * 1000)).toLocaleDateString('th-TH')}
