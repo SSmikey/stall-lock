@@ -18,6 +18,7 @@ interface DashboardStats {
         month: string;
         total: number;
         confirmed: number;
+        revenue?: number;
     }[];
 }
 
@@ -25,6 +26,21 @@ export default function AdminDashboardPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [recentBookings, setRecentBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    // State for Custom Tooltip
+    const [tooltip, setTooltip] = useState<{ x: number; y: number; content: React.ReactNode; show: boolean }>({ x: 0, y: 0, content: null, show: false });
+
+    const handleMouseMove = (e: React.MouseEvent, content: React.ReactNode) => {
+        setTooltip({
+            x: e.clientX,
+            y: e.clientY,
+            content,
+            show: true
+        });
+    };
+
+    const handleMouseLeave = () => {
+        setTooltip(prev => ({ ...prev, show: false }));
+    };
 
     useEffect(() => {
         fetchDashboardData();
@@ -80,7 +96,23 @@ export default function AdminDashboardPage() {
     }
 
     return (
-        <div className="container-fluid p-0 bg-light min-vh-100">
+        <div className="container-fluid p-0 bg-light min-vh-100 position-relative">
+            {/* Custom Tooltip Portal/Component */}
+            {tooltip.show && (
+                <div
+                    className="position-fixed bg-dark text-white p-2 rounded shadow-sm"
+                    style={{
+                        left: tooltip.x + 15,
+                        top: tooltip.y + 15,
+                        zIndex: 9999,
+                        fontSize: '0.85rem',
+                        pointerEvents: 'none'
+                    }}
+                >
+                    {tooltip.content}
+                </div>
+            )}
+
             {/* Brand Header */}
             <div className="home-hero pt-5 pb-5 mb-5" style={{ borderRadius: '0 0 50px 50px' }}>
                 <div className="hero-circle" style={{ width: '400px', height: '400px', top: '-100px', right: '-100px', opacity: 0.2 }}></div>
@@ -205,7 +237,6 @@ export default function AdminDashboardPage() {
 
                 {/* Premium Intelligence Dashboard */}
                 <div className="row g-4 mb-5">
-                    {/* Left Section: Result Bar Chart */}
                     <div className="col-lg-8">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -225,12 +256,9 @@ export default function AdminDashboardPage() {
                                         <span className="text-dark fw-medium">จองทั้งหมด</span>
                                     </div>
                                     <div className="d-flex align-items-center gap-2 small">
-                                        <div style={{ width: 12, height: 12, backgroundColor: 'var(--gray-700)', borderRadius: 2 }}></div>
-                                        <span className="text-dark fw-medium">ชำระเงินแล้ว</span>
+                                        <div style={{ width: 12, height: 12, backgroundColor: '#198754', borderRadius: 2 }}></div>
+                                        <span className="text-dark fw-medium">รายได้ (฿)</span>
                                     </div>
-                                    <button className="btn btn-sm text-white px-3 py-1 ms-2" style={{ background: 'var(--brand-gradient)', borderRadius: 20, fontSize: '0.75rem', border: 'none' }}>
-                                        Check Now
-                                    </button>
                                 </div>
                             </div>
 
@@ -238,24 +266,40 @@ export default function AdminDashboardPage() {
                             <div className="position-relative mt-5" style={{ height: '300px' }}>
                                 <div className="d-flex justify-content-around align-items-end h-100 ps-4">
                                     {(stats?.monthlyStats || []).map((data, i) => {
-                                        const maxVal = Math.max(...(stats?.monthlyStats || []).map(m => m.total), 1);
-                                        const h1 = (data.total / maxVal) * 100;
-                                        const h2 = (data.confirmed / maxVal) * 100;
+                                        // Max values for normalization
+                                        const maxCount = Math.max(...(stats?.monthlyStats || []).map(m => m.total), 1);
+                                        const maxRevenue = Math.max(...(stats?.monthlyStats || []).map(m => m.revenue || 0), 1); // Prefer revenue if available
+
+                                        // Normalize heights (cap at 100%)
+                                        const h1 = (data.total / maxCount) * 100;
+                                        // Fallback logic in case revenue is missing in types (though API sends it)
+                                        const revenueVal = (data as any).revenue || 0;
+                                        const h2 = (revenueVal / maxRevenue) * 100;
 
                                         return (
                                             <div key={i} className="text-center d-flex flex-column align-items-center" style={{ width: '15%' }}>
-                                                <div className="d-flex align-items-end gap-1 mb-2">
+                                                {/* Tooltip-like value above bars (optional, maybe just bars for cleaner look) */}
+
+                                                <div className="d-flex align-items-end gap-1 mb-2" style={{ height: '200px' }}>
                                                     <motion.div
                                                         initial={{ height: 0 }}
-                                                        animate={{ height: `${h1}%` }}
+                                                        animate={{ height: `${Math.max(h1, data.total > 0 ? 2 : 0)}%` }}
                                                         transition={{ duration: 1, delay: 0.6 + i * 0.05 }}
-                                                        style={{ width: 12, backgroundColor: 'var(--brand-primary)', borderRadius: '4px 4px 0 0' }}
+                                                        className="position-relative group rounded-top"
+                                                        style={{ width: 12, backgroundColor: 'var(--brand-primary)', cursor: 'pointer' }}
+                                                        onMouseMove={(e) => handleMouseMove(e, <div><strong>{data.month}</strong><br />จอง: {data.total} รายการ</div>)}
+                                                        onMouseLeave={handleMouseLeave}
+                                                        title={`Total: ${data.total}`}
                                                     />
                                                     <motion.div
                                                         initial={{ height: 0 }}
-                                                        animate={{ height: `${h2}%` }}
+                                                        animate={{ height: `${Math.max(h2, revenueVal > 0 ? 2 : 0)}%` }}
                                                         transition={{ duration: 1, delay: 0.8 + i * 0.05 }}
-                                                        style={{ width: 12, backgroundColor: 'var(--gray-700)', borderRadius: '4px 4px 0 0' }}
+                                                        className="position-relative rounded-top"
+                                                        style={{ width: 12, backgroundColor: '#198754', cursor: 'pointer' }}
+                                                        onMouseMove={(e) => handleMouseMove(e, <div><strong>{data.month}</strong><br />รายได้: {revenueVal.toLocaleString()}฿</div>)}
+                                                        onMouseLeave={handleMouseLeave}
+                                                        title={`Revenue: ${revenueVal.toLocaleString()}฿`}
                                                     />
                                                 </div>
                                                 <span className="text-dark small fw-medium" style={{ fontSize: '0.75rem' }}>{data.month}</span>
@@ -281,47 +325,87 @@ export default function AdminDashboardPage() {
                         >
                             <div className="text-center mb-5">
                                 <div className="position-relative d-inline-block">
-                                    <svg width="200" height="200" viewBox="0 0 200 200">
-                                        <circle cx="100" cy="100" r="80" fill="transparent" stroke="var(--gray-100)" strokeWidth="25" />
-                                        {(() => {
-                                            const confirmed = stats?.confirmedBookings || 0;
-                                            const total = stats?.totalBookings || 1;
-                                            const percentage = Math.round((confirmed / total) * 100);
-                                            const circumference = 2 * Math.PI * 80;
-                                            const dashoffset = circumference - (percentage / 100) * circumference;
-                                            return (
-                                                <>
-                                                    <motion.circle
-                                                        cx="100" cy="100" r="80"
-                                                        fill="transparent"
-                                                        stroke="var(--brand-primary)"
-                                                        strokeWidth="25"
-                                                        strokeDasharray={circumference}
-                                                        initial={{ strokeDashoffset: circumference }}
-                                                        animate={{ strokeDashoffset: dashoffset }}
-                                                        transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
-                                                        strokeLinecap="round"
-                                                        transform="rotate(-90 100 100)"
-                                                    />
-                                                    <text x="100" y="105" textAnchor="middle" className="fw-bold" style={{ fontSize: '2.5rem', fill: 'var(--gray-800)' }}>
-                                                        {percentage}%
-                                                    </text>
-                                                </>
-                                            );
-                                        })()}
-                                    </svg>
+                                    <div className="position-relative d-inline-block">
+                                        <svg width="200" height="200" viewBox="0 0 200 200" style={{ transform: 'rotate(-90deg)' }}>
+                                            {/* Background Circle */}
+                                            <circle cx="100" cy="100" r="70" fill="transparent" stroke="var(--gray-100)" strokeWidth="20" />
+
+                                            {(() => {
+                                                const total = stats?.totalBookings || 0;
+                                                const confirmed = stats?.confirmedBookings || 0;
+                                                const pending = stats?.pendingBookings || 0;
+                                                const cancelled = stats?.cancelledBookings || 0;
+
+                                                if (total === 0) return null;
+
+                                                const radius = 70;
+                                                const circumference = 2 * Math.PI * radius;
+
+                                                const segments = [
+                                                    { value: confirmed, color: 'var(--brand-primary)', label: 'สำเร็จ' },
+                                                    { value: pending, color: '#ffc107', label: 'รอตรวจสอบ' },
+                                                    { value: cancelled, color: '#dc3545', label: 'ยกเลิก/หมดอายุ' },
+                                                ];
+
+                                                let accumulatedOffset = 0;
+
+                                                return segments.map((seg, i) => {
+                                                    const percent = seg.value / total;
+                                                    const dashArray = percent * circumference;
+                                                    const dashOffset = -accumulatedOffset; // Negative because we want to start after the previous one
+
+                                                    accumulatedOffset += dashArray;
+
+                                                    // If value is 0, don't render or render empty
+                                                    if (seg.value === 0) return null;
+
+                                                    const tooltipContent = (
+                                                        <div>
+                                                            <strong>{seg.label || 'Unknown'}</strong><br />
+                                                            {seg.value} รายการ<br />
+                                                            ({Math.round(percent * 100)}%)
+                                                        </div>
+                                                    );
+
+                                                    return (
+                                                        <motion.circle
+                                                            key={i}
+                                                            cx="100" cy="100" r={radius}
+                                                            fill="transparent"
+                                                            stroke={seg.color}
+                                                            strokeWidth="20"
+                                                            strokeDasharray={`${dashArray} ${circumference}`}
+                                                            strokeDashoffset={dashOffset}
+                                                            initial={{ strokeDasharray: `0 ${circumference}` }}
+                                                            animate={{ strokeDasharray: `${dashArray} ${circumference}` }}
+                                                            transition={{ duration: 1, delay: 0.5 + (i * 0.2), ease: "easeOut" }}
+                                                            strokeLinecap="butt" // minimal gaps
+                                                            style={{ cursor: 'pointer' }}
+                                                            onMouseMove={(e) => handleMouseMove(e, tooltipContent)}
+                                                            onMouseLeave={handleMouseLeave}
+                                                        />
+                                                    );
+                                                });
+                                            })()}
+                                        </svg>
+                                        {/* Center Text */}
+                                        <div className="position-absolute top-50 start-50 translate-middle text-center" >
+                                            <div className="h3 fw-bold mb-0 text-dark">{stats?.totalBookings || 0}</div>
+                                            <div className="small text-muted">รายการ</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 {[
                                     { label: 'การจองสำเร็จ', color: 'var(--brand-primary)', value: stats?.confirmedBookings || 0 },
-                                    { label: 'รอการตรวจสอบ', color: 'var(--gray-800)', value: stats?.pendingBookings || 0 },
-                                    { label: 'ยกเลิก/หมดอายุ', color: 'var(--gray-200)', value: stats?.cancelledBookings || 0 },
+                                    { label: 'รอการตรวจสอบ', color: '#ffc107', value: stats?.pendingBookings || 0 },
+                                    { label: 'ยกเลิก/หมดอายุ', color: '#dc3545', value: stats?.cancelledBookings || 0 },
                                 ].map((item, idx) => (
                                     <div key={idx} className="d-flex justify-content-between align-items-center py-3 border-bottom border-light">
                                         <div className="d-flex align-items-center gap-3">
-                                            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: item.color }}></div>
+                                            <div style={{ width: 12, height: 12, borderRadius: '4px', backgroundColor: item.color }}></div>
                                             <span className="text-dark fw-medium" style={{ fontSize: '0.9rem' }}>{item.label}</span>
                                         </div>
                                         <span className="fw-bold text-dark">{item.value}</span>
@@ -329,37 +413,12 @@ export default function AdminDashboardPage() {
                                 ))}
                             </div>
 
-                            <div className="mt-4">
-                                <button className="btn w-100 py-3 text-white fw-bold shadow-sm" style={{ background: 'var(--brand-gradient)', borderRadius: 12, border: 'none' }}>
-                                    Check Now
-                                </button>
-                            </div>
+
                         </motion.div>
                     </div>
                 </div>
 
-                {/* Bottom Section: Market Info */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                    className="card border border-2 shadow-sm p-4 mb-5 bg-white"
-                    style={{ borderRadius: 'var(--radius-lg)', borderColor: 'var(--brand-light)' }}
-                >
-                    <div className="row align-items-center">
-                        <div className="col-md-8">
-                            <h6 className="fw-bold mb-2 text-dark">ระบบบริหารจัดการแผงตลาด stalllock</h6>
-                            <p className="text-secondary small mb-0">
-                                ข้อมูลสถิติด้านบนถูกรวบรวมแบบเรียลไทม์จากฐานข้อมูลเพื่อความแม่นยำในการวิเคราะห์ผลตอบแทนและการจัดการแผง
-                            </p>
-                        </div>
-                        <div className="col-md-4 text-md-end mt-3 mt-md-0">
-                            <Link href="/market" className="btn btn-brand-inverse px-4 py-2">
-                                เข้าสู่หน้าตลาดจริง
-                            </Link>
-                        </div>
-                    </div>
-                </motion.div>
+
             </div>
         </div>
     );

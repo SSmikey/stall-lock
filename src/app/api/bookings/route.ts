@@ -140,6 +140,79 @@ export async function GET(request: NextRequest) {
     }
 }
 
+export async function DELETE(request: NextRequest) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const bookingId = searchParams.get('bookingId');
+        const userId = searchParams.get('userId');
+        const mode = searchParams.get('mode');
+
+        if (!userId) {
+            return Response.json(
+                createApiError(ErrorCodes.INVALID_INPUT, 'Missing userId'),
+                { status: 400 }
+            );
+        }
+
+        const db = await getDb();
+        const deletableStatuses = ['EXPIRED', 'CANCELLED', 'REJECTED', 'COMPLETED'];
+
+        // Batch delete (Cleanup mode)
+        if (mode === 'cleanup') {
+            const result = await db.collection('bookings').deleteMany({
+                userId: new ObjectId(userId),
+                status: { $in: deletableStatuses }
+            });
+
+            return Response.json(createApiResponse({
+                success: true,
+                message: `ล้างประวัติเรียบร้อย (${result.deletedCount} รายการ)`
+            }));
+        }
+
+        if (!bookingId) {
+            return Response.json(
+                createApiError(ErrorCodes.INVALID_INPUT, 'Missing bookingId'),
+                { status: 400 }
+            );
+        }
+
+        const booking = await db.collection('bookings').findOne({
+            bookingId: bookingId,
+            userId: new ObjectId(userId)
+        });
+
+        if (!booking) {
+            return Response.json(
+                createApiError(ErrorCodes.BOOKING_NOT_FOUND, 'ไม่พบรายการจอง'),
+                { status: 404 }
+            );
+        }
+
+        if (!deletableStatuses.includes(booking.status)) {
+            return Response.json(
+                createApiError(ErrorCodes.FORBIDDEN, 'ไม่สามารถลบรายการที่ยังดำเนินการอยู่ได้'),
+                { status: 403 }
+            );
+        }
+
+        // Hard delete the booking
+        await db.collection('bookings').deleteOne({
+            bookingId: bookingId
+        });
+
+        // Also delete related payments if any (cleanup)
+        await db.collection('payments').deleteMany({
+            bookingId: booking._id
+        });
+
+        return Response.json(createApiResponse({ success: true, message: 'ลบรายการสำเร็จ' }));
+
+    } catch (error) {
+        return handleApiError(error);
+    }
+}
+
 async function generateBookingId(db: any, session: any): Promise<string> {
     const year = new Date().getFullYear();
 

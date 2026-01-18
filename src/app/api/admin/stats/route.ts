@@ -32,17 +32,9 @@ export async function GET(request: NextRequest) {
             b.status === 'CANCELLED' || b.status === 'EXPIRED'
         ).length;
 
-        // Get stall prices for confirmed bookings to calculate revenue
-        const confirmedStallIds = confirmedBookings.map(b => b.stallId);
-        const stalls = await db.collection('stalls').find({
-            _id: { $in: confirmedStallIds }
-        }).toArray();
-
         // Calculate total revenue from confirmed bookings
-        const stallPriceMap = new Map(stalls.map(s => [s._id.toString(), s.price || 0]));
         const totalRevenue = confirmedBookings.reduce((sum, booking) => {
-            const stallPrice = stallPriceMap.get(booking.stallId?.toString()) || 0;
-            return sum + stallPrice;
+            return sum + (booking.totalPrice || 0);
         }, 0);
 
         // Calculate monthly stats for the last 6 months
@@ -60,10 +52,16 @@ export async function GET(request: NextRequest) {
                 return bDate.getMonth() === mIndex && bDate.getFullYear() === y;
             });
 
+            // Calculate revenue for this month (only CONFIRMED bookings)
+            const monthRevenue = monthBookings
+                .filter(b => b.status === 'CONFIRMED')
+                .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
             monthlyStats.push({
                 month: monthsLabel[mIndex],
                 total: monthBookings.length,
-                confirmed: monthBookings.filter(b => b.status === 'CONFIRMED').length
+                confirmed: monthBookings.filter(b => b.status === 'CONFIRMED').length,
+                revenue: monthRevenue
             });
         }
 
