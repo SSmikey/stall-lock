@@ -7,7 +7,7 @@ import { Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
 import './market.css';
 import CustomDropdown, { DropdownOption } from '@/components/ui/CustomDropdown';
-import { Home, MapPin, BarChart3, CheckSquare, Hourglass, Lock, Calendar } from 'lucide-react';
+import { Home, MapPin, BarChart3, CheckSquare, Hourglass, Lock, Calendar, Search, FileText, Info, Store, CheckCircle, XCircle } from 'lucide-react';
 
 interface Zone {
     _id: string;
@@ -205,7 +205,9 @@ export default function MarketPage() {
                         {/* Left: Search Bar */}
                         <div style={{ minWidth: '300px', flex: 1 }}>
                             <div className="input-group border rounded-pill overflow-hidden bg-light">
-                                <span className="input-group-text bg-transparent border-0 ps-3 text-muted">🔍</span>
+                                <span className="input-group-text bg-transparent border-0 ps-3 text-muted">
+                                    <Search size={18} />
+                                </span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 shadow-none ps-0"
@@ -278,7 +280,9 @@ export default function MarketPage() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="text-center py-5"
                     >
-                        <div className="mb-3 opacity-50" style={{ fontSize: '5rem' }}>🛖</div>
+                        <div className="mb-3 d-flex justify-content-center">
+                            <Store size={80} className="text-secondary opacity-50" />
+                        </div>
                         <h4 className="fw-bold text-muted">ไม่พบข้อมูลแผงตลาด</h4>
                         <p className="text-muted">ลองปรับตัวกรองหรือค้นหาด้วยคำอื่นดูนะครับ</p>
                     </motion.div>
@@ -337,7 +341,7 @@ export default function MarketPage() {
                                                     <span className="fw-bold text-success fs-5">{stall.price.toLocaleString()}฿</span>
                                                 </div>
                                                 <button className="btn btn-sm btn-outline-custom px-3 d-flex align-items-center gap-1 justify-content-center" style={{ height: '32px', fontSize: '0.8rem' }}>
-                                                    <span style={{ fontSize: '0.9rem' }}>📄</span> ดูรายละเอียด
+                                                    <FileText size={14} /> ดูรายละเอียด
                                                 </button>
                                             </div>
                                         </div>
@@ -393,15 +397,18 @@ export default function MarketPage() {
                             <div className="modal-content border-0 shadow-lg rounded-5 overflow-hidden">
                                 <div className="modal-header bg-brand text-white border-0 p-4">
                                     <div>
-                                        <h5 className="modal-title fw-bold mb-1">🏪 จองแผงตลาด</h5>
+                                        <h5 className="modal-title fw-bold mb-1 d-flex align-items-center gap-2">
+                                            <Store size={24} /> จองแผงตลาด
+                                        </h5>
                                         <p className="mb-0 opacity-75 small">ยืนยันข้อมูลและระยะเวลาที่ต้องการ</p>
                                     </div>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setSelectedStall(null)}></button>
                                 </div>
                                 <div className="modal-body p-4 bg-light">
                                     {message && (
-                                        <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} rounded-3 border-0 shadow-sm mb-4`}>
-                                            {message.type === 'success' ? '✅' : '❌'} {message.text}
+                                        <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} rounded-3 border-0 shadow-sm mb-4 d-flex align-items-center gap-2`}>
+                                            {message.type === 'success' ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                                            <span>{message.text}</span>
                                         </div>
                                     )}
 
@@ -418,8 +425,9 @@ export default function MarketPage() {
                                                 </div>
                                             </div>
                                             {selectedStall.description && (
-                                                <div className="p-3 bg-light rounded-3 small text-muted">
-                                                    <i className="me-2">📝</i>{selectedStall.description}
+                                                <div className="p-3 bg-light rounded-3 small text-muted d-flex align-items-start gap-2">
+                                                    <Info size={16} className="mt-1 flex-shrink-0" />
+                                                    <span>{selectedStall.description}</span>
                                                 </div>
                                             )}
                                         </div>
