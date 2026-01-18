@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomDropdown from '@/components/ui/CustomDropdown';
-import { Home, MapPin, BarChart3, CheckSquare, Hourglass, Lock, Calendar, Ruler, DollarSign } from 'lucide-react';
+import { Home, MapPin, BarChart3, CheckSquare, Hourglass, Lock, Calendar, Ruler, DollarSign, Plus, Settings, Trash2, ClipboardList, CheckCircle, XCircle, Inbox, FileText, Eye, User, Store, Clock, Banknote, ImageOff, ZoomIn } from 'lucide-react';
 import { ApiResponse } from '@/lib/api';
 import { showAlert, showConfirm } from '@/utils/sweetalert';
 
@@ -610,14 +610,14 @@ export default function AdminDashboard() {
                                 onClick={() => setShowCreateStallModal(true)}
                                 style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                <span className="fs-6">➕</span> เพิ่มแผงตลาด
+                                <Plus size={18} /> เพิ่มแผงตลาด
                             </button>
                             <button
                                 className="btn btn-white bg-white text-dark border-0 fw-bold d-flex align-items-center gap-2 hover-scale"
                                 onClick={() => setShowSettingsModal(true)}
                                 style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                <span className="fs-6">⚙️</span> ตั้งค่า
+                                <Settings size={18} /> ตั้งค่า
                             </button>
                             <button
                                 className="btn btn-white bg-white text-danger bg-opacity-75 border-0 fw-bold d-flex align-items-center gap-2 hover-scale shadow-sm"
@@ -636,7 +636,7 @@ export default function AdminDashboard() {
                                 }}
                                 style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                <span className="fs-6">🧹</span> เคลียร์รายการหมดอายุ
+                                <Trash2 size={18} /> เคลียร์รายการหมดอายุ
                             </button>
                         </div>
                     </div>
@@ -656,7 +656,7 @@ export default function AdminDashboard() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'var(--brand-light)', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>📋</span>
+                                        <ClipboardList size={32} className="text-brand" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-dark">{stats.total}</div>
@@ -678,7 +678,7 @@ export default function AdminDashboard() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#E0F2F1', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>⏳</span>
+                                        <Hourglass size={32} className="text-info" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-info">{stats.pending}</div>
@@ -700,7 +700,7 @@ export default function AdminDashboard() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#E8F5E9', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>✅</span>
+                                        <CheckCircle size={32} className="text-success" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-success">{stats.confirmed}</div>
@@ -722,7 +722,7 @@ export default function AdminDashboard() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#FFEBEE', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>🚫</span>
+                                        <XCircle size={32} className="text-secondary" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-secondary">{stats.expired}</div>
@@ -776,7 +776,7 @@ export default function AdminDashboard() {
                             </div>
                         ) : filteredBookings.length === 0 ? (
                             <div className="text-center py-5 text-muted">
-                                <span style={{ fontSize: '3rem', opacity: 0.5 }}>📭</span>
+                                <Inbox size={48} className="opacity-50 text-secondary" style={{ fontSize: '3rem' }} />
                                 <p className="mt-2">ไม่พบรายการจองในสถานะนี้</p>
                             </div>
                         ) : (
@@ -826,7 +826,7 @@ export default function AdminDashboard() {
                                                                 className="btn btn-sm bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 fw-bold"
                                                                 onClick={() => setSelectedSlip(b.paymentSlipUrl)}
                                                             >
-                                                                📱 ดูสลิป
+                                                                <FileText size={16} /> ดูสลิป
                                                             </button>
                                                         ) : <span className="text-muted small">-</span>}
                                                     </td>
@@ -855,7 +855,7 @@ export default function AdminDashboard() {
                                                                 className="btn btn-sm btn-light px-3 text-dark rounded-pill fw-bold"
                                                                 onClick={() => setViewingBooking(b)}
                                                             >
-                                                                👁️ รายละเอียด
+                                                                <Eye size={16} /> รายละเอียด
                                                             </button>
 
                                                             <button
@@ -863,7 +863,7 @@ export default function AdminDashboard() {
                                                                 onClick={() => handleDelete(b._id)}
                                                                 disabled={actionLoading}
                                                             >
-                                                                🗑️ ลบ
+                                                                <Trash2 size={16} /> ลบ
                                                             </button>
                                                         </div>
                                                     </td>
@@ -901,7 +901,7 @@ export default function AdminDashboard() {
                                                                     className="btn btn-sm bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 fw-bold"
                                                                     onClick={() => setSelectedSlip(b.paymentSlipUrl)}
                                                                 >
-                                                                    📱 สลิป
+                                                                    <FileText size={16} /> สลิป
                                                                 </button>
                                                             )}
                                                             {b.status === 'AWAITING_APPROVAL' ? (
@@ -1010,7 +1010,7 @@ export default function AdminDashboard() {
                                             {/* User Info */}
                                             <div className="mb-4">
                                                 <div className="d-flex align-items-center gap-2 mb-3">
-                                                    <span className="text-primary">👤</span>
+                                                    <User size={20} className="text-primary" />
                                                     <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลผู้เช่า</h6>
                                                 </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
@@ -1028,7 +1028,7 @@ export default function AdminDashboard() {
                                             {/* Stall Info */}
                                             <div className="mb-4">
                                                 <div className="d-flex align-items-center gap-2 mb-3">
-                                                    <span className="text-primary">🏪</span>
+                                                    <Store size={20} className="text-primary" />
                                                     <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลล็อค</h6>
                                                 </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
@@ -1053,7 +1053,7 @@ export default function AdminDashboard() {
                                             {/* Status & Time */}
                                             <div>
                                                 <div className="d-flex align-items-center gap-2 mb-3">
-                                                    <span className="text-primary">🕒</span>
+                                                    <Clock size={20} className="text-primary" />
                                                     <h6 className="text-secondary text-uppercase small fw-bold mb-0">สถานะและเวลา</h6>
                                                 </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
@@ -1073,7 +1073,7 @@ export default function AdminDashboard() {
 
                                         <div className="col-md-5 bg-light p-4 border-start d-flex flex-column">
                                             <div className="d-flex align-items-center gap-2 mb-3">
-                                                <span className="text-primary">💰</span>
+                                                <Banknote size={20} className="text-primary" />
                                                 <h6 className="text-secondary text-uppercase small fw-bold mb-0">หลักฐานการชำระเงิน</h6>
                                             </div>
 
@@ -1088,7 +1088,7 @@ export default function AdminDashboard() {
                                                     />
                                                 ) : (
                                                     <div className="text-center text-muted">
-                                                        <span className="d-block display-4 opacity-25">🖼️</span>
+                                                        <ImageOff size={48} className="d-block opacity-25" />
                                                         <small>ไม่มีสลิป</small>
                                                     </div>
                                                 )}
@@ -1099,7 +1099,7 @@ export default function AdminDashboard() {
                                                     className="btn btn-outline-secondary btn-sm w-100 mb-4 rounded-pill bg-white"
                                                     onClick={() => setSelectedSlip(inspectingBooking.paymentSlipUrl)}
                                                 >
-                                                    🔍 ขยายรูปสลิป
+                                                    <ZoomIn size={16} /> ขยายรูปสลิป
                                                 </button>
                                             )}
 
@@ -1168,7 +1168,7 @@ export default function AdminDashboard() {
                                             {/* User Info */}
                                             <div className="mb-4">
                                                 <div className="d-flex align-items-center gap-2 mb-3">
-                                                    <span className="text-primary">👤</span>
+                                                    <User size={20} className="text-primary" />
                                                     <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลผู้เช่า</h6>
                                                 </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
@@ -1186,7 +1186,7 @@ export default function AdminDashboard() {
                                             {/* Stall Info */}
                                             <div className="mb-4">
                                                 <div className="d-flex align-items-center gap-2 mb-3">
-                                                    <span className="text-primary">🏪</span>
+                                                    <Store size={20} className="text-primary" />
                                                     <h6 className="text-secondary text-uppercase small fw-bold mb-0">ข้อมูลล็อค</h6>
                                                 </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
@@ -1211,7 +1211,7 @@ export default function AdminDashboard() {
                                             {/* Status & Time */}
                                             <div>
                                                 <div className="d-flex align-items-center gap-2 mb-3">
-                                                    <span className="text-primary">🕒</span>
+                                                    <Clock size={20} className="text-primary" />
                                                     <h6 className="text-secondary text-uppercase small fw-bold mb-0">สถานะและเวลา</h6>
                                                 </div>
                                                 <div className="p-3 bg-light rounded-3 border border-light">
@@ -1231,7 +1231,7 @@ export default function AdminDashboard() {
 
                                         <div className="col-md-5 bg-light p-4 border-start d-flex flex-column">
                                             <div className="d-flex align-items-center gap-2 mb-3">
-                                                <span className="text-primary">💰</span>
+                                                <Banknote size={20} className="text-primary" />
                                                 <h6 className="text-secondary text-uppercase small fw-bold mb-0">หลักฐานการชำระเงิน</h6>
                                             </div>
 
@@ -1246,7 +1246,7 @@ export default function AdminDashboard() {
                                                     />
                                                 ) : (
                                                     <div className="text-center text-muted">
-                                                        <span className="d-block display-4 opacity-25">🖼️</span>
+                                                        <ImageOff size={48} className="d-block opacity-25" />
                                                         <small>ไม่มีสลิป</small>
                                                     </div>
                                                 )}
@@ -1257,7 +1257,7 @@ export default function AdminDashboard() {
                                                     className="btn btn-outline-secondary btn-sm w-100 mb-4 rounded-pill bg-white"
                                                     onClick={() => setSelectedSlip(viewingBooking.paymentSlipUrl)}
                                                 >
-                                                    🔍 ขยายรูปสลิป
+                                                    <ZoomIn size={16} /> ขยายรูปสลิป
                                                 </button>
                                             )}
 
@@ -1290,7 +1290,7 @@ export default function AdminDashboard() {
                         <div className="modal-content border-0 shadow-lg rounded-4">
                             <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                 <div>
-                                    <h5 className="modal-title fw-bold">⚙️ ตั้งค่าระบบ</h5>
+                                    <h5 className="modal-title fw-bold"><Settings size={20} className="me-2" /> ตั้งค่าระบบ</h5>
                                     <p className="text-white text-opacity-75 small mb-0">จัดการโซน, ขนาดแผง, และการตั้งค่าตลาด</p>
                                 </div>
                                 <button className="btn-close btn-close-white" onClick={() => setShowSettingsModal(false)}></button>
@@ -1705,7 +1705,7 @@ export default function AdminDashboard() {
                     >
                         <div className="modal-content border-0 shadow-lg rounded-4">
                             <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
-                                <h5 className="modal-title fw-bold">➕ เพิ่มแผงตลาด</h5>
+                                <h5 className="modal-title fw-bold"><Plus size={20} className="me-2" /> เพิ่มแผงตลาด</h5>
                                 <button type="button" className="btn-close btn-close-white" onClick={() => setShowCreateStallModal(false)}></button>
                             </div>
                             <div className="modal-body p-4">
