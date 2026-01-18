@@ -577,9 +577,11 @@ export default function AdminDashboard() {
         }
     };
 
-    const filteredBookings = filterStatus === 'ALL'
-        ? bookings.filter(b => b.status !== 'EXPIRED' && b.status !== 'CANCELLED')
-        : bookings.filter(b => b.status === filterStatus);
+    const filteredBookings = (() => {
+        if (filterStatus === 'ALL') return bookings;
+        if (filterStatus === 'EXPIRED') return bookings.filter(b => b.status === 'EXPIRED' || b.status === 'CANCELLED');
+        return bookings.filter(b => b.status === filterStatus);
+    })();
 
     // Stats calculation
     const stats = {
