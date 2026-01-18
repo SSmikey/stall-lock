@@ -19,6 +19,24 @@ interface StallSize {
     dimensions?: string;
 }
 
+interface StallForDelete {
+    _id: string;
+    stallId: string;
+    zone: string;
+    status: string;
+    price: number;
+    priceUnit: string;
+    hasActiveBooking: boolean;
+}
+
+interface DeletePreview {
+    totalStalls: number;
+    stallsWithActiveBookings: number;
+    stallsAvailable: number;
+    affectedBookingsCount: number;
+    stalls: StallForDelete[];
+}
+
 export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -45,7 +63,7 @@ export default function AdminDashboard() {
     const [zones, setZones] = useState<Zone[]>([]);
     const [stallSizes, setStallSizes] = useState<StallSize[]>([]);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
-    const [settingsTab, setSettingsTab] = useState<'zones' | 'sizes' | 'market'>('zones');
+    const [settingsTab, setSettingsTab] = useState<'zones' | 'sizes' | 'market' | 'stalls'>('zones');
     const [zoneFormData, setZoneFormData] = useState({ name: '', description: '' });
     const [editingZone, setEditingZone] = useState<Zone | null>(null);
     const [sizeFormData, setSizeFormData] = useState({ name: '', label: '', dimensions: '' });
@@ -55,6 +73,16 @@ export default function AdminDashboard() {
         isAutoReturnEnabled: false,
         maxBookingDays: 7
     });
+
+    // Stall deletion state
+    const [stallDeleteMode, setStallDeleteMode] = useState<'ALL' | 'ZONE' | 'SPECIFIC'>('SPECIFIC');
+    const [stallDeleteZone, setStallDeleteZone] = useState<string>('');
+    const [selectedStallsForDelete, setSelectedStallsForDelete] = useState<string[]>([]);
+    const [allStallsForDelete, setAllStallsForDelete] = useState<StallForDelete[]>([]);
+    const [stallsFilter, setStallsFilter] = useState({ zone: '', status: '' });
+    const [deletePreview, setDeletePreview] = useState<DeletePreview | null>(null);
+    const [forceDelete, setForceDelete] = useState(false);
+    const [loadingStalls, setLoadingStalls] = useState(false);
 
     useEffect(() => {
         fetchBookings();
@@ -231,6 +259,132 @@ export default function AdminDashboard() {
             if (data.success) {
                 showAlert('สำเร็จ', 'ลบขนาดเรียบร้อย', 'success');
                 fetchStallSizes();
+            } else {
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
+            }
+        } catch (error) {
+            showAlert('ผิดพลาด', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    // Stall deletion functions
+    const fetchAllStallsForDelete = async () => {
+        setLoadingStalls(true);
+        try {
+            const res = await fetch('/api/admin/stalls/delete?mode=ALL');
+            const data = await res.json();
+            if (data.success && data.data) {
+                setAllStallsForDelete(data.data.stalls);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stalls:', error);
+        } finally {
+            setLoadingStalls(false);
+        }
+    };
+
+    const fetchDeletePreview = async () => {
+        try {
+            let url = '/api/admin/stalls/delete?mode=' + stallDeleteMode;
+            if (stallDeleteMode === 'ZONE' && stallDeleteZone) {
+                url += '&zone=' + encodeURIComponent(stallDeleteZone);
+            } else if (stallDeleteMode === 'SPECIFIC' && selectedStallsForDelete.length > 0) {
+                url += '&stallIds=' + selectedStallsForDelete.join(',');
+            }
+
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.success) {
+                setDeletePreview(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch delete preview:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (settingsTab === 'stalls' && showSettingsModal) {
+            fetchAllStallsForDelete();
+        }
+    }, [settingsTab, showSettingsModal]);
+
+    useEffect(() => {
+        if (settingsTab === 'stalls' && showSettingsModal) {
+            fetchDeletePreview();
+        }
+    }, [stallDeleteMode, stallDeleteZone, selectedStallsForDelete, settingsTab, showSettingsModal]);
+
+    const getFilteredStalls = () => {
+        return allStallsForDelete.filter(stall => {
+            if (stallsFilter.zone && stall.zone !== stallsFilter.zone) return false;
+            if (stallsFilter.status && stall.status !== stallsFilter.status) return false;
+            return true;
+        });
+    };
+
+    const handleSelectAllStalls = (checked: boolean) => {
+        if (checked) {
+            const filteredIds = getFilteredStalls().map(s => s._id);
+            setSelectedStallsForDelete(filteredIds);
+        } else {
+            setSelectedStallsForDelete([]);
+        }
+    };
+
+    const handleToggleStallSelection = (stallId: string) => {
+        setSelectedStallsForDelete(prev =>
+            prev.includes(stallId)
+                ? prev.filter(id => id !== stallId)
+                : [...prev, stallId]
+        );
+    };
+
+    const handleDeleteStalls = async () => {
+        if (!deletePreview) return;
+
+        const count = forceDelete ? deletePreview.totalStalls : deletePreview.stallsAvailable;
+        if (count === 0) {
+            showAlert('ไม่มีแผงที่สามารถลบได้', 'กรุณาเลือกแผงที่ต้องการลบ หรือเปิดใช้ "บังคับลบ"', 'warning');
+            return;
+        }
+
+        let confirmMessage = '';
+        if (forceDelete) {
+            confirmMessage = `ยืนยันการลบ ${deletePreview.totalStalls} แผง?\n\nการดำเนินการนี้จะลบข้อมูลการจอง ${deletePreview.affectedBookingsCount} รายการด้วย`;
+        } else {
+            confirmMessage = `ยืนยันการลบ ${deletePreview.stallsAvailable} แผง?`;
+            if (deletePreview.stallsWithActiveBookings > 0) {
+                confirmMessage += `\n\n(ข้าม ${deletePreview.stallsWithActiveBookings} แผงที่มีการจองอยู่)`;
+            }
+        }
+
+        if (!await showConfirm('ยืนยันการลบแผง', confirmMessage, 'ยืนยันลบ', 'warning')) return;
+
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/stalls/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mode: stallDeleteMode,
+                    zone: stallDeleteZone,
+                    stallIds: selectedStallsForDelete,
+                    forceDelete
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                let msg = `ลบแผงสำเร็จ ${data.data.deletedCount} แผง`;
+                if (data.data.skippedCount > 0) {
+                    msg += ` (ข้าม ${data.data.skippedCount} แผงที่มีการจอง)`;
+                }
+                showAlert('สำเร็จ', msg, 'success');
+                setSelectedStallsForDelete([]);
+                setForceDelete(false);
+                fetchAllStallsForDelete();
+                fetchDeletePreview();
             } else {
                 showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาด', 'error');
             }
@@ -1126,6 +1280,14 @@ export default function AdminDashboard() {
                                             ตั้งค่าตลาด
                                         </button>
                                     </li>
+                                    <li className="nav-item">
+                                        <button
+                                            className={`nav-link rounded-pill ${settingsTab === 'stalls' ? 'active bg-white text-dark shadow-sm' : 'text-muted'}`}
+                                            onClick={() => setSettingsTab('stalls')}
+                                        >
+                                            จัดการแผง
+                                        </button>
+                                    </li>
                                 </ul>
 
                                 {settingsTab === 'zones' && (
@@ -1262,6 +1424,218 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
                                     </form>
+                                )}
+
+                                {settingsTab === 'stalls' && (
+                                    <div>
+                                        <div className="alert alert-danger border-danger bg-danger bg-opacity-10 mb-4">
+                                            <h6 className="fw-bold text-danger mb-2">การลบแผงตลาด</h6>
+                                            <p className="small text-danger mb-0">การลบแผงจะไม่สามารถย้อนกลับได้ กรุณาตรวจสอบให้แน่ใจก่อนดำเนินการ</p>
+                                        </div>
+
+                                        {/* Delete Mode Selection */}
+                                        <div className="mb-4">
+                                            <label className="form-label small fw-bold text-muted">โหมดการลบ</label>
+                                            <div className="btn-group w-100" role="group">
+                                                <input
+                                                    type="radio"
+                                                    className="btn-check"
+                                                    name="deleteMode"
+                                                    id="deleteAll"
+                                                    checked={stallDeleteMode === 'ALL'}
+                                                    onChange={() => { setStallDeleteMode('ALL'); setSelectedStallsForDelete([]); }}
+                                                />
+                                                <label className="btn btn-outline-danger" htmlFor="deleteAll">ลบทั้งหมด</label>
+
+                                                <input
+                                                    type="radio"
+                                                    className="btn-check"
+                                                    name="deleteMode"
+                                                    id="deleteZone"
+                                                    checked={stallDeleteMode === 'ZONE'}
+                                                    onChange={() => { setStallDeleteMode('ZONE'); setSelectedStallsForDelete([]); }}
+                                                />
+                                                <label className="btn btn-outline-danger" htmlFor="deleteZone">ลบทั้งโซน</label>
+
+                                                <input
+                                                    type="radio"
+                                                    className="btn-check"
+                                                    name="deleteMode"
+                                                    id="deleteSpecific"
+                                                    checked={stallDeleteMode === 'SPECIFIC'}
+                                                    onChange={() => setStallDeleteMode('SPECIFIC')}
+                                                />
+                                                <label className="btn btn-outline-danger" htmlFor="deleteSpecific">เลือกแผง</label>
+                                            </div>
+                                        </div>
+
+                                        {/* Zone Selector (for ZONE mode) */}
+                                        {stallDeleteMode === 'ZONE' && (
+                                            <div className="mb-4">
+                                                <label className="form-label small fw-bold text-muted">เลือกโซนที่ต้องการลบ</label>
+                                                <select
+                                                    className="form-select"
+                                                    value={stallDeleteZone}
+                                                    onChange={e => setStallDeleteZone(e.target.value)}
+                                                >
+                                                    <option value="">-- เลือกโซน --</option>
+                                                    {zones.map(z => (
+                                                        <option key={z._id} value={z.name}>{z.name} {z.description ? `(${z.description})` : ''}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {/* Stall Selection (for SPECIFIC mode) */}
+                                        {stallDeleteMode === 'SPECIFIC' && (
+                                            <div className="mb-4">
+                                                <div className="row g-2 mb-3">
+                                                    <div className="col-6">
+                                                        <select
+                                                            className="form-select form-select-sm"
+                                                            value={stallsFilter.zone}
+                                                            onChange={e => setStallsFilter({ ...stallsFilter, zone: e.target.value })}
+                                                        >
+                                                            <option value="">ทุกโซน</option>
+                                                            {zones.map(z => (
+                                                                <option key={z._id} value={z.name}>{z.name}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="col-6">
+                                                        <select
+                                                            className="form-select form-select-sm"
+                                                            value={stallsFilter.status}
+                                                            onChange={e => setStallsFilter({ ...stallsFilter, status: e.target.value })}
+                                                        >
+                                                            <option value="">ทุกสถานะ</option>
+                                                            <option value="AVAILABLE">ว่าง</option>
+                                                            <option value="RESERVED">จองแล้ว</option>
+                                                            <option value="CONFIRMED">ยืนยันแล้ว</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                {loadingStalls ? (
+                                                    <div className="text-center py-4">
+                                                        <div className="spinner-border spinner-border-sm text-primary"></div>
+                                                        <p className="small text-muted mt-2 mb-0">กำลังโหลด...</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="border rounded-3" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                                        <div className="list-group list-group-flush">
+                                                            <div className="list-group-item bg-light sticky-top">
+                                                                <div className="form-check">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="form-check-input"
+                                                                        id="selectAllStalls"
+                                                                        checked={getFilteredStalls().length > 0 && selectedStallsForDelete.length === getFilteredStalls().length}
+                                                                        onChange={e => handleSelectAllStalls(e.target.checked)}
+                                                                    />
+                                                                    <label className="form-check-label fw-bold small" htmlFor="selectAllStalls">
+                                                                        เลือกทั้งหมด ({getFilteredStalls().length} แผง)
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            {getFilteredStalls().length === 0 ? (
+                                                                <div className="list-group-item text-center text-muted py-4">
+                                                                    ไม่พบแผงตามเงื่อนไข
+                                                                </div>
+                                                            ) : (
+                                                                getFilteredStalls().map(stall => (
+                                                                    <div key={stall._id} className="list-group-item">
+                                                                        <div className="form-check d-flex align-items-center">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                className="form-check-input"
+                                                                                id={`stall-${stall._id}`}
+                                                                                checked={selectedStallsForDelete.includes(stall._id)}
+                                                                                onChange={() => handleToggleStallSelection(stall._id)}
+                                                                            />
+                                                                            <label className="form-check-label ms-2 w-100 d-flex justify-content-between align-items-center" htmlFor={`stall-${stall._id}`}>
+                                                                                <span>
+                                                                                    <strong>{stall.stallId}</strong>
+                                                                                    <span className="text-muted ms-2">โซน {stall.zone}</span>
+                                                                                </span>
+                                                                                <span className="d-flex align-items-center gap-2">
+                                                                                    <span className={`badge ${stall.status === 'AVAILABLE' ? 'bg-success' : stall.status === 'RESERVED' ? 'bg-warning' : 'bg-primary'}`}>
+                                                                                        {stall.status === 'AVAILABLE' ? 'ว่าง' : stall.status === 'RESERVED' ? 'จอง' : 'ยืนยัน'}
+                                                                                    </span>
+                                                                                    {stall.hasActiveBooking && (
+                                                                                        <span className="text-warning" title="มีการจองอยู่">⚠️</span>
+                                                                                    )}
+                                                                                </span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Preview Box */}
+                                        {deletePreview && (stallDeleteMode === 'ALL' || (stallDeleteMode === 'ZONE' && stallDeleteZone) || (stallDeleteMode === 'SPECIFIC' && selectedStallsForDelete.length > 0)) && (
+                                            <div className="p-3 bg-light rounded-3 mb-4">
+                                                <h6 className="small fw-bold text-muted mb-3">สรุปการลบ</h6>
+                                                <div className="row text-center g-2 mb-3">
+                                                    <div className="col-4">
+                                                        <div className="p-2 bg-white rounded border">
+                                                            <div className="fw-bold text-primary">{deletePreview.totalStalls}</div>
+                                                            <div className="small text-muted">แผงทั้งหมด</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-4">
+                                                        <div className="p-2 bg-white rounded border">
+                                                            <div className="fw-bold text-warning">{deletePreview.stallsWithActiveBookings}</div>
+                                                            <div className="small text-muted">มีการจอง</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-4">
+                                                        <div className="p-2 bg-white rounded border">
+                                                            <div className="fw-bold text-success">{deletePreview.stallsAvailable}</div>
+                                                            <div className="small text-muted">ลบได้ทันที</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {deletePreview.stallsWithActiveBookings > 0 && (
+                                                    <div className="form-check mb-3">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="form-check-input"
+                                                            id="forceDelete"
+                                                            checked={forceDelete}
+                                                            onChange={e => setForceDelete(e.target.checked)}
+                                                        />
+                                                        <label className="form-check-label small" htmlFor="forceDelete">
+                                                            <span className="text-danger fw-bold">บังคับลบ</span>
+                                                            <span className="text-muted ms-1">(รวมแผงที่มีการจอง - จะลบข้อมูลการจอง {deletePreview.affectedBookingsCount} รายการด้วย)</span>
+                                                        </label>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Delete Button */}
+                                        <button
+                                            className="btn btn-danger w-100 py-2 rounded-pill fw-bold"
+                                            onClick={handleDeleteStalls}
+                                            disabled={actionLoading || !deletePreview || (stallDeleteMode === 'ZONE' && !stallDeleteZone) || (stallDeleteMode === 'SPECIFIC' && selectedStallsForDelete.length === 0)}
+                                        >
+                                            {actionLoading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2"></span>
+                                                    กำลังลบ...
+                                                </>
+                                            ) : (
+                                                <>ลบแผง</>
+                                            )}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
