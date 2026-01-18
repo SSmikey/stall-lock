@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Booking, Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
 import Link from 'next/link';
+import { Clock, Search, CheckCircle, AlertCircle, XCircle, ClipboardList, ScrollText, Ticket, Store, Banknote, FileText, Trash2, History } from 'lucide-react';
 
 interface BookingWithStall extends Booking {
     stall?: Stall;
@@ -68,12 +69,12 @@ export default function BookingsPage() {
 
     const getStatusIcon = (status: string) => {
         switch (status) {
-            case 'RESERVED': return '⏳';
-            case 'AWAITING_APPROVAL': return '🔍';
-            case 'CONFIRMED': return '✅';
-            case 'EXPIRED': return '⏰';
-            case 'CANCELLED': return '❌';
-            default: return '📋';
+            case 'RESERVED': return <Clock size={16} />;
+            case 'AWAITING_APPROVAL': return <Search size={16} />;
+            case 'CONFIRMED': return <CheckCircle size={16} />;
+            case 'EXPIRED': return <AlertCircle size={16} />;
+            case 'CANCELLED': return <XCircle size={16} />;
+            default: return <ClipboardList size={16} />;
         }
     };
 
@@ -187,7 +188,7 @@ export default function BookingsPage() {
                                     className="btn btn-danger bg-danger bg-opacity-75 border-0 text-white rounded-pill px-3 d-flex align-items-center gap-2 hover-scale shadow-sm backdrop-blur-sm"
                                     title="ล้างประวัติทั้งหมด"
                                 >
-                                    <span>🧹</span>
+                                    <Trash2 size={16} />
                                     <span className="d-none d-sm-inline">ล้างประวัติ</span>
                                 </button>
                             )}
@@ -227,9 +228,11 @@ export default function BookingsPage() {
                     >
                         <div className="card-body p-5">
                             <div className="mb-4 bg-brand-light d-inline-block rounded-circle p-4">
-                                <span style={{ fontSize: '4rem' }}>
-                                    {filterType === 'HISTORY' ? '📜' : '🎫'}
-                                </span>
+                                {filterType === 'HISTORY' ? (
+                                    <History size={64} className="text-secondary opacity-50" />
+                                ) : (
+                                    <Ticket size={64} className="text-brand opacity-50" />
+                                )}
                             </div>
                             <h2 className="fw-bold mb-2">ไม่พบรายการ{filterType === 'HISTORY' ? 'ประวัติการจอง' : 'การจอง'}</h2>
                             <p className="text-muted mb-4 fs-5">
@@ -238,8 +241,8 @@ export default function BookingsPage() {
                                     : 'ค้นหาทำเลค้าขายที่ใช่ แล้วเริ่มธุรกิจของคุณได้เลย'}
                             </p>
                             {filterType !== 'HISTORY' && (
-                                <Link href="/market" className="btn btn-brand btn-lg rounded-pill px-5 shadow-sm hover-scale">
-                                    ไปที่ตลาด 🏪
+                                <Link href="/market" className="btn btn-brand btn-lg rounded-pill px-5 shadow-sm hover-scale d-inline-flex align-items-center gap-2">
+                                    ไปที่ตลาด <Store size={20} />
                                 </Link>
                             )}
                         </div>
@@ -263,7 +266,7 @@ export default function BookingsPage() {
                                                 </div>
                                             </div>
                                             <span className={`badge rounded-pill px-3 py-2 d-flex align-items-center gap-2 ${getStatusBadgeClass(booking.status)}`}>
-                                                <span style={{ fontSize: '1rem' }}>{getStatusIcon(booking.status)}</span>
+                                                {getStatusIcon(booking.status)}
                                                 {getStatusText(booking.status)}
                                             </span>
                                         </div>
@@ -290,12 +293,12 @@ export default function BookingsPage() {
                                         <div className="d-flex gap-2">
                                             <Link
                                                 href={`/bookings/${booking.bookingId}`}
-                                                className={`btn flex-grow-1 rounded-pill fw-bold py-2 ${booking.status === 'RESERVED'
+                                                className={`btn flex-grow-1 rounded-pill fw-bold py-2 d-flex align-items-center justify-content-center gap-1 ${booking.status === 'RESERVED'
                                                     ? 'btn-brand shadow-sm text-white'
                                                     : 'btn-outline-primary border-2'
                                                     }`}
                                             >
-                                                {booking.status === 'RESERVED' ? '💸 แจ้งชำระเงิน' : '📄 ดูรายละเอียด'}
+                                                {booking.status === 'RESERVED' ? <><Banknote size={16} /> แจ้งชำระเงิน</> : <><FileText size={16} /> ดูรายละเอียด</>}
                                             </Link>
 
                                             {canDelete(booking.status) && (
@@ -305,7 +308,7 @@ export default function BookingsPage() {
                                                     style={{ width: '42px', height: '42px' }}
                                                     title="ลบรายการ"
                                                 >
-                                                    🗑️
+                                                    <Trash2 size={18} />
                                                 </button>
                                             )}
                                         </div>
