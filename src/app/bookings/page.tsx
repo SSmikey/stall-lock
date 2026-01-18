@@ -6,6 +6,7 @@ import { Booking, Stall } from '@/lib/db';
 import { ApiResponse } from '@/lib/api';
 import Link from 'next/link';
 import { Clock, Search, CheckCircle, AlertCircle, XCircle, ClipboardList, ScrollText, Ticket, Store, Banknote, FileText, Trash2, History } from 'lucide-react';
+import { showAlert, showConfirm } from '@/utils/sweetalert';
 
 interface BookingWithStall extends Booking {
     stall?: Stall;
@@ -93,7 +94,7 @@ export default function BookingsPage() {
     };
 
     const handleDelete = async (bookingId: string) => {
-        if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการจองนี้? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
+        if (!await showConfirm('ยืนยันการลบ', 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการจองนี้? การกระทำนี้ไม่สามารถย้อนกลับได้', 'ลบรายการ', 'warning')) {
             return;
         }
 
@@ -106,13 +107,13 @@ export default function BookingsPage() {
             if (data.success) {
                 // Remove from local state
                 setBookings(prev => prev.filter(b => b.bookingId !== bookingId));
-                alert('ลบรายการสำเร็จ');
+                showAlert('สำเร็จ', 'ลบรายการสำเร็จ', 'success');
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาดในการลบรายการ');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาดในการลบรายการ', 'error');
             }
         } catch (error) {
             console.error('Error deleting booking:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
         }
     };
 
@@ -123,7 +124,7 @@ export default function BookingsPage() {
     const filteredBookings = getFilteredBookings();
 
     const handleCleanup = async () => {
-        if (!confirm('คุณต้องการลบประวัติการจองทั้งหมดที่เสร็จสิ้นหรือยกเลิกแล้วใช่หรือไม่?')) {
+        if (!await showConfirm('ยืนยันการล้างประวัติ', 'คุณต้องการลบประวัติการจองทั้งหมดที่เสร็จสิ้นหรือยกเลิกแล้วใช่หรือไม่?', 'ลบข้อมูล', 'warning')) {
             return;
         }
 
@@ -136,13 +137,13 @@ export default function BookingsPage() {
             if (data.success) {
                 // Refresh data
                 fetchData();
-                alert(data.data?.message || 'ล้างประวัติสำเร็จ');
+                showAlert('สำเร็จ', data.data?.message || 'ล้างประวัติสำเร็จ', 'success');
             } else {
-                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+                showAlert('ผิดพลาด', data.error?.message || 'เกิดข้อผิดพลาดในการลบรายการ', 'error');
             }
         } catch (error) {
-            console.error('Error cleanup:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            console.error('Error deleting booking:', error);
+            showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
         }
     };
 
