@@ -56,13 +56,22 @@ export async function GET(request: NextRequest) {
             status: { $in: ACTIVE_BOOKING_STATUSES }
         });
 
-        // Get stalls with active bookings
-        const stallsWithActiveBookings = await db.collection('bookings').distinct('stallId', {
-            stallId: { $in: stallObjectIds },
-            status: { $in: ACTIVE_BOOKING_STATUSES }
-        });
+        // Get stalls with active bookings using aggregate instead of distinct
+        const stallsWithActiveBookingsResult = await db.collection('bookings').aggregate([
+            {
+                $match: {
+                    stallId: { $in: stallObjectIds },
+                    status: { $in: ACTIVE_BOOKING_STATUSES }
+                }
+            },
+            {
+                $group: {
+                    _id: '$stallId'
+                }
+            }
+        ]).toArray();
 
-        const stallsWithActiveBookingsSet = new Set(stallsWithActiveBookings.map(id => id.toString()));
+        const stallsWithActiveBookingsSet = new Set(stallsWithActiveBookingsResult.map(item => item._id.toString()));
 
         return Response.json(createApiResponse({
             totalStalls: stalls.length,
@@ -151,12 +160,21 @@ export async function POST(request: NextRequest) {
 
         const stallObjectIds = stalls.map(s => s._id);
 
-        // Find stalls with active bookings
-        const stallsWithActiveBookings = await db.collection('bookings').distinct('stallId', {
-            stallId: { $in: stallObjectIds },
-            status: { $in: ACTIVE_BOOKING_STATUSES }
-        });
-        const activeBookingStallSet = new Set(stallsWithActiveBookings.map(id => id.toString()));
+        // Find stalls with active bookings using aggregate instead of distinct
+        const stallsWithActiveBookingsResult = await db.collection('bookings').aggregate([
+            {
+                $match: {
+                    stallId: { $in: stallObjectIds },
+                    status: { $in: ACTIVE_BOOKING_STATUSES }
+                }
+            },
+            {
+                $group: {
+                    _id: '$stallId'
+                }
+            }
+        ]).toArray();
+        const activeBookingStallSet = new Set(stallsWithActiveBookingsResult.map(item => item._id.toString()));
 
         let stallsToDelete: ObjectId[] = [];
         let skippedStalls: string[] = [];

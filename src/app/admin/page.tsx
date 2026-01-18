@@ -273,35 +273,72 @@ export default function AdminDashboard() {
     const fetchAllStallsForDelete = async () => {
         setLoadingStalls(true);
         try {
-            const res = await fetch('/api/admin/stalls/delete?mode=ALL');
-            const data = await res.json();
-            if (data.success && data.data) {
-                setAllStallsForDelete(data.data.stalls);
+            // First fetch all stalls from public API
+            const stallsRes = await fetch('/api/stalls');
+            const stallsData = await stallsRes.json();
+
+            if (stallsData.success && stallsData.data && stallsData.data.stalls) {
+                const stalls = stallsData.data.stalls;
+
+                // Then fetch booking info to determine which stalls have active bookings
+                const previewRes = await fetch('/api/admin/stalls/delete?mode=ALL');
+                const previewData = await previewRes.json();
+
+                let activeBookingStallIds = new Set<string>();
+                if (previewData.success && previewData.data && previewData.data.stalls) {
+                    previewData.data.stalls.forEach((s: any) => {
+                        if (s.hasActiveBooking) {
+                            activeBookingStallIds.add(s._id);
+                        }
+                    });
+                }
+
+                // Map stalls with hasActiveBooking info
+                const mappedStalls: StallForDelete[] = stalls.map((s: any) => ({
+                    _id: s._id.toString ? s._id.toString() : s._id,
+                    stallId: s.stallId,
+                    zone: s.zone,
+                    status: s.status,
+                    price: s.price,
+                    priceUnit: s.priceUnit,
+                    hasActiveBooking: activeBookingStallIds.has(s._id.toString ? s._id.toString() : s._id)
+                }));
+
+                setAllStallsForDelete(mappedStalls);
+            } else {
+                console.error('Failed to fetch stalls:', stallsData.error);
+                setAllStallsForDelete([]);
             }
         } catch (error) {
             console.error('Failed to fetch stalls:', error);
+            setAllStallsForDelete([]);
         } finally {
             setLoadingStalls(false);
         }
     };
 
     const fetchDeletePreview = async () => {
-        try {
-            let url = '/api/admin/stalls/delete?mode=' + stallDeleteMode;
-            if (stallDeleteMode === 'ZONE' && stallDeleteZone) {
-                url += '&zone=' + encodeURIComponent(stallDeleteZone);
-            } else if (stallDeleteMode === 'SPECIFIC' && selectedStallsForDelete.length > 0) {
-                url += '&stallIds=' + selectedStallsForDelete.join(',');
-            }
+        // Calculate preview from local data instead of API call
+        let stallsToPreview: StallForDelete[] = [];
 
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.success) {
-                setDeletePreview(data.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch delete preview:', error);
+        if (stallDeleteMode === 'ALL') {
+            stallsToPreview = allStallsForDelete;
+        } else if (stallDeleteMode === 'ZONE' && stallDeleteZone) {
+            stallsToPreview = allStallsForDelete.filter(s => s.zone === stallDeleteZone);
+        } else if (stallDeleteMode === 'SPECIFIC' && selectedStallsForDelete.length > 0) {
+            stallsToPreview = allStallsForDelete.filter(s => selectedStallsForDelete.includes(s._id));
         }
+
+        const stallsWithActiveBookings = stallsToPreview.filter(s => s.hasActiveBooking).length;
+        const totalStalls = stallsToPreview.length;
+
+        setDeletePreview({
+            totalStalls,
+            stallsWithActiveBookings,
+            stallsAvailable: totalStalls - stallsWithActiveBookings,
+            affectedBookingsCount: stallsWithActiveBookings, // Approximate
+            stalls: stallsToPreview
+        });
     };
 
     useEffect(() => {
@@ -311,10 +348,10 @@ export default function AdminDashboard() {
     }, [settingsTab, showSettingsModal]);
 
     useEffect(() => {
-        if (settingsTab === 'stalls' && showSettingsModal) {
+        if (settingsTab === 'stalls' && showSettingsModal && allStallsForDelete.length > 0) {
             fetchDeletePreview();
         }
-    }, [stallDeleteMode, stallDeleteZone, selectedStallsForDelete, settingsTab, showSettingsModal]);
+    }, [stallDeleteMode, stallDeleteZone, selectedStallsForDelete, settingsTab, showSettingsModal, allStallsForDelete]);
 
     const getFilteredStalls = () => {
         return allStallsForDelete.filter(stall => {
