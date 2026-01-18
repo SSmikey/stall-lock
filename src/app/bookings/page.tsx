@@ -77,6 +77,76 @@ export default function BookingsPage() {
         }
     };
 
+    const [filterType, setFilterType] = useState<'ALL' | 'ACTIVE' | 'HISTORY'>('ACTIVE');
+
+    const getFilteredBookings = () => {
+        return bookings.filter(booking => {
+            if (filterType === 'ALL') return true;
+
+            const isHistory = ['EXPIRED', 'CANCELLED', 'REJECTED', 'COMPLETED'].includes(booking.status);
+
+            if (filterType === 'HISTORY') return isHistory;
+            // ACTIVE = Reserved, Awaiting Approval, Confirmed
+            return !isHistory;
+        });
+    };
+
+    const handleDelete = async (bookingId: string) => {
+        if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการจองนี้? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/bookings?bookingId=${bookingId}&userId=${currentUserId}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Remove from local state
+                setBookings(prev => prev.filter(b => b.bookingId !== bookingId));
+                alert('ลบรายการสำเร็จ');
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาดในการลบรายการ');
+            }
+        } catch (error) {
+            console.error('Error deleting booking:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        }
+    };
+
+    const canDelete = (status: string) => {
+        return ['EXPIRED', 'CANCELLED', 'REJECTED', 'COMPLETED'].includes(status);
+    };
+
+    const filteredBookings = getFilteredBookings();
+
+    const handleCleanup = async () => {
+        if (!confirm('คุณต้องการลบประวัติการจองทั้งหมดที่เสร็จสิ้นหรือยกเลิกแล้วใช่หรือไม่?')) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/bookings?userId=${currentUserId}&mode=cleanup`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Refresh data
+                fetchData();
+                alert(data.data?.message || 'ล้างประวัติสำเร็จ');
+            } else {
+                alert(data.error?.message || 'เกิดข้อผิดพลาด');
+            }
+        } catch (error) {
+            console.error('Error cleanup:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        }
+    };
+
+    const hasHistoryItems = bookings.some(b => ['EXPIRED', 'CANCELLED', 'REJECTED', 'COMPLETED'].includes(b.status));
+
     return (
         <div className="container-fluid p-0 bg-light min-vh-100 font-kanit">
             {/* Hero Section */}
@@ -87,11 +157,48 @@ export default function BookingsPage() {
                             <h1 className="fw-bold mb-1">การจองของฉัน</h1>
                             <p className="lead mb-0 fw-normal opacity-90">ตรวจสอบสถานะและประวัติการจองแผงของคุณ</p>
                         </div>
+
+                        {/* Filter Tabs in Hero (Top Right) */}
+                        <div className="d-flex align-items-center gap-2">
+                            <div className="bg-white/20 backdrop-blur-sm p-1 rounded-pill d-inline-flex border border-white/20">
+                                <button
+                                    onClick={() => setFilterType('ACTIVE')}
+                                    className={`btn rounded-pill px-3 fw-medium transition-all ${filterType === 'ACTIVE' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
+                                >
+                                    กำลังดำเนินการ
+                                </button>
+                                <button
+                                    onClick={() => setFilterType('HISTORY')}
+                                    className={`btn rounded-pill px-3 fw-medium transition-all ${filterType === 'HISTORY' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
+                                >
+                                    ประวัติ
+                                </button>
+                                <button
+                                    onClick={() => setFilterType('ALL')}
+                                    className={`btn rounded-pill px-3 fw-medium transition-all ${filterType === 'ALL' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
+                                >
+                                    ทั้งหมด
+                                </button>
+                            </div>
+
+                            {filterType === 'HISTORY' && hasHistoryItems && (
+                                <button
+                                    onClick={handleCleanup}
+                                    className="btn btn-danger bg-danger bg-opacity-75 border-0 text-white rounded-pill px-3 d-flex align-items-center gap-2 hover-scale shadow-sm backdrop-blur-sm"
+                                    title="ล้างประวัติทั้งหมด"
+                                >
+                                    <span>🧹</span>
+                                    <span className="d-none d-sm-inline">ล้างประวัติ</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="container" style={{ marginTop: '-4rem' }}>
+
+
                 {loading ? (
                     <div className="row g-4">
                         {[1, 2, 3].map(i => (
@@ -112,7 +219,7 @@ export default function BookingsPage() {
                             </div>
                         ))}
                     </div>
-                ) : bookings.length === 0 ? (
+                ) : filteredBookings.length === 0 ? (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -120,18 +227,26 @@ export default function BookingsPage() {
                     >
                         <div className="card-body p-5">
                             <div className="mb-4 bg-brand-light d-inline-block rounded-circle p-4">
-                                <span style={{ fontSize: '4rem' }}>🎫</span>
+                                <span style={{ fontSize: '4rem' }}>
+                                    {filterType === 'HISTORY' ? '📜' : '🎫'}
+                                </span>
                             </div>
-                            <h2 className="fw-bold mb-2">คุณยังไม่มีการจอง</h2>
-                            <p className="text-muted mb-4 fs-5">ค้นหาทำเลค้าขายที่ใช่ แล้วเริ่มธุรกิจของคุณได้เลย</p>
-                            <Link href="/market" className="btn btn-brand btn-lg rounded-pill px-5 shadow-sm hover-scale">
-                                ไปที่ตลาด 🏪
-                            </Link>
+                            <h2 className="fw-bold mb-2">ไม่พบรายการ{filterType === 'HISTORY' ? 'ประวัติการจอง' : 'การจอง'}</h2>
+                            <p className="text-muted mb-4 fs-5">
+                                {filterType === 'HISTORY'
+                                    ? 'คุณยังไม่มีประวัติการจองที่เสร็จสิ้นหรือยกเลิก'
+                                    : 'ค้นหาทำเลค้าขายที่ใช่ แล้วเริ่มธุรกิจของคุณได้เลย'}
+                            </p>
+                            {filterType !== 'HISTORY' && (
+                                <Link href="/market" className="btn btn-brand btn-lg rounded-pill px-5 shadow-sm hover-scale">
+                                    ไปที่ตลาด 🏪
+                                </Link>
+                            )}
                         </div>
                     </motion.div>
                 ) : (
                     <div className="row g-4 pb-5">
-                        {bookings.map((booking, index) => (
+                        {filteredBookings.map((booking, index) => (
                             <div key={booking.bookingId} className="col-md-6 col-lg-4">
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
@@ -158,23 +273,42 @@ export default function BookingsPage() {
                                                 <span className="text-muted small">วันที่จอง</span>
                                                 <span className="fw-medium">{new Date(booking.reservedAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                                             </div>
-                                            {booking.expiresAt && (
+                                            {booking.expiresAt && booking.status === 'RESERVED' && (
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <span className="text-muted small">ชำระ/หมดอายุภายใน</span>
+                                                    <span className="text-muted small">ชำระภายใน</span>
                                                     <span className="text-danger fw-bold">{new Date(booking.expiresAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.</span>
+                                                </div>
+                                            )}
+                                            {(booking.status === 'EXPIRED' || booking.status === 'CANCELLED') && (
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <span className="text-muted small">สถานะ</span>
+                                                    <span className="text-danger fw-bold">{getStatusText(booking.status)}</span>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <Link
-                                            href={`/bookings/${booking.bookingId}`}
-                                            className={`btn w-100 rounded-pill fw-bold py-2 ${booking.status === 'RESERVED'
-                                                ? 'btn-brand shadow-sm text-white'
-                                                : 'btn-outline-primary border-2'
-                                                }`}
-                                        >
-                                            {booking.status === 'RESERVED' ? '💸 แจ้งชำระเงิน' : '📄 ดูรายละเอียด'}
-                                        </Link>
+                                        <div className="d-flex gap-2">
+                                            <Link
+                                                href={`/bookings/${booking.bookingId}`}
+                                                className={`btn flex-grow-1 rounded-pill fw-bold py-2 ${booking.status === 'RESERVED'
+                                                    ? 'btn-brand shadow-sm text-white'
+                                                    : 'btn-outline-primary border-2'
+                                                    }`}
+                                            >
+                                                {booking.status === 'RESERVED' ? '💸 แจ้งชำระเงิน' : '📄 ดูรายละเอียด'}
+                                            </Link>
+
+                                            {canDelete(booking.status) && (
+                                                <button
+                                                    onClick={() => handleDelete(booking.bookingId)}
+                                                    className="btn btn-outline-danger rounded-circle p-2 d-flex align-items-center justify-content-center"
+                                                    style={{ width: '42px', height: '42px' }}
+                                                    title="ลบรายการ"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </motion.div>
                             </div>
