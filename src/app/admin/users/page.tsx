@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import CustomDropdown from '@/components/ui/CustomDropdown';
-import { User as UserIcon, Shield, Search, Users } from 'lucide-react';
+import { User as UserIcon, Shield, Search, Users, Plus, Eye, Edit2, Trash2, Phone, Calendar, ClipboardList, Inbox, Info } from 'lucide-react';
 import { showAlert, showConfirm } from '@/utils/sweetalert';
 
 interface User {
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                                 }}
                                 style={{ padding: '8px 20px', fontSize: '0.9rem' }}
                             >
-                                <span className="fs-6 me-2">➕</span> เพิ่มผู้ใช้
+                                <Plus size={18} className="me-2" /> เพิ่มผู้ใช้
                             </button>
                         </div>
                     </div>
@@ -275,7 +275,7 @@ export default function AdminUsersPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#E3F2FD', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>👥</span>
+                                        <Users size={32} className="text-primary" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-dark">{stats.total}</div>
@@ -296,7 +296,7 @@ export default function AdminUsersPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#FFEBEE', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>🛡️</span>
+                                        <Shield size={32} className="text-danger" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-danger">{stats.admins}</div>
@@ -317,7 +317,7 @@ export default function AdminUsersPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F5F5F5', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>👤</span>
+                                        <UserIcon size={32} className="text-secondary" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-secondary">{stats.users}</div>
@@ -342,7 +342,7 @@ export default function AdminUsersPage() {
                         <div className="row g-3 mb-4">
                             <div className="col-md-8">
                                 <div className="input-group">
-                                    <span className="input-group-text bg-light border-end-0 rounded-start-pill ps-3">🔍</span>
+                                    <span className="input-group-text bg-light border-end-0 rounded-start-pill ps-3"><Search size={18} /></span>
                                     <input
                                         type="text"
                                         className="form-control border-start-0 rounded-end-pill py-2 bg-light shadow-sm"
@@ -373,7 +373,7 @@ export default function AdminUsersPage() {
                         {/* List */}
                         {filteredUsers.length === 0 ? (
                             <div className="text-center py-5">
-                                <div className="display-1 mb-3">🤷‍♂️</div>
+                                <div className="display-1 mb-3"><Users size={48} className="text-secondary opacity-25" /></div>
                                 <h5 className="text-muted">ไม่พบข้อมูลผู้ใช้</h5>
                             </div>
                         ) : (
@@ -414,20 +414,20 @@ export default function AdminUsersPage() {
                                                                 className="btn btn-sm btn-light rounded-pill px-3"
                                                                 onClick={() => handleViewUser(user._id)}
                                                             >
-                                                                👁️ รายละเอียด
+                                                                <Eye size={16} /> รายละเอียด
                                                             </button>
                                                             <button
                                                                 className="btn btn-sm btn-outline-primary rounded-pill px-3"
                                                                 onClick={() => openEditModal(user)}
                                                             >
-                                                                ✏️ แก้ไข
+                                                                <Edit2 size={16} /> แก้ไข
                                                             </button>
                                                             <button
                                                                 className="btn btn-sm btn-outline-danger rounded-pill px-3"
                                                                 onClick={() => handleDeleteUser(user._id)}
                                                                 disabled={actionLoading}
                                                             >
-                                                                🗑️ ลบ
+                                                                <Trash2 size={16} /> ลบ
                                                             </button>
                                                         </div>
                                                     </td>
@@ -451,28 +451,28 @@ export default function AdminUsersPage() {
                                                         {user.fullName} | {user.email}
                                                     </div>
                                                     <div className="small text-muted mb-3 d-flex justify-content-between">
-                                                        <span>📞 {user.phone || '-'}</span>
-                                                        <span>📅 {new Date(user.createdAt).toLocaleDateString('th-TH')}</span>
+                                                        <span><Phone size={14} className="me-1" /> {user.phone || '-'}</span>
+                                                        <span><Calendar size={14} className="me-1" /> {new Date(user.createdAt).toLocaleDateString('th-TH')}</span>
                                                     </div>
                                                     <div className="d-grid gap-2 d-flex">
                                                         <button
                                                             className="btn btn-sm btn-light flex-fill rounded-pill"
                                                             onClick={() => handleViewUser(user._id)}
                                                         >
-                                                            👁️ รายละเอียด
+                                                            <Eye size={16} /> รายละเอียด
                                                         </button>
                                                         <button
                                                             className="btn btn-sm btn-outline-primary flex-fill rounded-pill"
                                                             onClick={() => openEditModal(user)}
                                                         >
-                                                            ✏️ แก้ไข
+                                                            <Edit2 size={16} /> แก้ไข
                                                         </button>
                                                         <button
                                                             className="btn btn-sm btn-outline-danger flex-fill rounded-pill"
                                                             onClick={() => handleDeleteUser(user._id)}
                                                             disabled={actionLoading}
                                                         >
-                                                            🗑️ ลบ
+                                                            <Trash2 size={16} /> ลบ
                                                         </button>
                                                     </div>
                                                 </div>
@@ -645,7 +645,7 @@ export default function AdminUsersPage() {
                                             </div>
                                             <div className="col-12">
                                                 <div className="alert alert-light border small text-muted">
-                                                    <i className="me-2">ℹ️</i>
+                                                    <i className="me-2"><Info size={16} /></i>
                                                     รหัสผ่าน: เว้นว่างไว้หากไม่ต้องการเปลี่ยน
                                                 </div>
                                                 <input
@@ -692,7 +692,7 @@ export default function AdminUsersPage() {
                                             <div className="card border-0 shadow-sm p-3 h-100 rounded-4">
                                                 <div className="text-center mb-3">
                                                     <div className="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
-                                                        <span className="display-6">👤</span>
+                                                        <span className="display-6"><UserIcon size={48} className="text-primary" /></span>
                                                     </div>
                                                     <h5 className="fw-bold">{viewingUser.fullName}</h5>
                                                     <p className="text-muted small">@{viewingUser.username}</p>
@@ -718,7 +718,7 @@ export default function AdminUsersPage() {
                                         <div className="col-md-7">
                                             <div className="card border-0 shadow-sm p-4 h-100 rounded-4">
                                                 <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                                                    <span>📋</span> ประวัติการจอง ({viewingUser.bookings?.length || 0})
+                                                    <span><ClipboardList size={20} /></span> ประวัติการจอง ({viewingUser.bookings?.length || 0})
                                                 </h6>
                                                 <div className="overflow-auto pe-2" style={{ maxHeight: '300px' }}>
                                                     {viewingUser.bookings?.length > 0 ? (
@@ -743,7 +743,7 @@ export default function AdminUsersPage() {
                                                         </div>
                                                     ) : (
                                                         <div className="text-center py-5 text-muted bg-light rounded-3 h-100 d-flex flex-column justify-content-center">
-                                                            <div className="fs-3 mb-2">📭</div>
+                                                            <div className="fs-3 mb-2"><Inbox size={48} className="text-secondary opacity-25" /></div>
                                                             ยังไม่มีประวัติการจอง
                                                         </div>
                                                     )}
@@ -763,7 +763,7 @@ export default function AdminUsersPage() {
                                             setViewingUser(null);
                                         }}
                                     >
-                                        ✏️ แก้ไขข้อมูล
+                                        <Edit2 size={16} className="me-2" /> แก้ไขข้อมูล
                                     </button>
                                     <button className="btn btn-secondary rounded-pill px-4" onClick={() => setViewingUser(null)}>
                                         ปิด
