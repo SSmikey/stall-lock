@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomDropdown from '@/components/ui/CustomDropdown';
+import { Home, MapPin, BarChart3, CheckSquare, Hourglass, Lock, Calendar, Ruler, DollarSign } from 'lucide-react';
 import { ApiResponse } from '@/lib/api';
 import { showAlert, showConfirm } from '@/utils/sweetalert';
 
@@ -963,12 +965,12 @@ export default function AdminDashboard() {
                                     <div className="mb-3">
                                         <label className="form-label fw-bold small text-muted">เหตุผลที่ปฏิเสธ</label>
                                         <textarea
-                                            className="form-control bg-light"
+                                            className="form-control bg-light shadow-sm border-0"
                                             rows={3}
                                             value={rejectReason}
                                             onChange={(e) => setRejectReason(e.target.value)}
                                             placeholder="เช่น ภาพสลิปไม่ชัดเจน, ยอดเงินไม่ถูกต้อง..."
-                                            style={{ borderRadius: '12px' }}
+                                            style={{ borderRadius: '1rem' }}
                                         ></textarea>
                                     </div>
                                     <div className="d-grid">
@@ -997,8 +999,8 @@ export default function AdminDashboard() {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
-                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                            <div className="modal-content border-0 shadow-lg rounded-4">
+                                <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <h5 className="modal-title fw-bold">รายละเอียดการจอง {inspectingBooking.bookingId}</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setInspectingBooking(null)}></button>
                                 </div>
@@ -1152,8 +1154,8 @@ export default function AdminDashboard() {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
-                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                            <div className="modal-content border-0 shadow-lg rounded-4">
+                                <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <div>
                                         <h5 className="modal-title fw-bold">รายละเอียดการจอง</h5>
                                         <p className="mb-0 opacity-75 small">ID: {viewingBooking.bookingId}</p>
@@ -1285,8 +1287,8 @@ export default function AdminDashboard() {
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="modal-dialog modal-dialog-centered modal-lg"
                     >
-                        <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                            <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                        <div className="modal-content border-0 shadow-lg rounded-4">
+                            <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                 <div>
                                     <h5 className="modal-title fw-bold">⚙️ ตั้งค่าระบบ</h5>
                                     <p className="text-white text-opacity-75 small mb-0">จัดการโซน, ขนาดแผง, และการตั้งค่าตลาด</p>
@@ -1335,7 +1337,7 @@ export default function AdminDashboard() {
                                             <div className="row g-2">
                                                 <div className="col-md-4">
                                                     <input
-                                                        className="form-control"
+                                                        className="form-control rounded-pill shadow-sm"
                                                         placeholder="ชื่อโซน (เช่น A, B, C)"
                                                         value={zoneFormData.name}
                                                         onChange={e => setZoneFormData({ ...zoneFormData, name: e.target.value })}
@@ -1344,7 +1346,7 @@ export default function AdminDashboard() {
                                                 </div>
                                                 <div className="col-md-6">
                                                     <input
-                                                        className="form-control"
+                                                        className="form-control rounded-pill shadow-sm"
                                                         placeholder="รายละเอียด (ถ้ามี)"
                                                         value={zoneFormData.description}
                                                         onChange={e => setZoneFormData({ ...zoneFormData, description: e.target.value })}
@@ -1386,10 +1388,10 @@ export default function AdminDashboard() {
                                         <form onSubmit={handleCreateSize} className="mb-4">
                                             <div className="row g-2">
                                                 <div className="col-md-5">
-                                                    <input className="form-control" placeholder="ชื่อ (S, M, L)" value={sizeFormData.name} onChange={e => setSizeFormData({ ...sizeFormData, name: e.target.value })} required />
+                                                    <input className="form-control rounded-pill shadow-sm" placeholder="ชื่อ (S, M, L)" value={sizeFormData.name} onChange={e => setSizeFormData({ ...sizeFormData, name: e.target.value })} required />
                                                 </div>
                                                 <div className="col-md-5">
-                                                    <input className="form-control" placeholder="Label (เช่น 2x2)" value={sizeFormData.label} onChange={e => setSizeFormData({ ...sizeFormData, label: e.target.value })} required />
+                                                    <input className="form-control rounded-pill shadow-sm" placeholder="Label (เช่น 2x2)" value={sizeFormData.label} onChange={e => setSizeFormData({ ...sizeFormData, label: e.target.value })} required />
                                                 </div>
                                                 <div className="col-md-2">
                                                     <button className="btn btn-primary w-100" type="submit" disabled={actionLoading}>
@@ -1429,7 +1431,7 @@ export default function AdminDashboard() {
                                                 <label className="form-label small text-muted fw-bold">เวลาคืนแผงอัตโนมัติ (ทุกวัน)</label>
                                                 <input
                                                     type="time"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill shadow-sm"
                                                     value={marketSettings.autoReturnTime}
                                                     onChange={(e) => setMarketSettings({ ...marketSettings, autoReturnTime: e.target.value })}
                                                     disabled={!marketSettings.isAutoReturnEnabled}
@@ -1439,7 +1441,7 @@ export default function AdminDashboard() {
                                                 <label className="form-label small text-muted fw-bold">จองล่วงหน้าได้สูงสุด (วัน)</label>
                                                 <input
                                                     type="number"
-                                                    className="form-control"
+                                                    className="form-control rounded-pill shadow-sm"
                                                     value={marketSettings.maxBookingDays}
                                                     onChange={(e) => setMarketSettings({ ...marketSettings, maxBookingDays: parseInt(e.target.value) })}
                                                 />
@@ -1512,16 +1514,20 @@ export default function AdminDashboard() {
                                         {stallDeleteMode === 'ZONE' && (
                                             <div className="mb-4">
                                                 <label className="form-label small fw-bold text-muted">เลือกโซนที่ต้องการลบ</label>
-                                                <select
-                                                    className="form-select"
+                                                <CustomDropdown
                                                     value={stallDeleteZone}
-                                                    onChange={e => setStallDeleteZone(e.target.value)}
-                                                >
-                                                    <option value="">-- เลือกโซน --</option>
-                                                    {zones.map(z => (
-                                                        <option key={z._id} value={z.name}>{z.name} {z.description ? `(${z.description})` : ''}</option>
-                                                    ))}
-                                                </select>
+                                                    onChange={(val) => setStallDeleteZone(val)}
+                                                    options={[
+                                                        { value: '', label: '-- เลือกโซน --', icon: <Home size={18} /> },
+                                                        ...zones.map(z => ({
+                                                            value: z.name,
+                                                            label: `${z.name} ${z.description ? `(${z.description})` : ''}`,
+                                                            icon: <MapPin size={18} className="text-danger" />
+                                                        }))
+                                                    ]}
+                                                    placeholder="เลือกโซน..."
+                                                    className="w-100"
+                                                />
                                             </div>
                                         )}
 
@@ -1530,28 +1536,34 @@ export default function AdminDashboard() {
                                             <div className="mb-4">
                                                 <div className="row g-2 mb-3">
                                                     <div className="col-6">
-                                                        <select
-                                                            className="form-select form-select-sm"
+                                                        <CustomDropdown
                                                             value={stallsFilter.zone}
-                                                            onChange={e => setStallsFilter({ ...stallsFilter, zone: e.target.value })}
-                                                        >
-                                                            <option value="">ทุกโซน</option>
-                                                            {zones.map(z => (
-                                                                <option key={z._id} value={z.name}>{z.name}</option>
-                                                            ))}
-                                                        </select>
+                                                            onChange={(val) => setStallsFilter({ ...stallsFilter, zone: val })}
+                                                            options={[
+                                                                { value: '', label: 'ทุกโซน', icon: <Home size={18} /> },
+                                                                ...zones.map(z => ({
+                                                                    value: z.name,
+                                                                    label: z.name,
+                                                                    icon: <MapPin size={18} className="text-danger" />
+                                                                }))
+                                                            ]}
+                                                            placeholder="ทุกโซน"
+                                                            className="w-100 basic-dropdown"
+                                                        />
                                                     </div>
                                                     <div className="col-6">
-                                                        <select
-                                                            className="form-select form-select-sm"
+                                                        <CustomDropdown
                                                             value={stallsFilter.status}
-                                                            onChange={e => setStallsFilter({ ...stallsFilter, status: e.target.value })}
-                                                        >
-                                                            <option value="">ทุกสถานะ</option>
-                                                            <option value="AVAILABLE">ว่าง</option>
-                                                            <option value="RESERVED">จองแล้ว</option>
-                                                            <option value="CONFIRMED">ยืนยันแล้ว</option>
-                                                        </select>
+                                                            onChange={(val) => setStallsFilter({ ...stallsFilter, status: val })}
+                                                            options={[
+                                                                { value: '', label: 'ทุกสถานะ', icon: <BarChart3 size={18} className="text-primary" /> },
+                                                                { value: 'AVAILABLE', label: 'ว่าง', icon: <CheckSquare size={18} className="text-success" /> },
+                                                                { value: 'RESERVED', label: 'จองแล้ว', icon: <Hourglass size={18} className="text-warning" /> },
+                                                                { value: 'CONFIRMED', label: 'ยืนยันแล้ว', icon: <Lock size={18} className="text-secondary" /> }
+                                                            ]}
+                                                            placeholder="ทุกสถานะ"
+                                                            className="w-100 basic-dropdown"
+                                                        />
                                                     </div>
                                                 </div>
 
@@ -1563,7 +1575,7 @@ export default function AdminDashboard() {
                                                 ) : (
                                                     <div className="border rounded-3" style={{ maxHeight: '250px', overflowY: 'auto' }}>
                                                         <div className="list-group list-group-flush">
-                                                            <div className="list-group-item bg-light sticky-top">
+                                                            <div className="list-group-item bg-light">
                                                                 <div className="form-check">
                                                                     <input
                                                                         type="checkbox"
@@ -1691,8 +1703,8 @@ export default function AdminDashboard() {
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="modal-dialog modal-dialog-centered"
                     >
-                        <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                            <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                        <div className="modal-content border-0 shadow-lg rounded-4">
+                            <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                 <h5 className="modal-title fw-bold">➕ เพิ่มแผงตลาด</h5>
                                 <button type="button" className="btn-close btn-close-white" onClick={() => setShowCreateStallModal(false)}></button>
                             </div>
@@ -1701,34 +1713,60 @@ export default function AdminDashboard() {
                                 <form onSubmit={handleCreateStall}>
                                     <div className="mb-3">
                                         <label className="form-label small fw-bold text-muted">โซน</label>
-                                        <select className="form-select" value={stallFormData.zone} onChange={e => setStallFormData({ ...stallFormData, zone: e.target.value })} required>
-                                            <option value="">เลือกโซน...</option>
-                                            {zones.map(z => <option key={z._id} value={z.name}>{z.name}</option>)}
-                                        </select>
+                                        <CustomDropdown
+                                            value={stallFormData.zone}
+                                            onChange={(val) => setStallFormData({ ...stallFormData, zone: val })}
+                                            options={[
+                                                { value: '', label: 'เลือกโซน...', icon: <Home size={18} /> },
+                                                ...zones.map(z => ({
+                                                    value: z.name,
+                                                    label: z.name,
+                                                    icon: <MapPin size={18} className="text-danger" />
+                                                }))
+                                            ]}
+                                            placeholder="เลือกโซน..."
+                                            className="w-100"
+                                        />
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label small fw-bold text-muted">ขนาด</label>
-                                        <select className="form-select" value={stallFormData.size} onChange={e => setStallFormData({ ...stallFormData, size: e.target.value })} required>
-                                            <option value="">เลือกขนาด...</option>
-                                            {stallSizes.map(s => <option key={s._id} value={s.label}>{s.name} ({s.label})</option>)}
-                                        </select>
+                                        <CustomDropdown
+                                            value={stallFormData.size}
+                                            onChange={(val) => setStallFormData({ ...stallFormData, size: val })}
+                                            options={[
+                                                { value: '', label: 'เลือกขนาด...', icon: <Ruler size={18} className="text-info" /> },
+                                                ...stallSizes.map(s => ({
+                                                    value: s.label,
+                                                    label: `${s.name} (${s.label})`,
+                                                    icon: <Ruler size={18} className="text-info" />
+                                                }))
+                                            ]}
+                                            placeholder="เลือกขนาด..."
+                                            className="w-100"
+                                        />
                                     </div>
                                     <div className="row g-3">
                                         <div className="col-6 mb-3">
                                             <label className="form-label small fw-bold text-muted">ราคา</label>
-                                            <input type="number" className="form-control" value={stallFormData.price} onChange={e => setStallFormData({ ...stallFormData, price: e.target.value })} required placeholder="0.00" />
+                                            <input type="number" className="form-control rounded-pill shadow-sm" value={stallFormData.price} onChange={e => setStallFormData({ ...stallFormData, price: e.target.value })} required placeholder="0.00" />
                                         </div>
                                         <div className="col-6 mb-3">
                                             <label className="form-label small fw-bold text-muted">ต่อ</label>
-                                            <select className="form-select" value={stallFormData.priceUnit} onChange={e => setStallFormData({ ...stallFormData, priceUnit: e.target.value as any })}>
-                                                <option value="DAY">วัน</option>
-                                                <option value="MONTH">เดือน</option>
-                                            </select>
+                                            <CustomDropdown
+                                                value={stallFormData.priceUnit}
+                                                onChange={(val) => setStallFormData({ ...stallFormData, priceUnit: val as any })}
+                                                options={[
+                                                    { value: 'DAY', label: 'วัน', icon: <Calendar size={18} className="text-success" /> },
+                                                    { value: 'MONTH', label: 'เดือน', icon: <Calendar size={18} className="text-primary" /> }
+                                                ]}
+                                                placeholder="วัน"
+                                                className="w-100"
+                                            />
                                         </div>
                                     </div>
                                     <div className="mb-4">
                                         <label className="form-label small fw-bold text-muted">รายละเอียดเพิ่มเติม</label>
-                                        <textarea className="form-control" value={stallFormData.description} onChange={e => setStallFormData({ ...stallFormData, description: e.target.value })} rows={2} />
+                                        <textarea className="form-control shadow-sm border-0 bg-light" value={stallFormData.description} onChange={e => setStallFormData({ ...stallFormData, description: e.target.value })} rows={2} style={{ borderRadius: '1rem' }} />
                                     </div>
 
                                     <div className="p-3 bg-light rounded-3 mb-4">
@@ -1736,11 +1774,11 @@ export default function AdminDashboard() {
                                         <div className="row g-3">
                                             <div className="col-6">
                                                 <label className="form-label small">จำนวนที่สร้าง</label>
-                                                <input type="number" className="form-control" value={stallFormData.quantity} onChange={e => setStallFormData({ ...stallFormData, quantity: e.target.value })} min="1" required />
+                                                <input type="number" className="form-control rounded-pill shadow-sm" value={stallFormData.quantity} onChange={e => setStallFormData({ ...stallFormData, quantity: e.target.value })} min="1" required />
                                             </div>
                                             <div className="col-6">
                                                 <label className="form-label small">เลขเริ่มต้น</label>
-                                                <input type="number" className="form-control" value={stallFormData.startNumber} onChange={e => setStallFormData({ ...stallFormData, startNumber: e.target.value })} min="1" required />
+                                                <input type="number" className="form-control rounded-pill shadow-sm" value={stallFormData.startNumber} onChange={e => setStallFormData({ ...stallFormData, startNumber: e.target.value })} min="1" required />
                                             </div>
                                         </div>
                                     </div>

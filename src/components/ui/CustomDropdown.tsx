@@ -90,7 +90,7 @@ export default function CustomDropdown({
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
                         className="position-absolute start-0 end-0 mt-2 bg-white rounded-4 shadow-lg overflow-hidden border-0 z-3"
-                        style={{ zIndex: 1060, maxHeight: '300px', overflowY: 'auto' }}
+                        style={{ zIndex: 2000, maxHeight: '300px', overflowY: 'auto' }}
                     >
                         {/* Header/Title matches the trigger if needed, or just list */}
                         <div className="p-1">
