@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Users, Store, ClipboardList, Wallet } from 'lucide-react';
 
 interface DashboardStats {
     totalBookings: number;
@@ -141,7 +142,7 @@ export default function AdminDashboardPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'var(--brand-light)', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>👥</span>
+                                        <Users size={32} className="text-brand" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-dark">{stats?.totalUsers || 0}</div>
@@ -167,7 +168,7 @@ export default function AdminDashboardPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'var(--brand-light)', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>🏪</span>
+                                        <Store size={32} className="text-brand" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-dark">{stats?.totalStalls || 0}</div>
@@ -194,7 +195,7 @@ export default function AdminDashboardPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'var(--brand-light)', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>📋</span>
+                                        <ClipboardList size={32} className="text-brand" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-dark">{stats?.totalBookings || 0}</div>
@@ -220,7 +221,7 @@ export default function AdminDashboardPage() {
                             <div className="card-body p-4">
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="rounded-circle p-3 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'var(--brand-light)', width: '60px', height: '60px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>💰</span>
+                                        <Wallet size={32} className="text-brand" />
                                     </div>
                                     <div>
                                         <div className="h3 fw-bold mb-0 text-brand">{(stats?.totalRevenue || 0).toLocaleString()}฿</div>

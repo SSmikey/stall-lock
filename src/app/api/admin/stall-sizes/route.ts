@@ -42,14 +42,14 @@ export async function POST(request: NextRequest) {
 
         if (!name || typeof name !== 'string' || name.trim() === '') {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'กรุณาระบุรหัสขนาด'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'กรุณาระบุรหัสขนาด'),
                 { status: 400 }
             );
         }
 
         if (!label || typeof label !== 'string' || label.trim() === '') {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'กรุณาระบุชื่อที่แสดง'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'กรุณาระบุชื่อที่แสดง'),
                 { status: 400 }
             );
         }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
         if (existing) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, `ขนาด "${name}" มีอยู่ในระบบแล้ว`),
+                createApiError(ErrorCodes.INVALID_INPUT, `ขนาด "${name}" มีอยู่ในระบบแล้ว`),
                 { status: 400 }
             );
         }
