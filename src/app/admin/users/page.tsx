@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import CustomDropdown from '@/components/ui/CustomDropdown';
+import { User as UserIcon, Shield, Search, Users } from 'lucide-react';
 import { showAlert, showConfirm } from '@/utils/sweetalert';
 
 interface User {
@@ -343,7 +345,7 @@ export default function AdminUsersPage() {
                                     <span className="input-group-text bg-light border-end-0 rounded-start-pill ps-3">🔍</span>
                                     <input
                                         type="text"
-                                        className="form-control border-start-0 rounded-end-pill py-2 bg-light"
+                                        className="form-control border-start-0 rounded-end-pill py-2 bg-light shadow-sm"
                                         placeholder="ค้นหาด้วยชื่อ, username หรืออีเมล..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -352,15 +354,19 @@ export default function AdminUsersPage() {
                                 </div>
                             </div>
                             <div className="col-md-4">
-                                <select
-                                    className="form-select rounded-pill py-2 bg-light"
-                                    value={filterRole}
-                                    onChange={(e) => setFilterRole(e.target.value as 'ALL' | 'USER' | 'ADMIN')}
-                                >
-                                    <option value="ALL">แสดงทุก Role</option>
-                                    <option value="ADMIN">เฉพาะ Admin</option>
-                                    <option value="USER">เฉพาะ User</option>
-                                </select>
+                                <div style={{ minWidth: '200px' }}>
+                                    <CustomDropdown
+                                        value={filterRole}
+                                        onChange={(val) => setFilterRole(val as 'ALL' | 'USER' | 'ADMIN')}
+                                        options={[
+                                            { value: 'ALL', label: 'แสดงทุก Role', icon: <Users size={18} className="text-primary" /> },
+                                            { value: 'ADMIN', label: 'เฉพาะ Admin', icon: <Shield size={18} className="text-danger" /> },
+                                            { value: 'USER', label: 'เฉพาะ User', icon: <UserIcon size={18} className="text-secondary" /> }
+                                        ]}
+                                        placeholder="แสดงทุก Role"
+                                        className="w-100"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -490,8 +496,8 @@ export default function AdminUsersPage() {
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="modal-dialog modal-dialog-centered"
                         >
-                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                            <div className="modal-content border-0 shadow-lg rounded-4">
+                                <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <h5 className="modal-title fw-bold">เพิ่มผู้ใช้ใหม่</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setShowCreateModal(false)}></button>
                                 </div>
@@ -505,7 +511,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">ชื่อ-นามสกุล *</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.fullName}
                                                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                                                     required
@@ -516,7 +522,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">Username *</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.username}
                                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                                     required
@@ -527,7 +533,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">อีเมล *</label>
                                                 <input
                                                     type="email"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                     required
@@ -538,7 +544,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">รหัสผ่าน *</label>
                                                 <input
                                                     type="password"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.password}
                                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                                     required
@@ -549,7 +555,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">เบอร์โทรศัพท์</label>
                                                 <input
                                                     type="tel"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                                     disabled={actionLoading}
@@ -557,15 +563,16 @@ export default function AdminUsersPage() {
                                             </div>
                                             <div className="col-md-6">
                                                 <label className="form-label small fw-bold text-secondary">Role *</label>
-                                                <select
-                                                    className="form-select rounded-pill bg-light border-0"
+                                                <CustomDropdown
                                                     value={formData.role}
-                                                    onChange={(e) => setFormData({ ...formData, role: e.target.value as 'USER' | 'ADMIN' })}
-                                                    disabled={actionLoading}
-                                                >
-                                                    <option value="USER">User</option>
-                                                    <option value="ADMIN">Admin</option>
-                                                </select>
+                                                    onChange={(val) => setFormData({ ...formData, role: val as 'USER' | 'ADMIN' })}
+                                                    options={[
+                                                        { value: 'USER', label: 'User', icon: <UserIcon size={18} className="text-secondary" /> },
+                                                        { value: 'ADMIN', label: 'Admin', icon: <Shield size={18} className="text-danger" /> }
+                                                    ]}
+                                                    placeholder="เลือก Role"
+                                                    className="w-100 basic-dropdown"
+                                                />
                                             </div>
                                         </div>
                                         <div className="d-grid mt-4">
@@ -591,8 +598,8 @@ export default function AdminUsersPage() {
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="modal-dialog modal-dialog-centered"
                         >
-                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                            <div className="modal-content border-0 shadow-lg rounded-4">
+                                <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <h5 className="modal-title fw-bold">แก้ไขผู้ใช้</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setEditingUser(null)}></button>
                                 </div>
@@ -606,7 +613,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">Username *</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.username}
                                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                                     required
@@ -617,7 +624,7 @@ export default function AdminUsersPage() {
                                                 <label className="form-label small fw-bold text-secondary">เบอร์โทรศัพท์</label>
                                                 <input
                                                     type="tel"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                                     disabled={actionLoading}
@@ -625,15 +632,16 @@ export default function AdminUsersPage() {
                                             </div>
                                             <div className="col-md-6">
                                                 <label className="form-label small fw-bold text-secondary">Role *</label>
-                                                <select
-                                                    className="form-select rounded-pill bg-light border-0"
+                                                <CustomDropdown
                                                     value={formData.role}
-                                                    onChange={(e) => setFormData({ ...formData, role: e.target.value as 'USER' | 'ADMIN' })}
-                                                    disabled={actionLoading}
-                                                >
-                                                    <option value="USER">User</option>
-                                                    <option value="ADMIN">Admin</option>
-                                                </select>
+                                                    onChange={(val) => setFormData({ ...formData, role: val as 'USER' | 'ADMIN' })}
+                                                    options={[
+                                                        { value: 'USER', label: 'User', icon: <UserIcon size={18} className="text-secondary" /> },
+                                                        { value: 'ADMIN', label: 'Admin', icon: <Shield size={18} className="text-danger" /> }
+                                                    ]}
+                                                    placeholder="เลือก Role"
+                                                    className="w-100 basic-dropdown"
+                                                />
                                             </div>
                                             <div className="col-12">
                                                 <div className="alert alert-light border small text-muted">
@@ -642,7 +650,7 @@ export default function AdminUsersPage() {
                                                 </div>
                                                 <input
                                                     type="password"
-                                                    className="form-control rounded-pill bg-light border-0"
+                                                    className="form-control rounded-pill bg-light border-0 shadow-sm"
                                                     placeholder="ตั้งรหัสผ่านใหม่ (ถ้ามี)"
                                                     value={formData.password}
                                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -673,8 +681,8 @@ export default function AdminUsersPage() {
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="modal-dialog modal-dialog-centered modal-lg"
                         >
-                            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div className="modal-header border-0 text-white p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
+                            <div className="modal-content border-0 shadow-lg rounded-4">
+                                <div className="modal-header border-0 text-white rounded-top-4 p-4" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #FFB347 100%)' }}>
                                     <h5 className="modal-title fw-bold">รายละเอียดผู้ใช้</h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setViewingUser(null)}></button>
                                 </div>
