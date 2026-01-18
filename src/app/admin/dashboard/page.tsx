@@ -26,6 +26,21 @@ export default function AdminDashboardPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [recentBookings, setRecentBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    // State for Custom Tooltip
+    const [tooltip, setTooltip] = useState<{ x: number; y: number; content: React.ReactNode; show: boolean }>({ x: 0, y: 0, content: null, show: false });
+
+    const handleMouseMove = (e: React.MouseEvent, content: React.ReactNode) => {
+        setTooltip({
+            x: e.clientX,
+            y: e.clientY,
+            content,
+            show: true
+        });
+    };
+
+    const handleMouseLeave = () => {
+        setTooltip(prev => ({ ...prev, show: false }));
+    };
 
     useEffect(() => {
         fetchDashboardData();
@@ -81,7 +96,23 @@ export default function AdminDashboardPage() {
     }
 
     return (
-        <div className="container-fluid p-0 bg-light min-vh-100">
+        <div className="container-fluid p-0 bg-light min-vh-100 position-relative">
+            {/* Custom Tooltip Portal/Component */}
+            {tooltip.show && (
+                <div
+                    className="position-fixed bg-dark text-white p-2 rounded shadow-sm"
+                    style={{
+                        left: tooltip.x + 15,
+                        top: tooltip.y + 15,
+                        zIndex: 9999,
+                        fontSize: '0.85rem',
+                        pointerEvents: 'none'
+                    }}
+                >
+                    {tooltip.content}
+                </div>
+            )}
+
             {/* Brand Header */}
             <div className="home-hero pt-5 pb-5 mb-5" style={{ borderRadius: '0 0 50px 50px' }}>
                 <div className="hero-circle" style={{ width: '400px', height: '400px', top: '-100px', right: '-100px', opacity: 0.2 }}></div>
@@ -255,7 +286,9 @@ export default function AdminDashboardPage() {
                                                         animate={{ height: `${Math.max(h1, data.total > 0 ? 2 : 0)}%` }}
                                                         transition={{ duration: 1, delay: 0.6 + i * 0.05 }}
                                                         className="position-relative group rounded-top"
-                                                        style={{ width: 12, backgroundColor: 'var(--brand-primary)' }}
+                                                        style={{ width: 12, backgroundColor: 'var(--brand-primary)', cursor: 'pointer' }}
+                                                        onMouseMove={(e) => handleMouseMove(e, <div><strong>{data.month}</strong><br />จอง: {data.total} รายการ</div>)}
+                                                        onMouseLeave={handleMouseLeave}
                                                         title={`Total: ${data.total}`}
                                                     />
                                                     <motion.div
@@ -263,7 +296,9 @@ export default function AdminDashboardPage() {
                                                         animate={{ height: `${Math.max(h2, revenueVal > 0 ? 2 : 0)}%` }}
                                                         transition={{ duration: 1, delay: 0.8 + i * 0.05 }}
                                                         className="position-relative rounded-top"
-                                                        style={{ width: 12, backgroundColor: '#198754' }}
+                                                        style={{ width: 12, backgroundColor: '#198754', cursor: 'pointer' }}
+                                                        onMouseMove={(e) => handleMouseMove(e, <div><strong>{data.month}</strong><br />รายได้: {revenueVal.toLocaleString()}฿</div>)}
+                                                        onMouseLeave={handleMouseLeave}
                                                         title={`Revenue: ${revenueVal.toLocaleString()}฿`}
                                                     />
                                                 </div>
@@ -307,9 +342,9 @@ export default function AdminDashboardPage() {
                                                 const circumference = 2 * Math.PI * radius;
 
                                                 const segments = [
-                                                    { value: confirmed, color: 'var(--brand-primary)' }, // Confirmed
-                                                    { value: pending, color: '#ffc107' }, // Pending (Warning/Info) - using standard yellow
-                                                    { value: cancelled, color: '#dc3545' }, // Cancelled (Danger) - using standard red
+                                                    { value: confirmed, color: 'var(--brand-primary)', label: 'สำเร็จ' },
+                                                    { value: pending, color: '#ffc107', label: 'รอตรวจสอบ' },
+                                                    { value: cancelled, color: '#dc3545', label: 'ยกเลิก/หมดอายุ' },
                                                 ];
 
                                                 let accumulatedOffset = 0;
@@ -324,6 +359,14 @@ export default function AdminDashboardPage() {
                                                     // If value is 0, don't render or render empty
                                                     if (seg.value === 0) return null;
 
+                                                    const tooltipContent = (
+                                                        <div>
+                                                            <strong>{seg.label || 'Unknown'}</strong><br />
+                                                            {seg.value} รายการ<br />
+                                                            ({Math.round(percent * 100)}%)
+                                                        </div>
+                                                    );
+
                                                     return (
                                                         <motion.circle
                                                             key={i}
@@ -337,6 +380,9 @@ export default function AdminDashboardPage() {
                                                             animate={{ strokeDasharray: `${dashArray} ${circumference}` }}
                                                             transition={{ duration: 1, delay: 0.5 + (i * 0.2), ease: "easeOut" }}
                                                             strokeLinecap="butt" // minimal gaps
+                                                            style={{ cursor: 'pointer' }}
+                                                            onMouseMove={(e) => handleMouseMove(e, tooltipContent)}
+                                                            onMouseLeave={handleMouseLeave}
                                                         />
                                                     );
                                                 });
