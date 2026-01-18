@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Store, ClipboardList, Coins, Clock, Megaphone, CheckCircle } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
@@ -41,8 +42,8 @@ export default function HomePage() {
                 จัดการพื้นที่ขายของคุณได้ง่ายๆ จอง จ่าย จบ ในที่เดียว<br />
                 ระบบที่แม่ค้าพ่อค้าไว้วางใจ
               </p>
-              <div className="btn btn-brand-inverse btn-lg px-5 shadow-lg fw-bold">
-                จองล็อคเลย 🏪
+              <div className="btn btn-brand-inverse btn-lg px-5 shadow-lg fw-bold d-inline-flex align-items-center gap-2">
+                <span>จองล็อคเลย</span> <Store size={20} />
               </div>
             </div>
           </div>
@@ -56,7 +57,7 @@ export default function HomePage() {
             <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
               <div className="card-body text-center p-4">
                 <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
-                  <span className="fs-2 text-brand">🏪</span>
+                  <Store size={32} className="text-brand" />
                 </div>
                 <h5 className="card-title fw-bold text-dark">ตลาด</h5>
                 <p className="card-text text-muted small">
@@ -70,7 +71,7 @@ export default function HomePage() {
             <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
               <div className="card-body text-center p-4">
                 <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
-                  <span className="fs-2 text-brand">📋</span>
+                  <ClipboardList size={32} className="text-brand" />
                 </div>
                 <h5 className="card-title fw-bold text-dark">การจองของฉัน</h5>
                 <p className="card-text text-muted small">
@@ -84,11 +85,11 @@ export default function HomePage() {
             <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
               <div className="card-body text-center p-4">
                 <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
-                  <span className="fs-2 text-brand">💰</span>
+                  <Coins size={32} className="text-brand" />
                 </div>
                 <h5 className="card-title fw-bold text-dark">ราคาเริ่มต้น</h5>
                 <p className="card-text text-brand fw-bold fs-3 my-2">
-                  ฿500
+                  ฿200
                 </p>
                 <p className="text-muted small">ต่อวัน</p>
               </div>
@@ -99,7 +100,7 @@ export default function HomePage() {
             <div className="card h-100 border-0 shadow-sm hover-lift card-brand-accent">
               <div className="card-body text-center p-4">
                 <div className="bg-light rounded-circle d-inline-flex p-3 mb-3">
-                  <span className="fs-2 text-brand">⏰</span>
+                  <Clock size={32} className="text-brand" />
                 </div>
                 <h5 className="card-title fw-bold text-dark">เวลาทำการ</h5>
                 <p className="card-text text-dark fw-semibold mb-0">
@@ -118,8 +119,8 @@ export default function HomePage() {
               <div className="row g-0">
                 <div className="col-md-4 bg-brand-gradient-subtle d-flex align-items-center justify-content-center p-4">
                   <div className="text-center">
-                    <span className="display-1">📢</span>
-                    <h3 className="fw-bold mt-3 text-gradient-brand">ข้อมูลสำคัญ</h3>
+                    <Megaphone size={48} className="text-brand mb-3" />
+                    <h3 className="fw-bold text-dark">ข้อมูลสำคัญ</h3>
                   </div>
                 </div>
                 <div className="col-md-8">
@@ -127,7 +128,7 @@ export default function HomePage() {
                     <div className="row g-4">
                       <div className="col-sm-6">
                         <div className="d-flex align-items-start">
-                          <span className="me-3 fs-4">✅</span>
+                          <CheckCircle size={24} className="text-success me-3 mt-1" />
                           <div>
                             <h6 className="fw-bold mb-1">จองได้ 24 ชม.</h6>
                             <p className="text-muted small mb-0">ระบบออนไลน์ใช้งานได้ตลอดเวลา</p>
@@ -136,7 +137,7 @@ export default function HomePage() {
                       </div>
                       <div className="col-sm-6">
                         <div className="d-flex align-items-start">
-                          <span className="me-3 fs-4">✅</span>
+                          <CheckCircle size={24} className="text-success me-3 mt-1" />
                           <div>
                             <h6 className="fw-bold mb-1">ยกเลิกได้</h6>
                             <p className="text-muted small mb-0">แจ้งล่วงหน้าก่อน 1 วัน</p>
@@ -145,7 +146,7 @@ export default function HomePage() {
                       </div>
                       <div className="col-sm-6">
                         <div className="d-flex align-items-start">
-                          <span className="me-3 fs-4">✅</span>
+                          <CheckCircle size={24} className="text-success me-3 mt-1" />
                           <div>
                             <h6 className="fw-bold mb-1">ชำระเงินผ่านระบบปลอดภัย</h6>
                           </div>
@@ -153,7 +154,7 @@ export default function HomePage() {
                       </div>
                       <div className="col-sm-6">
                         <div className="d-flex align-items-start">
-                          <span className="me-3 fs-4">✅</span>
+                          <CheckCircle size={24} className="text-success me-3 mt-1" />
                           <div>
                             <h6 className="fw-bold mb-1">ติดต่อเจ้าหน้าที่ 02-123-4567</h6>
                           </div>
