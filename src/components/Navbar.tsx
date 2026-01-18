@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Home, Store, ClipboardList, LayoutDashboard, Users, User, CalendarCheck } from 'lucide-react';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -28,13 +29,13 @@ export default function Navbar() {
     }, []);
 
     const navLinks = [
-        { name: 'หน้าแรก', href: '/', icon: '🏠', roles: ['USER', 'ADMIN'] },
-        { name: 'ตลาด', href: '/market', icon: '🏪', roles: ['USER', 'ADMIN'] },
-        { name: 'การจองของฉัน', href: '/bookings', icon: '📋', roles: ['USER', 'ADMIN'] },
-        { name: 'Dashboard', href: '/admin/dashboard', icon: '📊', roles: ['ADMIN'] },
-        { name: 'จัดการการจอง', href: '/admin', icon: '📋', roles: ['ADMIN'] },
-        { name: 'จัดการผู้ใช้', href: '/admin/users', icon: '👥', roles: ['ADMIN'] },
-        { name: 'โปรไฟล์', href: '/profile', icon: '👤', roles: ['USER', 'ADMIN'] },
+        { name: 'หน้าแรก', href: '/', icon: Home, roles: ['USER', 'ADMIN'] },
+        { name: 'ตลาด', href: '/market', icon: Store, roles: ['USER', 'ADMIN'] },
+        { name: 'การจองของฉัน', href: '/bookings', icon: ClipboardList, roles: ['USER', 'ADMIN'] },
+        { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, roles: ['ADMIN'] },
+        { name: 'จัดการการจอง', href: '/admin', icon: CalendarCheck, roles: ['ADMIN'] },
+        { name: 'จัดการผู้ใช้', href: '/admin/users', icon: Users, roles: ['ADMIN'] },
+        { name: 'โปรไฟล์', href: '/profile', icon: User, roles: ['USER', 'ADMIN'] },
     ].filter(link => !userRole || link.roles.includes(userRole));
 
     return (
@@ -55,8 +56,8 @@ export default function Navbar() {
                                 key={link.href}
                                 href={link.href}
                                 className={`nav-link px-4 py-2 rounded-pill fw-medium smooth ${pathname === link.href
-                                        ? 'text-white'
-                                        : 'text-dark hover-shadow'
+                                    ? 'text-white'
+                                    : 'text-dark hover-shadow'
                                     }`}
                                 style={{
                                     ...(pathname === link.href && {
@@ -66,7 +67,7 @@ export default function Navbar() {
                                     })
                                 }}
                             >
-                                <span className="me-2">{link.icon}</span>
+                                <link.icon size={20} className="me-2" />
                                 {link.name}
                             </Link>
                         ))}
@@ -107,8 +108,8 @@ export default function Navbar() {
                                             key={link.href}
                                             href={link.href}
                                             className={`btn btn-lg text-start ps-4 ${pathname === link.href
-                                                    ? 'text-white'
-                                                    : 'btn-light'
+                                                ? 'text-white'
+                                                : 'btn-light'
                                                 }`}
                                             onClick={() => setIsOpen(false)}
                                             style={{
@@ -119,7 +120,7 @@ export default function Navbar() {
                                                 })
                                             }}
                                         >
-                                            <span className="me-3 fs-5">{link.icon}</span>
+                                            <link.icon size={24} className="me-3" />
                                             {link.name}
                                         </Link>
                                     ))}
@@ -144,9 +145,7 @@ export default function Navbar() {
                                 fontWeight: pathname === link.href ? 700 : 500,
                             }}
                         >
-                            <span style={{ fontSize: '1.5rem' }}>
-                                {link.icon}
-                            </span>
+                            <link.icon size={24} />
                             <span>{link.name.split('ของ')[0]}</span>
                             {pathname === link.href && (
                                 <motion.div
