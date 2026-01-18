@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { Crown, User, Shield, Mail, Phone, LayoutDashboard, ClipboardList, Store, LogOut, AlertTriangle } from 'lucide-react';
 
 interface UserProfile {
     id: string;
@@ -64,7 +65,7 @@ export default function ProfilePage() {
         return (
             <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
                 <div className="card border-0 shadow-lg rounded-4 p-5 text-center">
-                    <div className="text-danger mb-3" style={{ fontSize: '3rem' }}>⚠️</div>
+                    <div className="mb-3"><AlertTriangle size={48} className="text-danger" /></div>
                     <h5 className="text-danger fw-bold">{error}</h5>
                     <Link href="/login" className="btn btn-primary rounded-pill mt-3 px-4">
                         ไปหน้าเข้าสู่ระบบ
@@ -101,9 +102,12 @@ export default function ProfilePage() {
                                 <div className="text-center mb-4 position-relative">
                                     <div className="position-relative d-inline-block">
                                         <div className="bg-light rounded-circle shadow-sm p-4 d-inline-block mb-3 border border-3 border-white position-relative z-1">
-                                            <span style={{ fontSize: '4rem' }}>
-                                                {user?.role === 'ADMIN' ? '👑' : '🧑‍💻'}
-                                            </span>
+                                            <div className="d-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px' }}>
+                                                {user?.role === 'ADMIN' ?
+                                                    <Crown size={64} className="text-warning" /> :
+                                                    <User size={64} className="text-secondary" />
+                                                }
+                                            </div>
                                         </div>
                                         {/* Status Indicator */}
                                         <span className="position-absolute bottom-0 end-0 p-2 bg-success border border-2 border-white rounded-circle z-2" title="Online"></span>
@@ -113,7 +117,7 @@ export default function ProfilePage() {
                                     <div className="mb-3">
                                         <span className={`badge rounded-pill px-3 py-2 fw-normal ${user?.role === 'ADMIN' ? 'bg-danger bg-opacity-10 text-danger border border-danger' : 'bg-primary bg-opacity-10 text-primary border border-primary'
                                             }`}>
-                                            {user?.role === 'ADMIN' ? '🛡️ ผู้ดูแลระบบ (Admin)' : '👤 ผู้ใช้งานทั่วไป (User)'}
+                                            {user?.role === 'ADMIN' ? <><Shield size={16} className="me-2" /> ผู้ดูแลระบบ (Admin)</> : <><User size={16} className="me-2" /> ผู้ใช้งานทั่วไป (User)</>}
                                         </span>
                                     </div>
                                 </div>
@@ -121,7 +125,7 @@ export default function ProfilePage() {
                                 <div className="bg-light rounded-4 p-4 mb-4 border border-light">
                                     <div className="d-flex align-items-center mb-3 pb-3 border-bottom border-light">
                                         <div className="bg-white rounded-circle p-2 shadow-sm me-3 text-center" style={{ width: '45px', height: '45px' }}>
-                                            <span className="fs-5">📧</span>
+                                            <Mail size={24} className="text-brand" />
                                         </div>
                                         <div>
                                             <div className="small text-muted fw-bold text-uppercase" style={{ fontSize: '0.7rem' }}>ACCOUNT</div>
@@ -130,7 +134,7 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="d-flex align-items-center">
                                         <div className="bg-white rounded-circle p-2 shadow-sm me-3 text-center" style={{ width: '45px', height: '45px' }}>
-                                            <span className="fs-5">📱</span>
+                                            <Phone size={24} className="text-brand" />
                                         </div>
                                         <div>
                                             <div className="small text-muted fw-bold text-uppercase" style={{ fontSize: '0.7rem' }}>PHONE NUMBER</div>
@@ -145,7 +149,7 @@ export default function ProfilePage() {
                                             href="/admin"
                                             className="btn btn-primary-custom py-3 rounded-pill fw-bold shadow-sm"
                                         >
-                                            📊 เข้าสู่ระบบหลังบ้าน
+                                            <LayoutDashboard size={20} className="me-2" /> เข้าสู่ระบบหลังบ้าน
                                         </Link>
                                     ) : (
                                         <div className="row g-2">
@@ -154,7 +158,7 @@ export default function ProfilePage() {
                                                     href="/bookings"
                                                     className="btn btn-outline-primary w-100 py-3 rounded-pill fw-bold"
                                                 >
-                                                    📋 การจองของฉัน
+                                                    <ClipboardList size={20} className="me-2" /> การจองของฉัน
                                                 </Link>
                                             </div>
                                             <div className="col-6">
@@ -162,7 +166,7 @@ export default function ProfilePage() {
                                                     href="/market"
                                                     className="btn btn-outline-warning text-dark w-100 py-3 rounded-pill fw-bold"
                                                 >
-                                                    🏪 ดูตลาด
+                                                    <Store size={20} className="me-2" /> ดูตลาด
                                                 </Link>
                                             </div>
                                         </div>
@@ -172,7 +176,7 @@ export default function ProfilePage() {
                                         onClick={handleLogout}
                                         className="btn btn-light text-danger py-3 rounded-pill fw-bold mt-2 hover-bg-danger-subtle scroll-hover"
                                     >
-                                        🚪 ออกจากระบบ
+                                        <LogOut size={20} className="me-2" /> ออกจากระบบ
                                     </button>
                                 </div>
                             </div>
