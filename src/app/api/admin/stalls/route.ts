@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
         // Validate required fields
         if (!stallId || !zone || !size || !price) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'กรุณากรอกข้อมูลให้ครบถ้วน'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'กรุณากรอกข้อมูลให้ครบถ้วน'),
                 { status: 400 }
             );
         }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         // Validate price is a positive number
         if (typeof price !== 'number' || price <= 0) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'ราคาต้องเป็นตัวเลขที่มากกว่า 0'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'ราคาต้องเป็นตัวเลขที่มากกว่า 0'),
                 { status: 400 }
             );
         }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
         if (existingStall) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'รหัสแผงนี้มีอยู่ในระบบแล้ว'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'รหัสแผงนี้มีอยู่ในระบบแล้ว'),
                 { status: 400 }
             );
         }

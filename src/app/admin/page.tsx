@@ -604,23 +604,32 @@ export default function AdminDashboard() {
                             <h1 className="fw-bold mb-1">Admin Dashboard</h1>
                             <p className="lead mb-0 fw-normal opacity-75">จัดการการจองและตรวจสอบการชำระเงิน</p>
                         </div>
-                        <div className="d-flex gap-2 flex-wrap">
-                            <button
-                                className="btn btn-light shadow-sm fw-bold border-0 text-brand d-flex align-items-center gap-2 hover-scale"
-                                onClick={() => setShowCreateStallModal(true)}
-                                style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
-                            >
-                                <Plus size={18} /> เพิ่มแผงตลาด
-                            </button>
-                            <button
-                                className="btn btn-white bg-white text-dark border-0 fw-bold d-flex align-items-center gap-2 hover-scale"
-                                onClick={() => setShowSettingsModal(true)}
-                                style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
-                            >
-                                <Settings size={18} /> ตั้งค่า
-                            </button>
-                            <button
-                                className="btn btn-white bg-white text-danger bg-opacity-75 border-0 fw-bold d-flex align-items-center gap-2 hover-scale shadow-sm"
+                        <div className="d-flex gap-2 flex-wrap align-items-center">
+                            <div className="bg-white/20 backdrop-blur-sm p-1 rounded-pill d-inline-flex border border-white gap-2">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="btn bg-white text-brand shadow-sm border-0 fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+                                    onClick={() => setShowCreateStallModal(true)}
+                                >
+                                    <Plus size={20} className="text-brand" />
+                                    <span className="fs-6">เพิ่มแผงตลาด</span>
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="btn bg-white text-brand fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill border-0 shadow-sm"
+                                    onClick={() => setShowSettingsModal(true)}
+                                >
+                                    <Settings size={20} />
+                                    <span className="fs-6">ตั้งค่า</span>
+                                </motion.button>
+                            </div>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="btn border-0 fw-bold d-flex align-items-center gap-2 shadow-sm px-4 py-2 rounded-pill ms-2"
                                 onClick={async () => {
                                     if (!await showConfirm('ยืนยันการเคลียร์', 'ยืนยันการเคลียร์รายการการจองที่หมดอายุ?', 'ยืนยัน', 'warning')) return;
                                     try {
@@ -634,10 +643,11 @@ export default function AdminDashboard() {
                                         showAlert('ผิดพลาด', 'เกิดข้อผิดพลาดในการ Cleanup', 'error');
                                     }
                                 }}
-                                style={{ borderRadius: '50px', padding: '8px 20px', fontSize: '0.9rem' }}
+                                style={{ backgroundColor: '#FFF3E0', color: '#DC3545' }}
                             >
-                                <Trash2 size={18} /> เคลียร์รายการหมดอายุ
-                            </button>
+                                <Trash2 size={20} />
+                                <span className="fs-6">เคลียร์รายการหมดอายุ</span>
+                            </motion.button>
                         </div>
                     </div>
                 </div>
@@ -822,12 +832,14 @@ export default function AdminDashboard() {
                                                     <td>{getStatusBadge(b.status)}</td>
                                                     <td className="text-center">
                                                         {b.paymentSlipUrl ? (
-                                                            <button
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.05 }}
+                                                                whileTap={{ scale: 0.95 }}
                                                                 className="btn btn-sm bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 fw-bold"
                                                                 onClick={() => setSelectedSlip(b.paymentSlipUrl)}
                                                             >
                                                                 <FileText size={16} /> ดูสลิป
-                                                            </button>
+                                                            </motion.button>
                                                         ) : <span className="text-muted small">-</span>}
                                                     </td>
                                                     <td className="px-4 text-end">
@@ -897,12 +909,14 @@ export default function AdminDashboard() {
                                                         <div className="fw-bold text-success">{b.stall?.price?.toLocaleString() || 0}฿</div>
                                                         <div className="d-flex gap-2">
                                                             {b.paymentSlipUrl && (
-                                                                <button
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.05 }}
+                                                                    whileTap={{ scale: 0.95 }}
                                                                     className="btn btn-sm bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 fw-bold"
                                                                     onClick={() => setSelectedSlip(b.paymentSlipUrl)}
                                                                 >
                                                                     <FileText size={16} /> สลิป
-                                                                </button>
+                                                                </motion.button>
                                                             )}
                                                             {b.status === 'AWAITING_APPROVAL' ? (
                                                                 <button

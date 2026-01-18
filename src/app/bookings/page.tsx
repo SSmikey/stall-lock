@@ -161,36 +161,44 @@ export default function BookingsPage() {
 
                         {/* Filter Tabs in Hero (Top Right) */}
                         <div className="d-flex align-items-center gap-2">
-                            <div className="bg-white/20 backdrop-blur-sm p-1 rounded-pill d-inline-flex border border-white/20">
-                                <button
+                            <div className="bg-white/20 backdrop-blur-sm p-1 rounded-pill d-inline-flex border border-white">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => setFilterType('ACTIVE')}
-                                    className={`btn rounded-pill px-3 fw-medium transition-all ${filterType === 'ACTIVE' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
+                                    className={`btn rounded-pill px-3 fw-medium ${filterType === 'ACTIVE' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
                                 >
                                     กำลังดำเนินการ
-                                </button>
-                                <button
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => setFilterType('HISTORY')}
-                                    className={`btn rounded-pill px-3 fw-medium transition-all ${filterType === 'HISTORY' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
+                                    className={`btn rounded-pill px-3 fw-medium ${filterType === 'HISTORY' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
                                 >
                                     ประวัติ
-                                </button>
-                                <button
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => setFilterType('ALL')}
-                                    className={`btn rounded-pill px-3 fw-medium transition-all ${filterType === 'ALL' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
+                                    className={`btn rounded-pill px-3 fw-medium ${filterType === 'ALL' ? 'bg-white text-brand shadow-sm' : 'text-white hover-bg-white-10'}`}
                                 >
                                     ทั้งหมด
-                                </button>
+                                </motion.button>
                             </div>
 
                             {filterType === 'HISTORY' && hasHistoryItems && (
-                                <button
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={handleCleanup}
-                                    className="btn btn-danger bg-danger bg-opacity-75 border-0 text-white rounded-pill px-3 d-flex align-items-center gap-2 hover-scale shadow-sm backdrop-blur-sm"
+                                    className="btn btn-danger bg-danger bg-opacity-75 border-0 text-white rounded-pill px-3 d-flex align-items-center gap-2 shadow-sm backdrop-blur-sm"
                                     title="ล้างประวัติทั้งหมด"
                                 >
                                     <Trash2 size={16} />
                                     <span className="d-none d-sm-inline">ล้างประวัติ</span>
-                                </button>
+                                </motion.button>
                             )}
                         </div>
                     </div>
@@ -252,10 +260,14 @@ export default function BookingsPage() {
                         {filteredBookings.map((booking, index) => (
                             <div key={booking.bookingId} className="col-md-6 col-lg-4">
                                 <motion.div
+                                    layout
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
+                                    whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                                    whileTap={{ scale: 0.98 }}
                                     className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card"
+                                    style={{ transition: 'all 0.2s ease' }}
                                 >
                                     <div className="card-body p-4 d-flex flex-column">
                                         <div className="d-flex justify-content-between align-items-start mb-4">

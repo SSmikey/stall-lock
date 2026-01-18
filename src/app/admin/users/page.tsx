@@ -246,16 +246,20 @@ export default function AdminUsersPage() {
                             <p className="lead mb-0 fw-normal">จัดการข้อมูลผู้ใช้งานและสิทธิ์การเข้าถึง</p>
                         </div>
                         <div className="d-flex gap-2">
-                            <button
-                                className="btn btn-light px-4 fw-bold rounded-pill shadow-sm text-brand border-0 hover-scale"
-                                onClick={() => {
-                                    resetForm();
-                                    setShowCreateModal(true);
-                                }}
-                                style={{ padding: '8px 20px', fontSize: '0.9rem' }}
-                            >
-                                <Plus size={18} className="me-2" /> เพิ่มผู้ใช้
-                            </button>
+                            <div className="bg-white/20 backdrop-blur-sm p-1 rounded-pill d-inline-flex border border-white gap-2">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="btn bg-white text-brand shadow-sm border-0 fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill"
+                                    onClick={() => {
+                                        resetForm();
+                                        setShowCreateModal(true);
+                                    }}
+                                >
+                                    <Plus size={20} className="text-brand" />
+                                    <span className="fs-6">เพิ่มผู้ใช้</span>
+                                </motion.button>
+                            </div>
                         </div>
                     </div>
                 </div>

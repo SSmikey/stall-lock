@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
         // Validate required fields
         if (!zone || !size || !price || !quantity || !startNumber) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'กรุณากรอกข้อมูลให้ครบถ้วน'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'กรุณากรอกข้อมูลให้ครบถ้วน'),
                 { status: 400 }
             );
         }
@@ -29,21 +29,21 @@ export async function POST(request: NextRequest) {
         // Validate numbers
         if (typeof price !== 'number' || price <= 0) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'ราคาต้องเป็นตัวเลขที่มากกว่า 0'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'ราคาต้องเป็นตัวเลขที่มากกว่า 0'),
                 { status: 400 }
             );
         }
 
         if (typeof quantity !== 'number' || quantity <= 0 || quantity > 100) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'จำนวนแผงต้องอยู่ระหว่าง 1-100'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'จำนวนแผงต้องอยู่ระหว่าง 1-100'),
                 { status: 400 }
             );
         }
 
         if (typeof startNumber !== 'number' || startNumber < 1) {
             return Response.json(
-                createApiError(ErrorCodes.VALIDATION_ERROR, 'เลขเริ่มต้นต้องมากกว่า 0'),
+                createApiError(ErrorCodes.INVALID_INPUT, 'เลขเริ่มต้นต้องมากกว่า 0'),
                 { status: 400 }
             );
         }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
             const existing = await db.collection('stalls').findOne({ stallId });
             if (existing) {
                 return Response.json(
-                    createApiError(ErrorCodes.VALIDATION_ERROR, `รหัสแผง ${stallId} มีอยู่ในระบบแล้ว`),
+                    createApiError(ErrorCodes.INVALID_INPUT, `รหัสแผง ${stallId} มีอยู่ในระบบแล้ว`),
                     { status: 400 }
                 );
             }
