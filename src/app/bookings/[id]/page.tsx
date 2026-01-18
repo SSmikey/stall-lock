@@ -85,9 +85,11 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
             <div className="home-hero pt-4 pb-4 mb-4" style={{ borderRadius: '0 0 50px 50px' }}>
                 <div className="container position-relative z-1">
                     <div className="text-white text-center text-md-start">
-                        <Link href="/bookings" className="text-brand fw-bold text-decoration-none d-inline-flex align-items-center gap-2 mb-3 bg-white px-3 py-1 rounded-pill hover-scale shadow-sm small transition-all">
-                            <ArrowLeft size={16} /> กลับไปหน้าการจอง
-                        </Link>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="d-inline-block mb-3">
+                            <Link href="/bookings" className="text-brand fw-bold text-decoration-none d-inline-flex align-items-center gap-2 bg-white px-3 py-1 rounded-pill shadow-sm small">
+                                <ArrowLeft size={16} /> กลับไปหน้าการจอง
+                            </Link>
+                        </motion.div>
                         <h1 className="fw-bold mb-1">รายละเอียดการจอง</h1>
                         <p className="lead mb-0 fw-normal opacity-90 font-monospace">#{booking.bookingId}</p>
                     </div>
