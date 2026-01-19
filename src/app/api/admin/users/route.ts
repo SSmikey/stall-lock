@@ -1,5 +1,5 @@
 import { getDb } from '@/lib/db';
-import { createApiResponse, handleApiError } from '@/lib/api';
+import { createApiResponse, createApiError, handleApiError } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { requireAdmin, hashPassword } from '@/lib/auth';
 
@@ -58,10 +58,7 @@ export async function POST(request: NextRequest) {
         // Validate required fields
         if (!username || !email || !password || !fullName) {
             return Response.json(
-                createApiResponse(null, {
-                    code: 'VALIDATION_ERROR',
-                    message: 'กรุณากรอกข้อมูลให้ครบถ้วน'
-                }),
+                createApiError('VALIDATION_ERROR', 'กรุณากรอกข้อมูลให้ครบถ้วน'),
                 { status: 400 }
             );
         }
@@ -73,10 +70,7 @@ export async function POST(request: NextRequest) {
 
         if (existingUser) {
             return Response.json(
-                createApiResponse(null, {
-                    code: 'DUPLICATE_ERROR',
-                    message: 'ชื่อผู้ใช้หรืออีเมลนี้มีอยู่แล้วในระบบ'
-                }),
+                createApiError('DUPLICATE_ERROR', 'ชื่อผู้ใช้หรืออีเมลนี้มีอยู่แล้วในระบบ'),
                 { status: 400 }
             );
         }

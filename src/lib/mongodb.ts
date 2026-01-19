@@ -26,7 +26,7 @@ const options = {
     retryReads: true,             // Retry read operations
 
     // Compression
-    compressors: ['snappy', 'zlib'], // Enable compression for data transfer
+    compressors: ['snappy', 'zlib'] as ('snappy' | 'zlib')[], // Enable compression for data transfer
 };
 
 let client: MongoClient;

@@ -41,10 +41,6 @@ export interface Booking {
     endDate?: Date;        // วันที่สิ้นสุดการเข้าใช้
     bookingDays?: number;  // จำนวนวันที่จอง
     totalPrice?: number;   // ราคาทั้งหมด
-    startDate?: Date;      // วันที่เริ่มเข้าใช้
-    endDate?: Date;        // วันที่สิ้นสุดการเข้าใช้
-    bookingDays?: number;  // จำนวนวันที่จอง
-    totalPrice?: number;   // ราคาทั้งหมด
     paymentSlipUrl?: string;
     paymentUploadedAt?: Date;
     approvedBy?: ObjectId;

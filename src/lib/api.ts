@@ -37,6 +37,10 @@ export const ErrorCodes = {
     // General
     INTERNAL_ERROR: 'INTERNAL_ERROR',
     INVALID_INPUT: 'INVALID_INPUT',
+    VALIDATION_ERROR: 'VALIDATION_ERROR',
+    NOT_FOUND: 'NOT_FOUND',
+    DUPLICATE_ERROR: 'DUPLICATE_ERROR',
+    HAS_ACTIVE_BOOKINGS: 'HAS_ACTIVE_BOOKINGS',
 } as const;
 
 export const ErrorMessages: Record<string, string> = {

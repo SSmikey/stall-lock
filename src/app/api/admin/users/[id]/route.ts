@@ -1,5 +1,5 @@
 import { getDb } from '@/lib/db';
-import { createApiResponse, handleApiError } from '@/lib/api';
+import { createApiResponse, createApiError, handleApiError } from '@/lib/api';
 import { NextRequest } from 'next/server';
 import { requireAdmin, hashPassword } from '@/lib/auth';
 import { ObjectId } from 'mongodb';
@@ -22,10 +22,7 @@ export async function GET(
 
         if (!user) {
             return Response.json(
-                createApiResponse(null, {
-                    code: 'NOT_FOUND',
-                    message: 'ไม่พบผู้ใช้นี้'
-                }),
+                createApiError('NOT_FOUND', 'ไม่พบผู้ใช้นี้'),
                 { status: 404 }
             );
         }
@@ -72,10 +69,7 @@ export async function PUT(
 
         if (!existingUser) {
             return Response.json(
-                createApiResponse(null, {
-                    code: 'NOT_FOUND',
-                    message: 'ไม่พบผู้ใช้นี้'
-                }),
+                createApiError('NOT_FOUND', 'ไม่พบผู้ใช้นี้'),
                 { status: 404 }
             );
         }
@@ -92,10 +86,7 @@ export async function PUT(
 
             if (duplicate) {
                 return Response.json(
-                    createApiResponse(null, {
-                        code: 'DUPLICATE_ERROR',
-                        message: 'ชื่อผู้ใช้หรืออีเมลนี้มีอยู่แล้วในระบบ'
-                    }),
+                    createApiError('DUPLICATE_ERROR', 'ชื่อผู้ใช้หรืออีเมลนี้มีอยู่แล้วในระบบ'),
                     { status: 400 }
                 );
             }
@@ -148,10 +139,7 @@ export async function DELETE(
 
         if (!user) {
             return Response.json(
-                createApiResponse(null, {
-                    code: 'NOT_FOUND',
-                    message: 'ไม่พบผู้ใช้นี้'
-                }),
+                createApiError('NOT_FOUND', 'ไม่พบผู้ใช้นี้'),
                 { status: 404 }
             );
         }
@@ -164,10 +152,7 @@ export async function DELETE(
 
         if (activeBookings > 0) {
             return Response.json(
-                createApiResponse(null, {
-                    code: 'HAS_ACTIVE_BOOKINGS',
-                    message: `ไม่สามารถลบได้เนื่องจากผู้ใช้มีการจองที่ยังใช้งานอยู่ ${activeBookings} รายการ`
-                }),
+                createApiError('HAS_ACTIVE_BOOKINGS', `ไม่สามารถลบได้เนื่องจากผู้ใช้มีการจองที่ยังใช้งานอยู่ ${activeBookings} รายการ`),
                 { status: 400 }
             );
         }
