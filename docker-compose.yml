@@ -1,0 +1,30 @@
+docker-compose.yml
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MONGODB_URI: ${MONGODB_URI}
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    restart: always
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    volumes:
+      - mongo-data:/data/db
+      - ./backup:/backup
+    env_file:
+      - .env
+    expose:
+      - '27017'
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
