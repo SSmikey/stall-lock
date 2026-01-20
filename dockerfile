@@ -1,4 +1,3 @@
-dockerfile
 # -----------------------------------
 # STAGE 1: Install dependencies & build
 # -----------------------------------
